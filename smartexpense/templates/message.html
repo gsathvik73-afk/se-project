@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block content %}<h1>{{ title }}</h1>{% for field,message in errors.items() %}<p class="error">{{ field }}: {{ message }}</p>{% endfor %}<a href="/dashboard">Return to dashboard</a>{% endblock %}
