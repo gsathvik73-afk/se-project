@@ -1,4 +1,0 @@
-{
-  "buildCommand": "python bootstrap.py",
-  "regions": ["sin1"]
-}
