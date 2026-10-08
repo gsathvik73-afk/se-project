@@ -26,7 +26,7 @@ python -m pytest -q
 | Owner | Requirements | Test plan |
 |---|---|---|
 | Sai Sathvik Gullipalli | SEB-F-001–004; SEB-F-011–016 | TC-AUTH-01–04; TC-CAT-01; TC-BUD-01–03; TC-DSH-01–02 |
-| Teammates — individual allocation pending | SEB-F-005–010 | TC-EXP-01–06 |
+| Sahana Shivakumar — Transaction Management | SEB-F-005–010 | TC-EXP-01–06 |
 | Teammates — individual allocation pending | SEB-F-017; SEB-NF-001–005; SEB-SR-001–005 | TC-RPT-01; TC-PERF-01–02; TC-REL-01; TC-UX-01; TC-PORT-01; TC-SEC-01–05 |
 
 Sathvik's account, session, category, budget, dashboard and chart implementation is on `main`. The transaction screen is a read-only integration view. Expense/income entry, transaction edits/deletes/filtering, CSV export, login lockout and deployed performance/security acceptance are awaiting teammates. Shared hashing, CSRF, ownership checks and transaction schema are foundation dependencies; they do not mark the taken test suites complete.

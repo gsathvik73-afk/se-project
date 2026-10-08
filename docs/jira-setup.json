@@ -70,7 +70,7 @@
       "title": "Add expense",
       "priority": "High",
       "test_case": "TC-EXP-01",
-      "owner": "Teammate — allocation pending",
+      "owner": "Sahana Shivakumar",
       "scope": "taken",
       "steps": "Add INR 250, Food, today, UPI, note Lunch. Also try no note.",
       "expected": "Values save correctly; with one entry, expense is INR 2050.",
@@ -78,14 +78,15 @@
       "delivery_role": "Transaction developer",
       "jira_status": "To Do",
       "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "evidence": "",
+      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access"
     },
     {
       "requirement": "SEB-F-006",
       "title": "Add income",
       "priority": "Medium",
       "test_case": "TC-EXP-02",
-      "owner": "Teammate — allocation pending",
+      "owner": "Sahana Shivakumar",
       "scope": "taken",
       "steps": "Add income INR 2000, today, source Freelance.",
       "expected": "Income is INR 12000; balance is INR 10200.",
@@ -93,14 +94,15 @@
       "delivery_role": "Transaction developer",
       "jira_status": "To Do",
       "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "evidence": "",
+      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access"
     },
     {
       "requirement": "SEB-F-007",
       "title": "Amount and date validation",
       "priority": "High",
       "test_case": "TC-EXP-03",
-      "owner": "Teammate — allocation pending",
+      "owner": "Sahana Shivakumar",
       "scope": "taken",
       "steps": "Try 0, -1, blank or text amounts and a future date. Then try 0.01 today.",
       "expected": "Invalid input gets a field error and is not saved; valid input saves.",
@@ -108,14 +110,15 @@
       "delivery_role": "Transaction developer",
       "jira_status": "To Do",
       "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "evidence": "",
+      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access"
     },
     {
       "requirement": "SEB-F-008",
       "title": "Edit transaction",
       "priority": "High",
       "test_case": "TC-EXP-04",
-      "owner": "Teammate — allocation pending",
+      "owner": "Sahana Shivakumar",
       "scope": "taken",
       "steps": "Change the INR 500 expense to 600; reload. Separately edit an income.",
       "expected": "Edits persist and totals update; expense edit gives INR 1900.",
@@ -123,14 +126,15 @@
       "delivery_role": "Transaction developer",
       "jira_status": "To Do",
       "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "evidence": "",
+      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access"
     },
     {
       "requirement": "SEB-F-009",
       "title": "Delete confirmation",
       "priority": "Medium",
       "test_case": "TC-EXP-05",
-      "owner": "Teammate — allocation pending",
+      "owner": "Sahana Shivakumar",
       "scope": "taken",
       "steps": "Delete the INR 300 expense: first cancel, then confirm.",
       "expected": "Cancel keeps it. Confirm removes it; expense becomes INR 1500.",
@@ -138,14 +142,15 @@
       "delivery_role": "Transaction developer",
       "jira_status": "To Do",
       "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "evidence": "",
+      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access"
     },
     {
       "requirement": "SEB-F-010",
       "title": "Filter and sort transactions",
       "priority": "Medium",
       "test_case": "TC-EXP-06",
-      "owner": "Teammate — allocation pending",
+      "owner": "Sahana Shivakumar",
       "scope": "taken",
       "steps": "Filter by date, category and amount. Sort both ways; try no matches.",
       "expected": "Rows and filtered total match; sorting is correct; empty total is zero.",
@@ -153,7 +158,8 @@
       "delivery_role": "Transaction developer",
       "jira_status": "To Do",
       "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "evidence": "",
+      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access"
     },
     {
       "requirement": "SEB-F-011",
