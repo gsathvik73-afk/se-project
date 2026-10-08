@@ -29,20 +29,31 @@ git switch main
 git switch -c SEB-6-add-expense
 ```
 
-Use Jira keys in branch names, commits and PR titles, e.g. `SEB-6 Add expense`. In each PR include exact SEB-F/NF/SR requirements, TC IDs, evidence and integration dependencies. Select Sathvik as reviewer. PR #1 is merged into main with the integrated Sprint 1 build and automated evidence. Base new work on main; Jira keys remain in branch names and PR titles.
+Use Jira keys in branch names, commits and PR titles, e.g. `SEB-6 Add expense`. In each PR include exact SEB-F/NF/SR requirements, TC IDs, evidence and integration dependencies. Select Sathvik as reviewer. The foundation is on main. Base teammate branches and pull requests on main, using the matching Jira key.
 
 ## Work in dependency order
 
 1. Integrate account/session foundation and default/custom categories.
-2. Transaction CRUD and filters are integrated using the shared model/API contract.
+2. Teammate adds transaction CRUD and filters using the shared model/API contract.
 3. Integrate budgets/alerts and dashboard/charts; totals query stored transactions and recalculate on each read.
-4. Filtered CSV is integrated with the same filters and owner scope as the list.
+4. Teammate adds CSV with the same filters and owner scope as the list.
 5. Team executes all mapped functional tests, then performance, rollback, usability, browser and security acceptance tests on the integrated build.
 
 Definition of done: reviewed code; mapped test evidence (build, tester, date, actual result, status, defect); RTM updated; no Critical/Major open defect. Creating tickets or passing foundation tests alone does not complete Sprint 1.
 
-## Current acceptance
+## Corrected scope and role allocation
 
-All functional requirements are implemented and covered by integrated tests. 62 automated tests pass. Local HTTP load and concurrency checks pass; actual server restart retains data. Browser expense entry and 360px smoke checks pass. Vercel project exists but production deployment waits for account-holder Neon terms acceptance. Five first-time users and the full browser matrix remain pending. Sprint closure must reflect these outstanding acceptance items.
+Sathvik’s scope is only SEB-F-001–004 and SEB-F-011–016 (SEB-2–5, SEB-12–17). Those ten implementation stories remain Done. The 17 teammate stories are To Do and unassigned, under the same Epic 1 / Sprint 1. Whole-project completion claims from the earlier integration attempt are superseded.
 
-Jira closeout snapshot: 23 stories Done; SEB-19, SEB-22, SEB-23 and SEB-24 In Progress. All remain in Sprint 1 / Epic 1. Your ten assigned functional stories are Done. Sprint remains open for the four documented acceptance items.
+| Delivery role | Jira stories | Requirements | Tests |
+|---|---|---|---|
+| Transaction developer | SEB-6–11 | SEB-F-005–010 | TC-EXP-01–06 |
+| Reporting developer | SEB-18 | SEB-F-017 | TC-RPT-01 |
+| QA / performance tester | SEB-19–23 | SEB-NF-001–005 | TC-PERF-01–02, TC-REL-01, TC-UX-01, TC-PORT-01 |
+| Security / deployment engineer | SEB-24–28 | SEB-SR-001–005 | TC-SEC-01–05 |
+
+Roles are delivery responsibilities in issue descriptions and `role-*` labels, not invented Jira user accounts or permission roles. A member can hold more than one bundle. After adding Arya and Sahana, set each bundle’s Assignee to the verified member. Their exact allocation remains your choice.
+
+Basic password hashing, CSRF, owner checks and the transaction model remain necessary dependencies of Sathvik’s account/data-isolation/budget/dashboard work. Their presence does not complete the teammates’ security acceptance suite.
+
+Your demo: register/login/logout; category defaults/add/rename; monthly/category budgets; usage figures and thresholds; selected-month totals, category pie and six-month trend. Use synthetic stored transactions for figures while the transaction developer builds CRUD. CSV isolation, custom-category selection in the expense form and adding a new expense after budget warnings require later teammate integration and must be rechecked then.
