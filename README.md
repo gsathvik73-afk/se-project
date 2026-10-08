@@ -29,7 +29,7 @@ python -m pytest -q
 | Teammates — individual allocation pending | SEB-F-005–010 | TC-EXP-01–06 |
 | Teammates — individual allocation pending | SEB-F-017; SEB-NF-001–005; SEB-SR-001–005 | TC-RPT-01; TC-PERF-01–02; TC-REL-01; TC-UX-01; TC-PORT-01; TC-SEC-01–05 |
 
-The integrated build on `sprint-1/epic-1-foundation` implements all functional requirements, including transaction CRUD/filtering, CSV, budgets, charts, account isolation and login lockout. The allocation above preserves the original agreed work split. See the [eight-minute demo guide](docs/demo-guide.md). Automated checks pass 62 tests. The local HTTP workload check passes 5,000 transactions and 20 concurrent users. Deployment, five-person usability acceptance and the complete three-browser matrix remain pending; these are not claimed as passed.
+The integrated build merged into `main` implements all functional requirements, including transaction CRUD/filtering, CSV, budgets, charts, account isolation and login lockout. The allocation above preserves the original agreed work split. See the [eight-minute demo guide](docs/demo-guide.md). Automated checks pass 62 tests. The local HTTP workload check passes 5,000 transactions and 20 concurrent users. Deployment, five-person usability acceptance and the complete three-browser matrix remain pending; these are not claimed as passed.
 
 See [Sprint 1 handoff](docs/sprint-1.md), [API contract](docs/api-contract.md), [requirement/Jira traceability](docs/traceability.csv), [verification](docs/verification.md), and the source SRS, test plan and simplified SAD in `docs/`.
 

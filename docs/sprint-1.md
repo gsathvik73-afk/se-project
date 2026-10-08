@@ -24,12 +24,12 @@ Clone and check out the shared starting point:
 git clone https://github.com/gsathvik73-afk/se-project.git
 cd se-project
 git fetch origin
-git switch --track origin/sprint-1/epic-1-foundation
+git switch main
 # Example after SEB-6 is assigned to you:
 git switch -c SEB-6-add-expense
 ```
 
-Use Jira keys in branch names, commits and PR titles, e.g. `SEB-6 Add expense`. In each PR include exact SEB-F/NF/SR requirements, TC IDs, evidence and integration dependencies. Select Sathvik as reviewer. PR #1 contains the integrated Sprint 1 build and automated evidence. Base new work on main after its merge; Jira keys remain in branch names and PR titles.
+Use Jira keys in branch names, commits and PR titles, e.g. `SEB-6 Add expense`. In each PR include exact SEB-F/NF/SR requirements, TC IDs, evidence and integration dependencies. Select Sathvik as reviewer. PR #1 is merged into main with the integrated Sprint 1 build and automated evidence. Base new work on main; Jira keys remain in branch names and PR titles.
 
 ## Work in dependency order
 
@@ -44,3 +44,5 @@ Definition of done: reviewed code; mapped test evidence (build, tester, date, ac
 ## Current acceptance
 
 All functional requirements are implemented and covered by integrated tests. 62 automated tests pass. Local HTTP load and concurrency checks pass; actual server restart retains data. Browser expense entry and 360px smoke checks pass. Vercel project exists but production deployment waits for account-holder Neon terms acceptance. Five first-time users and the full browser matrix remain pending. Sprint closure must reflect these outstanding acceptance items.
+
+Jira closeout snapshot: 23 stories Done; SEB-19, SEB-22, SEB-23 and SEB-24 In Progress. All remain in Sprint 1 / Epic 1. Your ten assigned functional stories are Done. Sprint remains open for the four documented acceptance items.
