@@ -29,14 +29,18 @@ git switch --track origin/sprint-1/epic-1-foundation
 git switch -c SEB-6-add-expense
 ```
 
-Use Jira keys in branch names, commits and PR titles, e.g. `SEB-6 Add expense`. In each PR include exact SEB-F/NF/SR requirements, TC IDs, evidence and integration dependencies. Select Sathvik as reviewer. The foundation PR must be reviewed/merged before PRs built on it are merged to main. If working before that merge, target the foundation branch to keep the diff focused, then retarget to main after it merges.
+Use Jira keys in branch names, commits and PR titles, e.g. `SEB-6 Add expense`. In each PR include exact SEB-F/NF/SR requirements, TC IDs, evidence and integration dependencies. Select Sathvik as reviewer. PR #1 contains the integrated Sprint 1 build and automated evidence. Base new work on main after its merge; Jira keys remain in branch names and PR titles.
 
 ## Work in dependency order
 
 1. Integrate account/session foundation and default/custom categories.
-2. Teammate adds transaction CRUD and filters using the shared model/API contract.
+2. Transaction CRUD and filters are integrated using the shared model/API contract.
 3. Integrate budgets/alerts and dashboard/charts; totals query stored transactions and recalculate on each read.
-4. Teammate adds CSV with the same filters and owner scope as the list.
+4. Filtered CSV is integrated with the same filters and owner scope as the list.
 5. Team executes all mapped functional tests, then performance, rollback, usability, browser and security acceptance tests on the integrated build.
 
 Definition of done: reviewed code; mapped test evidence (build, tester, date, actual result, status, defect); RTM updated; no Critical/Major open defect. Creating tickets or passing foundation tests alone does not complete Sprint 1.
+
+## Current acceptance
+
+All functional requirements are implemented and covered by integrated tests. 62 automated tests pass. Local HTTP load and concurrency checks pass; actual server restart retains data. Browser expense entry and 360px smoke checks pass. Vercel project exists but production deployment waits for account-holder Neon terms acceptance. Five first-time users and the full browser matrix remain pending. Sprint closure must reflect these outstanding acceptance items.

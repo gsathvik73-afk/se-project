@@ -4,3 +4,4 @@ Flask-WTF>=1.2,<2
 bcrypt>=4.2,<6
 pytest>=8,<10
 gunicorn>=23,<24
+psycopg[binary]>=3.2,<4

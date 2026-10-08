@@ -9,6 +9,8 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(254), unique=True, nullable=False)
     password_hash = db.Column(db.LargeBinary, nullable=False)
+    failed_attempts = db.Column(db.Integer, nullable=False, default=0, server_default='0')
+    locked_until = db.Column(db.DateTime(timezone=True))
 
 class LoginSession(db.Model):
     token = db.Column(db.String(64), primary_key=True)
@@ -22,7 +24,7 @@ class Category(db.Model):
     __table_args__ = (db.UniqueConstraint('user_id', 'name'),)
 
 class Transaction(db.Model):
-    """Shared contract for the teammate's SEB-F-005–010 implementation."""
+    """Shared transaction contract for SEB-F-005–010."""
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     type = db.Column(db.String(7), nullable=False)
