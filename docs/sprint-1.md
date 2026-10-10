@@ -10,9 +10,9 @@
 
 ## Add Arya and Sahana to Jira
 
-Jira calls projects “spaces” in this site's current UI. Open SmartExpense, then **Space settings → Access → Add people**. If the person is already on the site, select their verified account. Give them **Member**, while Sathvik remains project lead/Administrator. If they are not on the site, an administrator must first invite their email through **Atlassian Administration → Directory → Users → Invite users**, granting Jira access, then add them to this space. After acceptance, set each ticket's **Assignee** to the correct person. No email address has been guessed or invitation sent.
+Jira calls projects “spaces” in this site's current UI. Open SmartExpense, then **Space settings → Access → Add people**. If the person is already on the site, select their verified account. This site currently uses the Free plan: its Access screen says **Everyone’s an admin** and offers only the Administrator role. Granular Member permissions require a plan upgrade; no upgrade was made. Sathvik remains the space owner, and ticket assignees track who does the work. If they are not on the site, an administrator must first invite their email through **Atlassian Administration → Directory → Users → Invite users**, granting Jira access, then add them to this space. After acceptance, set each ticket's **Assignee** to the correct person. No email address has been guessed or invitation sent.
 
-Jira Member access plus an Assignee is how they work on your project. Jira's Epic→Story hierarchy describes work, not a manager→employee reporting hierarchy. Keep the work in SEB-1 / SEB Sprint 1 and use the owner labels until allocations are confirmed.
+Project access plus an Assignee is how they work on your project. Jira's Epic→Story hierarchy describes work, not a manager→employee reporting hierarchy. Keep the work in SEB-1 / SEB Sprint 1 and use the owner labels until allocations are confirmed.
 
 ## GitHub collaboration
 
