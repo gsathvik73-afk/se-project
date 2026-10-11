@@ -5,9 +5,12 @@ from functools import wraps
 from secrets import token_urlsafe
 from zoneinfo import ZoneInfo
 import re
+import csv
+import io
+import math
 import bcrypt
-from flask import Blueprint, abort, current_app, flash, g, jsonify, redirect, render_template, request, url_for
-from sqlalchemy import func, or_
+from flask import Blueprint, abort, current_app, flash, g, jsonify, redirect, render_template, request, url_for, Response
+from sqlalchemy import func, or_, update, case
 from sqlalchemy.exc import IntegrityError
 from .models import db, User, LoginSession, Category, Transaction, Budget
 
@@ -139,10 +142,30 @@ def login():
     if request.method=='GET': return render_template('auth.html',mode='login',errors={})
     data=payload(); email=str(data.get('email','')).strip().lower(); password=data.get('password','')
     user=db.session.scalar(db.select(User).where(User.email==email))
-    valid=isinstance(password,str) and len(password.encode('utf-8'))<=72 and user and bcrypt.checkpw(password.encode(),user.password_hash)
+    now = datetime.now(timezone.utc)
+    if user and user.locked_until and user.locked_until.replace(tzinfo=timezone.utc) > now:
+        remaining = math.ceil((user.locked_until.replace(tzinfo=timezone.utc) - now).total_seconds())
+        response = jsonify(error='ACCOUNT_LOCKED', retry_after=remaining) if json_request() else render_template('auth.html', mode='login', errors={'password': f'Too many failed attempts. Try again in {remaining} seconds.'})
+        return response, 429, {'Retry-After': str(remaining)}
+    # After lockout expiry, start a new consecutive-failure window.
+    if user and user.locked_until:
+        user.failed_attempts = 0
+        user.locked_until = None
+        db.session.commit()
+    valid = isinstance(password, str) and len(password.encode('utf-8')) <= 72 and user and bcrypt.checkpw(password.encode(), user.password_hash)
     if not valid:
-        if json_request(): return jsonify(error='INVALID_CREDENTIALS'),401
-        return render_template('auth.html',mode='login',errors={'password':'Invalid email or password.'}),401
+        if user:
+            # Atomic increment prevents simultaneous failures losing updates.
+            db.session.execute(update(User).where(User.id == user.id).values(
+                failed_attempts=User.failed_attempts + 1,
+                locked_until=case((User.failed_attempts >= 4, now + timedelta(minutes=5)), else_=User.locked_until),
+            ))
+            db.session.commit()
+        if json_request():
+            return jsonify(error='INVALID_CREDENTIALS'), 401
+        return render_template('auth.html', mode='login', errors={'password': 'Invalid email or password.'}), 401
+    user.failed_attempts = 0
+    user.locked_until = None
     if g.login_session: db.session.delete(g.login_session)
     token=token_urlsafe(32)
     db.session.add(LoginSession(token=token,user_id=user.id,expires_at=datetime.now(timezone.utc)+timedelta(hours=8)))
@@ -233,16 +256,224 @@ def budget_list():
     if json_request(): return jsonify(budget=dict(id=budget.id,month=month,category_id=category_id,limit=fmt(limit)))
     return redirect(url_for('web.budget_list',month=month))
 
-@bp.get('/transactions')
+
+PAYMENT_MODES = ('Cash', 'UPI', 'Card', 'Net Banking', 'Other')
+
+def owned_transaction(transaction_id):
+    txn = db.session.scalar(db.select(Transaction).where(Transaction.id == transaction_id, Transaction.user_id == g.user.id))
+    if not txn:
+        abort(404)
+    return txn
+
+def transaction_json(txn):
+    return dict(id=txn.id, type=txn.type, amount=fmt(txn.amount), date=txn.txn_date.isoformat(), category_id=txn.category_id, payment_mode=txn.payment_mode, source=txn.source, note=txn.note)
+
+def transaction_fields(data, existing=None):
+    fields = {}
+    values = {}
+    kind = data.get('type', existing.type if existing else 'expense')
+    if kind not in ('expense', 'income'):
+        fields['type'] = 'Choose expense or income.'
+    values['type'] = kind
+    try:
+        values['amount'] = money(data.get('amount', existing.amount if existing else None))
+    except ValueError as exc:
+        fields['amount'] = str(exc)
+    try:
+        raw = data.get('date', existing.txn_date.isoformat() if existing else '')
+        if not isinstance(raw, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', raw):
+            raise ValueError()
+        values['txn_date'] = date.fromisoformat(raw)
+        if values['txn_date'] > today():
+            raise ValueError()
+    except (ValueError, TypeError):
+        fields['date'] = 'Choose today or an earlier date.'
+    note = data.get('note', existing.note if existing else '') or ''
+    if not isinstance(note, str) or len(note) > 2000:
+        fields['note'] = 'Use a note of at most 2,000 characters.'
+    values['note'] = note
+    values.update(category_id=None, payment_mode=None, source=None)
+    if kind == 'expense':
+        category_id = data.get('category_id', existing.category_id if existing else None)
+        if category_id in (None, ''):
+            fields['category_id'] = 'Choose a category.'
+        else:
+            values['category_id'] = visible_category(category_id).id
+        mode = data.get('payment_mode', existing.payment_mode if existing else 'Cash')
+        if mode not in PAYMENT_MODES:
+            fields['payment_mode'] = 'Choose a listed payment mode.'
+        values['payment_mode'] = mode
+    if kind == 'income':
+        source = data.get('source', existing.source if existing else '')
+        if not isinstance(source, str) or not source.strip() or len(source.strip()) > 100:
+            fields['source'] = 'Enter an income source of 1 to 100 characters.'
+        else:
+            values['source'] = source.strip()
+    return values, fields
+
+def form_context(txn=None, values=None):
+    cats = categories()
+    preferences = request.cookies
+    default_category = next((c.id for c in cats if c.name == 'Food'), cats[0].id if cats else '')
+    # Preferences are UI defaults only, and are revalidated against ownership on save.
+    try:
+        previous = int(preferences.get('last_category', default_category))
+        if previous in [c.id for c in cats]:
+            default_category = previous
+    except (TypeError, ValueError):
+        pass
+    defaults = transaction_json(txn) if txn else dict(type='expense', date=today().isoformat(), category_id=default_category, payment_mode=preferences.get('last_payment', 'Cash'), amount='', note='', source='')
+    defaults.update(values or {})
+    return dict(values=defaults, cats=cats, modes=PAYMENT_MODES, txn=txn)
+
+@bp.get('/transactions/new')
+@protected
+def new_transaction():
+    return render_template('transaction_form.html', errors={}, **form_context(values={'type': request.args.get('type', 'expense')}))
+
+@bp.route('/transactions', methods=['GET', 'POST'])
 @protected
 def transaction_list():
-    # Read-only integration view. Teammate adds CRUD, filters and sorting (F-005–010).
-    rows=db.session.scalars(db.select(Transaction).where(Transaction.user_id==g.user.id).order_by(Transaction.txn_date.desc(),Transaction.id.desc()).limit(50)).all()
-    return render_template('transactions.html',rows=rows)
+    if request.method == 'POST':
+        data = payload()
+        values, fields = transaction_fields(data)
+        if fields:
+            return error(fields, 'transaction_form.html', **form_context(values=dict(data)))
+        txn = Transaction(user_id=g.user.id, **values)
+        db.session.add(txn)
+        db.session.commit()
+        if json_request():
+            return jsonify(transaction=transaction_json(txn), alerts=dashboard_data(txn.txn_date.strftime('%Y-%m'))['budgets']), 201
+        response = redirect(url_for('web.transaction_list'))
+        if txn.type == 'expense':
+            response.set_cookie('last_category', str(txn.category_id), samesite='Lax', secure=current_app.config['SESSION_COOKIE_SECURE'])
+            response.set_cookie('last_payment', txn.payment_mode, samesite='Lax', secure=current_app.config['SESSION_COOKIE_SECURE'])
+        flash('Transaction saved.')
+        return response
+    try:
+        stmt, filters = filtered_transactions(request.args)
+        page = int(request.args.get('page', '1'))
+        if page < 1:
+            raise ValueError('Choose a positive page number.')
+    except (ValueError, TypeError) as exc:
+        return error({'filters': str(exc)}, 'message.html', title='Check transaction filters')
+    # Aggregate the filtered subquery rather than only the current page.
+    sub = stmt.order_by(None).subquery()
+    total, count = db.session.execute(db.select(func.coalesce(func.sum(sub.c.amount), 0), func.count()).select_from(sub)).one()
+    rows = db.session.scalars(stmt.offset((page - 1) * 50).limit(50)).all()
+    names = {c.id: c.name for c in categories()}
+    if json_request():
+        return jsonify(transactions=[transaction_json(t) for t in rows], total=fmt(total), count=count, page=page)
+    return render_template('transactions.html', rows=rows, names=names, cats=categories(), filters=filters, total=fmt(total), count=count, page=page, pages=max(1, math.ceil(count / 50)))
+
+def filtered_transactions(args):
+    stmt = db.select(Transaction).where(Transaction.user_id == g.user.id)
+    filters = {k: args.get(k, '') for k in ('from', 'to', 'category_id', 'min', 'max')}
+    boundaries = {}
+    for key in ('from', 'to'):
+        if filters[key]:
+            try:
+                if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', filters[key]):
+                    raise ValueError()
+                boundaries[key] = date.fromisoformat(filters[key])
+            except (ValueError, TypeError):
+                raise ValueError('Use valid YYYY-MM-DD dates.')
+    if 'from' in boundaries and 'to' in boundaries and boundaries['from'] > boundaries['to']:
+        raise ValueError('The start date must be on or before the end date.')
+    if 'from' in boundaries:
+        stmt = stmt.where(Transaction.txn_date >= boundaries['from'])
+    if 'to' in boundaries:
+        stmt = stmt.where(Transaction.txn_date <= boundaries['to'])
+    if filters['category_id']:
+        stmt = stmt.where(Transaction.category_id == visible_category(filters['category_id']).id)
+    amounts = {}
+    for key in ('min', 'max'):
+        if filters[key]:
+            try:
+                value = Decimal(filters[key])
+                if not value.is_finite() or value < 0 or value > Decimal('9999999999.99') or value != value.quantize(Decimal('.01')):
+                    raise ValueError()
+                amounts[key] = value
+            except (InvalidOperation, ValueError, TypeError):
+                raise ValueError('Use nonnegative amounts with at most two decimal places.')
+    if 'min' in amounts and 'max' in amounts and amounts['min'] > amounts['max']:
+        raise ValueError('Minimum amount must not exceed maximum amount.')
+    if 'min' in amounts:
+        stmt = stmt.where(Transaction.amount >= amounts['min'])
+    if 'max' in amounts:
+        stmt = stmt.where(Transaction.amount <= amounts['max'])
+    sort = args.get('sort', 'date')
+    order = args.get('order', 'desc')
+    if sort not in ('date', 'amount') or order not in ('asc', 'desc'):
+        raise ValueError('Choose date or amount and ascending or descending order.')
+    column = Transaction.txn_date if sort == 'date' else Transaction.amount
+    stmt = stmt.order_by(column.asc() if order == 'asc' else column.desc(), Transaction.id.asc() if order == 'asc' else Transaction.id.desc())
+    filters.update(sort=sort, order=order)
+    return stmt, filters
 
 @bp.get('/transactions/<int:transaction_id>')
 @protected
 def transaction_detail(transaction_id):
-    txn=db.session.scalar(db.select(Transaction).where(Transaction.id==transaction_id,Transaction.user_id==g.user.id))
-    if not txn: abort(404)
-    return jsonify(transaction=dict(id=txn.id,type=txn.type,amount=fmt(txn.amount),date=txn.txn_date.isoformat(),category_id=txn.category_id,payment_mode=txn.payment_mode,source=txn.source,note=txn.note))
+    return jsonify(transaction=transaction_json(owned_transaction(transaction_id)))
+
+@bp.get('/transactions/<int:transaction_id>/edit')
+@protected
+def edit_transaction_form(transaction_id):
+    return render_template('transaction_form.html', errors={}, **form_context(owned_transaction(transaction_id)))
+
+@bp.route('/transactions/<int:transaction_id>', methods=['PUT', 'POST'])
+@protected
+def edit_transaction(transaction_id):
+    txn = owned_transaction(transaction_id)
+    data = payload()
+    values, fields = transaction_fields(data, txn)
+    if fields:
+        return error(fields, 'transaction_form.html', **form_context(txn, dict(data)))
+    for key, value in values.items():
+        setattr(txn, key, value)
+    db.session.commit()
+    if json_request():
+        return jsonify(transaction=transaction_json(txn))
+    flash('Transaction updated.')
+    return redirect(url_for('web.transaction_list'))
+
+@bp.get('/transactions/<int:transaction_id>/delete')
+@protected
+def confirm_delete(transaction_id):
+    return render_template('confirm_delete.html', txn=owned_transaction(transaction_id))
+
+@bp.route('/transactions/<int:transaction_id>/delete', methods=['POST'])
+@bp.route('/transactions/<int:transaction_id>', methods=['DELETE'])
+@protected
+def delete_transaction(transaction_id):
+    txn = owned_transaction(transaction_id)
+    if payload().get('confirm') not in (True, 'yes'):
+        if json_request():
+            return jsonify(error='CONFIRMATION_REQUIRED'), 422
+        return redirect(url_for('web.transaction_list'))
+    db.session.delete(txn)
+    db.session.commit()
+    if json_request():
+        return jsonify(ok=True)
+    flash('Transaction deleted.')
+    return redirect(url_for('web.transaction_list'))
+
+@bp.get('/transactions/export.csv')
+@protected
+def export_csv():
+    try:
+        stmt, _ = filtered_transactions(request.args)
+    except (ValueError, TypeError) as exc:
+        return error({'filters': str(exc)})
+    # Same filters/order/owner scope as the list, across every matching page.
+    names = {c.id: c.name for c in categories()}
+    rows = db.session.scalars(stmt).all()
+    output = io.StringIO(newline='')
+    writer = csv.writer(output)
+    writer.writerow(('date', 'type', 'category', 'amount', 'payment_mode', 'source', 'note'))
+    def safe_cell(value):
+        value = str(value or '')
+        return "'" + value if value.lstrip().startswith(('=', '+', '-', '@')) or value.startswith(('\t', '\r', '\n')) else value
+    for txn in rows:
+        writer.writerow((txn.txn_date.isoformat(), txn.type, safe_cell(names.get(txn.category_id, '')), fmt(txn.amount), safe_cell(txn.payment_mode), safe_cell(txn.source), safe_cell(txn.note)))
+    return Response(output.getvalue(), content_type='text/csv; charset=utf-8', headers={'Content-Disposition': 'attachment; filename="transactions.csv"'})
