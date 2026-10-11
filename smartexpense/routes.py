@@ -233,7 +233,7 @@ def budget_list():
     if json_request(): return jsonify(budget=dict(id=budget.id,month=month,category_id=category_id,limit=fmt(limit)))
     return redirect(url_for('web.budget_list',month=month))
 
-@bp.get('/transactions')
+'''@bp.get('/transactions')
 @protected
 def transaction_list():
     # Read-only integration view. Teammate adds CRUD, filters and sorting (F-005–010).
@@ -246,3 +246,17 @@ def transaction_detail(transaction_id):
     txn=db.session.scalar(db.select(Transaction).where(Transaction.id==transaction_id,Transaction.user_id==g.user.id))
     if not txn: abort(404)
     return jsonify(transaction=dict(id=txn.id,type=txn.type,amount=fmt(txn.amount),date=txn.txn_date.isoformat(),category_id=txn.category_id,payment_mode=txn.payment_mode,source=txn.source,note=txn.note))
+'''
+def transaction_record(txn):
+    return {
+        'id': txn.id,
+        'type': txn.type,
+        'amount': fmt(txn.amount),
+        'date': txn.txn_date.isoformat(),
+        'category_id': txn.category_id,
+        'payment_mode': txn.payment_mode,
+        'source': txn.source,
+        'note': txn.note,
+    }
+
+
