@@ -272,3 +272,85 @@ def owned_transaction(transaction_id):
     return txn
 
 
+def transaction_rows(args):
+    stmt = db.select(Transaction).where(Transaction.user_id == g.user.id)
+    filters = {}
+    errors = {}
+
+    start = args.get('start', '').strip()
+    end = args.get('end', '').strip()
+    category = args.get('category_id', '').strip()
+    minimum = args.get('min_amount', '').strip()
+    maximum = args.get('max_amount', '').strip()
+    sort = args.get('sort', 'date')
+    direction = args.get('direction', 'desc')
+
+    if start:
+        try:
+            stmt = stmt.where(Transaction.txn_date >= date.fromisoformat(start))
+        except ValueError:
+            errors['start'] = 'Enter a valid start date.'
+
+    if end:
+        try:
+            stmt = stmt.where(Transaction.txn_date <= date.fromisoformat(end))
+        except ValueError:
+            errors['end'] = 'Enter a valid end date.'
+
+    if start and end:
+        try:
+            if date.fromisoformat(start) > date.fromisoformat(end):
+                errors['end'] = 'End date must not be before start date.'
+        except ValueError:
+            pass
+
+    if category:
+        try:
+            category_id = visible_category(category).id
+            stmt = stmt.where(Transaction.category_id == category_id)
+        except (ValueError, TypeError):
+            errors['category_id'] = 'Choose a valid category.'
+
+    if minimum:
+        try:
+            value = Decimal(minimum)
+            if not value.is_finite() or value < 0:
+                raise ValueError()
+            stmt = stmt.where(Transaction.amount >= value)
+        except (InvalidOperation, ValueError):
+            errors['min_amount'] = 'Enter a valid minimum amount.'
+
+    if maximum:
+        try:
+            value = Decimal(maximum)
+            if not value.is_finite() or value < 0:
+                raise ValueError()
+            stmt = stmt.where(Transaction.amount <= value)
+        except (InvalidOperation, ValueError):
+            errors['max_amount'] = 'Enter a valid maximum amount.'
+
+    if sort not in ('date', 'amount', 'type'):
+        sort = 'date'
+    column = {
+        'date': Transaction.txn_date,
+        'amount': Transaction.amount,
+        'type': Transaction.type,
+    }[sort]
+    ordering = column.asc() if direction == 'asc' else column.desc()
+    stmt = stmt.order_by(ordering, Transaction.id.desc())
+
+    rows = db.session.scalars(stmt).all()
+    total = sum((Decimal(row.amount) for row in rows), Decimal('0.00'))
+
+    filters = {
+        'start': start,
+        'end': end,
+        'category_id': category,
+        'min_amount': minimum,
+        'max_amount': maximum,
+        'sort': sort,
+        'direction': direction,
+    }
+    return rows, total, filters, errors
+
+
