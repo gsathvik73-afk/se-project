@@ -260,3 +260,15 @@ def transaction_record(txn):
     }
 
 
+def owned_transaction(transaction_id):
+    txn = db.session.scalar(
+        db.select(Transaction).where(
+            Transaction.id == transaction_id,
+            Transaction.user_id == g.user.id,
+        )
+    )
+    if txn is None:
+        abort(404)
+    return txn
+
+
