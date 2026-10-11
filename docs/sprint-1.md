@@ -57,3 +57,7 @@ Roles are delivery responsibilities in issue descriptions and `role-*` labels, n
 Basic password hashing, CSRF, owner checks and the transaction model remain necessary dependencies of Sathvik’s account/data-isolation/budget/dashboard work. Their presence does not complete the teammates’ security acceptance suite.
 
 Your demo: register/login/logout; category defaults/add/rename; monthly/category budgets; usage figures and thresholds; selected-month totals, category pie and six-month trend. Use synthetic stored transactions for figures while the transaction developer builds CRUD. CSV isolation, custom-category selection in the expense form and adding a new expense after budget warnings require later teammate integration and must be rechecked then.
+
+## Confirmed Transaction Management owner
+
+Sahana Shivakumar is allocated Transaction Management: implementation SEB-F-005–010; test plan TC-EXP-01–06; Jira SEB-6–11. All six tickets remain To Do under Epic 1 / Sprint 1 and carry owner-sahana / transaction-management labels. Her Jira account does not resolve yet. The invitation is prepared; this Free plan offers only Administrator access, which awaits explicit permission. Until the account is added, named ownership is recorded but the Jira Assignee field remains empty. Other role bundles remain unallocated.
