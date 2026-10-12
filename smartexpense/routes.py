@@ -539,3 +539,8 @@ def transaction_delete(transaction_id):
     return redirect(url_for('web.transaction_list'))
 
 
+@bp.get('/transactions/<int:transaction_id>')
+@protected
+def transaction_detail(transaction_id):
+    txn = owned_transaction(transaction_id)
+    return jsonify(transaction=transaction_record(txn))
