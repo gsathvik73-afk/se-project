@@ -436,3 +436,52 @@ def validate_transaction(data, txn=None):
     }
 
 
+@bp.route('/transactions', methods=['GET', 'POST'])
+@protected
+def transaction_list():
+    if request.method == 'POST':
+        data = payload()
+        fields, values = validate_transaction(data)
+
+        if fields:
+            rows, total, filters, _ = transaction_rows(request.args)
+            return error(
+                fields,
+                'transactions.html',
+                rows=rows,
+                total=fmt(total),
+                filters=filters,
+                cats=categories(),
+                form_data=data,
+            )
+
+        txn = Transaction(user_id=g.user.id, **values)
+        db.session.add(txn)
+        db.session.commit()
+
+        if json_request():
+            return jsonify(transaction=transaction_record(txn)), 201
+
+        flash('Transaction added successfully.')
+        return redirect(url_for('web.transaction_list'))
+
+    rows, total, filters, filter_errors = transaction_rows(request.args)
+
+    if json_request():
+        return jsonify(
+            transactions=[transaction_record(row) for row in rows],
+            total=fmt(total),
+        )
+
+    return render_template(
+        'transactions.html',
+        rows=rows,
+        total=fmt(total),
+        filters=filters,
+        filter_errors=filter_errors,
+        cats=categories(),
+        errors={},
+        form_data={},
+    )
+
+
