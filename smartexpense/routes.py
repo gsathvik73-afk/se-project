@@ -354,3 +354,85 @@ def transaction_rows(args):
     return rows, total, filters, errors
 
 
+def validate_transaction(data, txn=None):
+    fields = {}
+
+    txn_type = str(data.get('type', txn.type if txn else 'expense')).strip().lower()
+    if txn_type not in ('expense', 'income'):
+        fields['type'] = 'Choose expense or income.'
+
+    try:
+        amount = money(data.get('amount', txn.amount if txn else ''))
+    except ValueError as exc:
+        fields['amount'] = str(exc)
+        amount = None
+
+    raw_date = str(data.get('date', txn.txn_date.isoformat() if txn else '')).strip()
+    try:
+        txn_date = date.fromisoformat(raw_date)
+        if txn_date > today():
+            fields['date'] = 'Transaction date cannot be in the future.'
+    except ValueError:
+        fields['date'] = 'Enter a valid transaction date.'
+        txn_date = None
+
+    category_id = None
+    payment_mode = None
+    source = None
+
+    if txn_type == 'expense':
+        raw_category = data.get(
+            'category_id',
+            txn.category_id if txn else '',
+        )
+        '''try:
+            if str(raw_category).strip() == '':
+                raise ValueError()
+            category_id = visible_category(raw_category).id
+        except (ValueError, TypeError):
+            fields['category_id'] = ''Choose a valid category.'''''
+
+        try:
+            if str(raw_category).strip() == '':
+                raise ValueError()
+
+            category_id = visible_category(raw_category).id
+
+        except (ValueError, TypeError):
+            fields['category_id'] = 'Choose a valid category.'
+
+        except Exception as exc:
+            from werkzeug.exceptions import HTTPException
+
+            if isinstance(exc, HTTPException) and exc.code == 404:
+                fields['category_id'] = 'Choose a valid category.'
+            else:
+                raise
+
+
+        payment_mode = str(
+            data.get('payment_mode', txn.payment_mode if txn else '')
+        ).strip()
+        if not payment_mode or len(payment_mode) > 30:
+            fields['payment_mode'] = 'Enter a payment mode of 1 to 30 characters.'
+
+    elif txn_type == 'income':
+        source = str(data.get('source', txn.source if txn else '')).strip()
+        if not source or len(source) > 100:
+            fields['source'] = 'Enter an income source of 1 to 100 characters.'
+
+    note = str(data.get('note', txn.note if txn else '')).strip()
+    if len(note) > 2000:
+        fields['note'] = 'The note must be at most 2000 characters.'
+
+    return fields, {
+        'type': txn_type,
+        'amount': amount,
+        'txn_date': txn_date,
+        'category_id': category_id,
+        'payment_mode': payment_mode,
+        'source': source,
+        'note': note or None,
+    }
+
+
