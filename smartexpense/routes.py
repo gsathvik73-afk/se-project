@@ -485,3 +485,43 @@ def transaction_list():
     )
 
 
+@bp.route('/transactions/<int:transaction_id>/edit', methods=['GET', 'POST', 'PUT'])
+@protected
+def transaction_edit(transaction_id):
+    txn = owned_transaction(transaction_id)
+
+    if request.method == 'GET':
+        return render_template(
+            'transaction_form.html',
+            txn=txn,
+            cats=categories(),
+            errors={},
+            form_data=transaction_record(txn),
+        )
+
+    data = payload()
+    fields, values = validate_transaction(data, txn)
+
+    if fields:
+        if json_request():
+            return jsonify(error='VALIDATION_ERROR', fields=fields), 422
+        return render_template(
+            'transaction_form.html',
+            txn=txn,
+            cats=categories(),
+            errors=fields,
+            form_data=data,
+        ), 422
+
+    for key, value in values.items():
+        setattr(txn, key, value)
+
+    db.session.commit()
+
+    if json_request():
+        return jsonify(transaction=transaction_record(txn))
+
+    flash('Transaction updated successfully.')
+    return redirect(url_for('web.transaction_list'))
+
+
