@@ -39,6 +39,34 @@
             {% if errors.get('date') %}<span class="error">{{ errors.date }}</span>{% endif %}
         </label>
 
+        <label>
+            Category (for expenses)
+            <select name="category_id">
+                <option value="">Choose a category</option>
+                {% for c in cats %}
+                <option value="{{ c.id }}"
+                    {% if form_data.get('category_id', txn.category_id)|string == c.id|string %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+                {% endfor %}
+            </select>
+            {% if errors.get('category_id') %}<span class="error">{{ errors.category_id }}</span>{% endif %}
+        </label>
+
+        <label>
+            Payment mode (for expenses)
+            <input type="text" name="payment_mode" maxlength="30"
+                   value="{{ form_data.get('payment_mode', txn.payment_mode or '') }}">
+            {% if errors.get('payment_mode') %}<span class="error">{{ errors.payment_mode }}</span>{% endif %}
+        </label>
+
+        <label>
+            Income source (for income)
+            <input type="text" name="source" maxlength="100"
+                   value="{{ form_data.get('source', txn.source or '') }}">
+            {% if errors.get('source') %}<span class="error">{{ errors.source }}</span>{% endif %}
+        </label>
+
         <button class="primary" type="submit">Save changes</button>
         <a href="{{ url_for('web.transaction_list') }}">Cancel</a>
     </form>
