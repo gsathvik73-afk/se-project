@@ -525,3 +525,17 @@ def transaction_edit(transaction_id):
     return redirect(url_for('web.transaction_list'))
 
 
+@bp.route('/transactions/<int:transaction_id>/delete', methods=['POST', 'DELETE'])
+@protected
+def transaction_delete(transaction_id):
+    txn = owned_transaction(transaction_id)
+    db.session.delete(txn)
+    db.session.commit()
+
+    if json_request():
+        return jsonify(ok=True)
+
+    flash('Transaction deleted successfully.')
+    return redirect(url_for('web.transaction_list'))
+
+
