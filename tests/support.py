@@ -48,3 +48,29 @@ def account(client, email='a@example.com', name='A', password=PASSWORD):
     assert write(client, '/login', {'email': email, 'password': password}).status_code == 200
 
 
+def user_id(app, email):
+    with app.app_context():
+        return db.session.scalar(db.select(User).where(User.email == email)).id
+
+
+def category_id(app, name):
+    with app.app_context():
+        return db.session.scalar(db.select(Category).where(Category.name == name, Category.user_id.is_(None))).id
+
+
+def add_transaction(app, email, **fields):
+    """Insert a transaction straight into the database (the add-transaction route is another teammate's work)."""
+    uid = user_id(app, email)
+    fields.setdefault('type', 'expense')
+    fields.setdefault('amount', Decimal('100'))
+    fields.setdefault('txn_date', date(2026, 10, 8))
+    if fields['type'] == 'expense':
+        fields.setdefault('category_id', category_id(app, 'Food'))
+        fields.setdefault('payment_mode', 'UPI')
+    else:
+        fields.setdefault('source', 'Salary')
+    with app.app_context():
+        txn = Transaction(user_id=uid, **fields)
+        db.session.add(txn)
+        db.session.commit()
+        return txn.id
