@@ -139,5 +139,52 @@
 
     <p><strong>Filtered transaction total: ₹{{ total }}</strong></p>
 
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Category / Source</th>
+                    <th>Payment mode</th>
+                    <th>Note</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in rows %}
+                <tr>
+                    <td>{{ t.txn_date }}</td>
+                    <td>{{ t.type|title }}</td>
+                    <td>₹{{ t.amount }}</td>
+                    <td>
+                        {% if t.type == 'expense' %}
+                            {% for c in cats %}
+                                {% if c.id == t.category_id %}{{ c.name }}{% endif %}
+                            {% endfor %}
+                        {% else %}
+                            {{ t.source }}
+                        {% endif %}
+                    </td>
+                    <td>{{ t.payment_mode or '—' }}</td>
+                    <td>{{ t.note or '—' }}</td>
+                    <td>
+                        <a href="{{ url_for('web.transaction_edit', transaction_id=t.id) }}">Edit</a>
+
+                        <form method="post"
+                              action="{{ url_for('web.transaction_delete', transaction_id=t.id) }}"
+                              onsubmit="return confirm('Delete this transaction?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7">No transactions match these filters.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </section>
 {% endblock %}
