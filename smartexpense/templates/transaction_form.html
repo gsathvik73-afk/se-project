@@ -67,6 +67,13 @@
             {% if errors.get('source') %}<span class="error">{{ errors.source }}</span>{% endif %}
         </label>
 
+        <label>
+            Note (optional)
+            <input type="text" name="note" maxlength="2000"
+                   value="{{ form_data.get('note', txn.note or '') }}">
+            {% if errors.get('note') %}<span class="error">{{ errors.note }}</span>{% endif %}
+        </label>
+
         <button class="primary" type="submit">Save changes</button>
         <a href="{{ url_for('web.transaction_list') }}">Cancel</a>
     </form>
