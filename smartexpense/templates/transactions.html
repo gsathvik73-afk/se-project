@@ -71,4 +71,73 @@
     </form>
 </section>
 
+<section class="panel">
+    <h2>Filter and sort</h2>
+
+    <form method="get" action="{{ url_for('web.transaction_list') }}">
+        <div class="budget-form">
+            <label>
+                From date
+                <input type="date" name="start" value="{{ filters.get('start', '') }}">
+            </label>
+
+            <label>
+                To date
+                <input type="date" name="end" value="{{ filters.get('end', '') }}">
+            </label>
+
+            <label>
+                Category
+                <select name="category_id">
+                    <option value="">All categories</option>
+                    {% for c in cats %}
+                    <option value="{{ c.id }}" {% if filters.get('category_id', '')|string == c.id|string %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                Minimum amount (₹)
+                <input type="number" name="min_amount" min="0" step="0.01"
+                       value="{{ filters.get('min_amount', '') }}">
+            </label>
+
+            <label>
+                Maximum amount (₹)
+                <input type="number" name="max_amount" min="0" step="0.01"
+                       value="{{ filters.get('max_amount', '') }}">
+            </label>
+
+            <label>
+                Sort by
+                <select name="sort">
+                    <option value="date" {% if filters.get('sort') == 'date' %}selected{% endif %}>Date</option>
+                    <option value="amount" {% if filters.get('sort') == 'amount' %}selected{% endif %}>Amount</option>
+                    <option value="type" {% if filters.get('sort') == 'type' %}selected{% endif %}>Type</option>
+                </select>
+            </label>
+
+            <label>
+                Order
+                <select name="direction">
+                    <option value="desc" {% if filters.get('direction') == 'desc' %}selected{% endif %}>Descending</option>
+                    <option value="asc" {% if filters.get('direction') == 'asc' %}selected{% endif %}>Ascending</option>
+                </select>
+            </label>
+        </div>
+
+        <button class="primary" type="submit">Apply filters</button>
+        <a href="{{ url_for('web.transaction_list') }}">Clear filters</a>
+    </form>
+
+    {% set filter_error_items = filter_errors|default({}) %}
+    {% for field, message in filter_error_items.items() %}
+        <p class="error">{{ message }}</p>
+    {% endfor %}
+
+    <p><strong>Filtered transaction total: ₹{{ total }}</strong></p>
+
+</section>
 {% endblock %}
