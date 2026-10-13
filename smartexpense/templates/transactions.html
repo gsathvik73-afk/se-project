@@ -1,1 +1,74 @@
-{% extends 'base.html' %}{% block content %}<p class="eyebrow">Activity</p><h1>Transactions</h1><section class="panel"><p>Transaction entry, editing, filters and CSV export are awaiting team integration.</p><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Note / source</th></tr></thead><tbody>{% for t in rows %}<tr><td>{{ t.txn_date }}</td><td>{{ t.type }}</td><td>₹{{ t.amount }}</td><td>{{ t.note or t.source or '' }}</td></tr>{% else %}<tr><td colspan="4">No transactions yet.</td></tr>{% endfor %}</tbody></table></div><p class="muted">Latest 50 records.</p></section>{% endblock %}
+{% extends 'base.html' %}
+
+{% block content %}
+<p class="eyebrow">Activity</p>
+<h1>Transactions</h1>
+
+<section class="panel">
+    <h2>Add a transaction</h2>
+
+    <form method="post" action="{{ url_for('web.transaction_list') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label>
+            Transaction type
+            <select name="type" required>
+                <option value="expense" {% if form_data.get('type', 'expense') == 'expense' %}selected{% endif %}>Expense</option>
+                <option value="income" {% if form_data.get('type') == 'income' %}selected{% endif %}>Income</option>
+            </select>
+        </label>
+
+        <label>
+            Amount (₹)
+            <input type="number" name="amount" min="0.01" step="0.01"
+                   value="{{ form_data.get('amount', '') }}" required>
+            {% if errors.get('amount') %}<span class="error">{{ errors.amount }}</span>{% endif %}
+        </label>
+
+        <label>
+            Date
+            <input type="date" name="date" value="{{ form_data.get('date', '') }}" required>
+            {% if errors.get('date') %}<span class="error">{{ errors.date }}</span>{% endif %}
+        </label>
+
+        <label>
+            Category (for expenses)
+            <select name="category_id">
+                <option value="">Choose a category</option>
+                {% for c in cats %}
+                <option value="{{ c.id }}" {% if form_data.get('category_id', '')|string == c.id|string %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+                {% endfor %}
+            </select>
+            {% if errors.get('category_id') %}<span class="error">{{ errors.category_id }}</span>{% endif %}
+        </label>
+
+        <label>
+            Payment mode (for expenses)
+            <input type="text" name="payment_mode" maxlength="30"
+                   placeholder="UPI, Cash, Card..."
+                   value="{{ form_data.get('payment_mode', '') }}">
+            {% if errors.get('payment_mode') %}<span class="error">{{ errors.payment_mode }}</span>{% endif %}
+        </label>
+
+        <label>
+            Income source (for income)
+            <input type="text" name="source" maxlength="100"
+                   placeholder="Salary, Scholarship..."
+                   value="{{ form_data.get('source', '') }}">
+            {% if errors.get('source') %}<span class="error">{{ errors.source }}</span>{% endif %}
+        </label>
+
+        <label>
+            Note (optional)
+            <input type="text" name="note" maxlength="2000"
+                   value="{{ form_data.get('note', '') }}">
+            {% if errors.get('note') %}<span class="error">{{ errors.note }}</span>{% endif %}
+        </label>
+
+        <button class="primary" type="submit">Save transaction</button>
+    </form>
+</section>
+
+{% endblock %}
