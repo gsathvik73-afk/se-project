@@ -339,8 +339,20 @@ def transaction_rows(args):
     ordering = column.asc() if direction == 'asc' else column.desc()
     stmt = stmt.order_by(ordering, Transaction.id.desc())
 
-    rows = db.session.scalars(stmt).all()
-    total = sum((Decimal(row.amount) for row in rows), Decimal('0.00'))
+    total_stmt = (
+        db.select(db.func.coalesce(db.func.sum(Transaction.amount), 0))
+        .where(Transaction.user_id == g.user.id)
+    )
+
+    # Reuse the filters and ordering from stmt, excluding ordering for the total.
+    filtered_stmt = stmt.order_by(None)
+    total = db.session.scalar(
+        filtered_stmt.with_only_columns(
+            db.func.coalesce(db.func.sum(Transaction.amount), 0)
+        )
+    ) or Decimal('0.00')
+
+    rows = db.session.scalars(stmt.limit(50)).all()
 
     filters = {
         'start': start,
