@@ -34,3 +34,17 @@ def client(app):
     return app.test_client()
 
 
+def csrf(client):
+    page = client.get('/login').text
+    return re.search(r'name="csrf_token" value="([^"]+)"', page)[1]
+
+
+def write(client, path, body, method='post'):
+    return getattr(client, method)(path, json=body, headers={'X-CSRFToken': csrf(client)})
+
+
+def account(client, email='a@example.com', name='A', password=PASSWORD):
+    assert write(client, '/register', {'name': name, 'email': email, 'password': password}).status_code == 201
+    assert write(client, '/login', {'email': email, 'password': password}).status_code == 200
+
+
