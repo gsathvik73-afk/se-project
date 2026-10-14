@@ -49,3 +49,40 @@ def test_perf01_pages_load_within_3_seconds_with_5000_transactions(app, client):
 
 
 # ---------------------------------------------------------------- TC-PERF-02
+def test_perf02_twenty_concurrent_users_no_errors_no_mixed_data(app):
+    users, rounds = 20, 3
+    gate = Barrier(users)
+    statuses, failures = [], []
+
+    def session(n):
+        try:
+            c = app.test_client()
+            email = f'u{n:02d}@example.com'
+            assert write(c, '/register', {'name': f'U{n:02d}', 'email': email, 'password': PASSWORD}).status_code == 201
+            gate.wait(timeout=60)                                   # all 20 log in together
+            statuses.append(write(c, '/login', {'email': email, 'password': PASSWORD}).status_code)
+            for i in range(rounds):
+                statuses.append(c.get('/dashboard').status_code)
+                statuses.append(c.get('/transactions').status_code)
+                statuses.append(write(c, '/categories', {'name': f'U{n:02d}-note-{i}'}).status_code)
+        except Exception as exc:                                    # noqa: BLE001
+            failures.append(f'user {n}: {exc!r}')
+
+    threads = [Thread(target=session, args=(n,)) for n in range(users)]
+    [t.start() for t in threads]
+    [t.join(timeout=120) for t in threads]
+
+    assert not failures, failures
+    counts = Counter(statuses)
+    assert not [s for s in counts if s >= 500], f'server errors: {counts}'
+    assert counts[201] == users * rounds and counts[200] >= users * (1 + 2 * rounds)
+
+    for n in range(users):                                          # every save present, nobody sees anyone else's
+        c = app.test_client()
+        write(c, '/login', {'email': f'u{n:02d}@example.com', 'password': PASSWORD})
+        names = [x['name'] for x in c.get('/categories', headers={'Accept': 'application/json'}).json['categories']]
+        mine = [x for x in names if re.match(r'U\d\d-note-', x)]
+        assert sorted(mine) == [f'U{n:02d}-note-{i}' for i in range(rounds)]
+
+
+# ---------------------------------------------------------------- TC-REL-01
