@@ -65,3 +65,25 @@ def test_rpt01_header_row_and_rows_match_the_filter(data, app):
     assert [Decimal(r[3]) for r in rows[1:]] == sorted((Decimal(r[3]) for r in rows[1:]), reverse=True)   # sorted as asked
 
 
+def test_rpt01_other_users_rows_never_exported(data, app):
+    resp = data.get(URL)
+    assert resp.status_code == 200
+    assert 'B private' not in resp.data.decode('utf-8')
+
+
+def test_rpt01_formula_cells_are_neutralised(data, app):
+    notes = [r[6] for r in parse(data.get(URL, query_string={'from': '2026-10-01', 'to': '2026-10-31'}))[1:]]
+    assert "'=SUM(1+1)" in notes and '=SUM(1+1)' not in notes
+
+
+def test_rpt01_no_matches_gives_header_only(data):
+    rows = parse(data.get(URL, query_string={'from': '2030-01-01', 'to': '2030-01-31'}))
+    assert rows == [HEADER]
+
+
+def test_rpt01_from_after_to_is_rejected(data):
+    assert data.get(URL, query_string={'from': '2026-10-31', 'to': '2026-10-01'}).status_code == 422
+
+
+def test_rpt01_anonymous_cannot_export(app):
+    assert app.test_client().get(URL, headers={'Accept': 'application/json'}).status_code in (401, 302)
