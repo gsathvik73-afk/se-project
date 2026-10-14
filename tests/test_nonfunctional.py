@@ -86,3 +86,55 @@ def test_perf02_twenty_concurrent_users_no_errors_no_mixed_data(app):
 
 
 # ---------------------------------------------------------------- TC-REL-01
+def test_rel01_saved_data_survives_a_server_restart(tmp_path):
+    first = make_app(tmp_path)
+    c = first.test_client()
+    account(c)
+    cat = write(c, '/categories', {'name': 'Books'}).json['category']['id']
+    write(c, '/budgets', {'month': '2026-10', 'limit': '5000'}, 'put')
+    add_transaction(first, 'a@example.com', amount=Decimal('250'), note='Lunch')
+    del first, c
+
+    restarted = make_app(tmp_path)                                  # new app object on the same database file
+    c2 = restarted.test_client()
+    assert write(c2, '/login', {'email': 'a@example.com', 'password': PASSWORD}).status_code == 200
+    data = c2.get('/api/dashboard?month=2026-10').json
+    assert data['expense'] == '250.00' and data['budgets'][0]['limit'] == '5000.00'
+    names = [x['name'] for x in c2.get('/categories', headers={'Accept': 'application/json'}).json['categories']]
+    assert 'Books' in names
+
+
+def test_rel01_failed_save_leaves_no_partial_record_and_can_be_retried(tmp_path, monkeypatch):
+    app = make_app(tmp_path, PROPAGATE_EXCEPTIONS=False)            # return the 500 page instead of raising
+    c = app.test_client()
+    account(c)
+
+    def fail_after_insert():
+        db.session.flush()                                          # row is written inside the transaction ...
+        raise RuntimeError('forced failure before commit')          # ... but never committed
+
+    with monkeypatch.context() as m:
+        m.setattr(db.session, 'commit', fail_after_insert)
+        resp = write(c, '/budgets', {'month': '2026-10', 'limit': '5000'}, 'put')
+    assert resp.status_code == 500
+    assert 'Traceback' not in resp.text and 'forced failure' not in resp.text     # no stack trace shown
+
+    with app.app_context():
+        assert db.session.scalar(db.select(db.func.count()).select_from(Budget)) == 0   # nothing half-saved
+
+    assert write(c, '/budgets', {'month': '2026-10', 'limit': '5000'}, 'put').status_code == 200   # retry works
+    with app.app_context():
+        assert db.session.scalar(db.select(db.func.count()).select_from(Budget)) == 1
+
+
+@pytest.mark.xfail(strict=False, reason='SAD 4.4 friendly 500 message and request reference not implemented yet')
+def test_rel01_failed_save_shows_friendly_message(tmp_path, monkeypatch):
+    app = make_app(tmp_path, PROPAGATE_EXCEPTIONS=False)
+    c = app.test_client()
+    account(c)
+    monkeypatch.setattr(db.session, 'commit', lambda: (_ for _ in ()).throw(RuntimeError('boom')))
+    resp = write(c, '/budgets', {'month': '2026-10', 'limit': '5000'}, 'put')
+    assert 'Your data was not saved' in resp.text
+
+
+# ---------------------------------------------------------------- TC-UX-01
