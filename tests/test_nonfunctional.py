@@ -138,3 +138,59 @@ def test_rel01_failed_save_shows_friendly_message(tmp_path, monkeypatch):
 
 
 # ---------------------------------------------------------------- TC-UX-01
+def test_ux01_validation_errors_are_next_to_the_field_and_say_how_to_fix_it(client):
+    page = client.post('/register', data={'csrf_token': csrf(client), 'name': 'A', 'email': 'a@example.com', 'password': 'short'})
+    assert page.status_code == 422
+    assert re.search(r'<input name="password"[^>]*>\s*</label>\s*<p class="error">Use at least 8 characters', page.text)
+    assert 'value="a@example.com"' in page.text                     # what the user typed is kept
+
+
+def test_ux01_budget_errors_name_the_field_and_the_fix(client):
+    account(client)
+    resp = write(client, '/budgets', {'month': '2026-10', 'limit': 'abc'}, 'put')
+    assert resp.status_code == 422
+    assert 'positive amount' in resp.json['fields']['limit']
+
+
+@pytest.mark.xfail(strict=False, reason='Add Expense button/form (SEB-F-005) not implemented yet')
+def test_ux01_dashboard_links_to_add_expense(client):
+    account(client)
+    page = client.get('/dashboard').text
+    assert re.search(r'Add Expense', page, re.I)
+
+
+# ---------------------------------------------------------------- TC-PORT-01
+PAGES = ['/login', '/register', '/dashboard', '/transactions', '/budgets', '/categories']
+
+
+@pytest.mark.parametrize('path', PAGES)
+def test_port01_every_page_is_responsive(client, path):
+    account(client)
+    page = client.get(path).text
+    assert '<meta name="viewport" content="width=device-width,initial-scale=1">' in page
+    if path != '/dashboard':                                                  # dashboard is covered by the xfail test below
+        assert not re.search(r'<table', page) or 'class="table-wrap"' in page  # wide tables scroll inside a wrapper
+
+
+@pytest.mark.xfail(strict=False, reason='Dashboard six-month table is not inside .table-wrap (2 columns, low risk); report to the dashboard owner')
+def test_port01_dashboard_table_scrolls_inside_a_wrapper(client):
+    account(client)
+    assert 'class="table-wrap"' in client.get('/dashboard').text
+
+
+def test_port01_stylesheet_has_mobile_layout_for_360px():
+    css = (STATIC / 'style.css').read_text(encoding='utf-8')
+    assert re.search(r'@media\(max-width:\s*7\d\dpx\)', css)
+    assert '.table-wrap{overflow:auto}' in css
+    mobile = css.split('@media(max-width:700px){', 1)[1]
+    assert '.cards,.charts{grid-template-columns:1fr}' in mobile        # cards and charts stack in one column
+    assert 'main{padding:0 14px}' in mobile
+
+
+def test_port01_charts_use_a_local_script_that_works_in_all_browsers(client):
+    account(client)
+    page = client.get('/dashboard').text
+    assert 'charts.js' in page and not re.search(r'<script[^>]+src="https?://', page)
+    js = (STATIC / 'charts.js').read_text(encoding='utf-8')
+    assert 'canvas' in js.lower()
+    # Real Chrome / Firefox / Edge and 360 px checks are manual (see TC-PORT-01 in the test cases document).
