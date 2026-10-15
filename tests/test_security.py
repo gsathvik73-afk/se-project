@@ -97,3 +97,74 @@ def test_sec02_correct_password_accepted_wrong_rejected(client):
 
 
 # ---------------------------------------------------------------- TC-SEC-03
+@pytest.fixture
+def two_users(app):
+    a, b = app.test_client(), app.test_client()
+    account(a, 'a@example.com', 'A')
+    account(b, 'b@example.com', 'B')
+    b_cat = write(b, '/categories', {'name': 'B private'}).json['category']['id']
+    b_txn = add_transaction(app, 'b@example.com', note='B secret note', category_id=b_cat)
+    write(b, '/budgets', {'month': '2026-10', 'limit': '777', 'category_id': b_cat}, 'put')
+    return app, a, b, b_cat, b_txn
+
+
+def test_sec03_foreign_transaction_is_404_and_looks_like_missing(two_users):
+    _, a, _, _, b_txn = two_users
+    foreign = a.get(f'/transactions/{b_txn}')
+    missing = a.get('/transactions/999999')
+    assert foreign.status_code == missing.status_code == 404
+    assert foreign.data == missing.data                      # IDs cannot be probed
+    assert 'B secret note' not in a.get('/transactions').text
+
+
+def test_sec03_foreign_category_cannot_be_renamed(two_users):
+    app, a, b, b_cat, _ = two_users
+    assert write(a, f'/categories/{b_cat}', {'name': 'Stolen'}, 'put').status_code == 404
+    names = [c['name'] for c in b.get('/categories', headers={'Accept': 'application/json'}).json['categories']]
+    assert 'B private' in names and 'Stolen' not in names
+
+
+def test_sec03_default_category_cannot_be_renamed(two_users):
+    app, a, *_ = two_users
+    assert write(a, f"/categories/{category_id(app, 'Food')}", {'name': 'Changed'}, 'put').status_code in (403, 404)
+    with app.app_context():
+        assert db.session.scalar(db.select(Category).where(Category.name == 'Food')) is not None
+
+
+def test_sec03_foreign_category_cannot_be_used_for_a_budget(two_users):
+    app, a, _, b_cat, _ = two_users
+    assert write(a, '/budgets', {'month': '2026-10', 'limit': '5000', 'category_id': b_cat}, 'put').status_code == 404
+    with app.app_context():
+        assert db.session.scalar(db.select(db.func.count()).select_from(Budget).where(Budget.user_id == user_id(app, 'a@example.com'))) == 0
+    assert a.get('/api/dashboard?month=2026-10').json['budgets'] == []     # B's 777 budget is not visible to A
+
+
+def test_sec03_anonymous_gets_no_data(app, two_users):
+    _, _, _, _, b_txn = two_users
+    anon = app.test_client()
+    resp = anon.get(f'/transactions/{b_txn}', headers={'Accept': 'application/json'})
+    assert resp.status_code == 401 and b'B secret note' not in resp.data
+    assert anon.get('/transactions').status_code == 302
+
+
+@pytest.mark.xfail(strict=False, reason='transaction edit/delete/add routes (SEB-F-005, 008, 009) not implemented yet')
+@pytest.mark.parametrize('method,body', [('put', {'amount': '1.00'}), ('delete', None)])
+def test_sec03_foreign_transaction_cannot_be_changed(two_users, method, body):
+    app, a, _, _, b_txn = two_users
+    resp = write(a, f'/transactions/{b_txn}', body, method) if body else a.delete(f'/transactions/{b_txn}', headers={'X-CSRFToken': csrf(a)})
+    assert resp.status_code == 404
+    with app.app_context():
+        assert db.session.get(Transaction, b_txn).amount == 100
+
+
+@pytest.mark.xfail(strict=False, reason='POST /transactions (SEB-F-005) not implemented yet')
+def test_sec03_foreign_category_cannot_be_used_on_new_expense(two_users):
+    _, a, _, b_cat, _ = two_users
+    body = {'type': 'expense', 'amount': '10.00', 'date': '2026-10-08', 'category_id': b_cat, 'payment_mode': 'UPI'}
+    assert write(a, '/transactions', body).status_code == 404
+
+
+# ---------------------------------------------------------------- TC-SEC-04
+SQLI_EMAILS = ["' OR '1'='1' --", "admin'--", "a@example.com' OR '1'='1"]
+
+
