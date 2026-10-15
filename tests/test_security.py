@@ -225,3 +225,34 @@ def test_sec04_source_has_no_string_built_sql_or_unsafe_output():
 
 
 # ---------------------------------------------------------------- TC-SEC-05
+def test_sec05_password_minimum_length_boundary(client):
+    short = write(client, '/register', {'name': 'A', 'email': 'a@example.com', 'password': 'Abcd123'})   # 7
+    assert short.status_code == 422 and 'at least 8' in short.json['fields']['password']
+    assert write(client, '/register', {'name': 'A', 'email': 'a@example.com', 'password': 'Abcd1234'}).status_code == 201   # 8
+
+
+def test_sec05_failure_counter_resets_after_success(client):
+    account(client)
+    c = client.application.test_client()
+    for _ in range(4):
+        assert write(c, '/login', {'email': 'a@example.com', 'password': 'wrong-password'}).status_code == 401
+    assert write(c, '/login', {'email': 'a@example.com', 'password': PASSWORD}).status_code == 200
+
+
+def test_sec05_unknown_email_and_wrong_password_look_the_same(client):
+    account(client)
+    c = client.application.test_client()
+    wrong = write(c, '/login', {'email': 'a@example.com', 'password': 'wrong-password'})
+    unknown = write(c, '/login', {'email': 'nobody@example.com', 'password': 'wrong-password'})
+    assert wrong.status_code == unknown.status_code == 401 and wrong.json == unknown.json
+
+
+@pytest.mark.xfail(strict=False, reason='login lockout (5 failures, 5 minutes) is not implemented yet')
+def test_sec05_login_locked_after_five_failures(client):
+    account(client)
+    c = client.application.test_client()
+    for _ in range(5):
+        assert write(c, '/login', {'email': 'a@example.com', 'password': 'wrong-password'}).status_code == 401
+    locked = write(c, '/login', {'email': 'a@example.com', 'password': PASSWORD})   # correct password, still blocked
+    assert locked.status_code == 429 and 'Retry-After' in locked.headers
+    # The 5-minute wait and unlock are checked by hand in TC-SEC-05 steps 6 and 7.
