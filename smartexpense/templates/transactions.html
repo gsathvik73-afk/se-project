@@ -4,7 +4,7 @@
 <p class="eyebrow">Activity</p>
 <h1>Transactions</h1>
 
-<section class="panel">
+<section class="panel" id="add-transaction">
     <h2>Add a transaction</h2>
 
     <form method="post" action="{{ url_for('web.transaction_list') }}">
@@ -18,6 +18,8 @@
             </select>
         </label>
 
+        {% if errors.get('type') %}<p class="error">{{ errors.type }}</p>{% endif %}
+
         <label>
             Amount (₹)
             <input type="number" name="amount" min="0.01" step="0.01"
@@ -27,7 +29,7 @@
 
         <label>
             Date
-            <input type="date" name="date" value="{{ form_data.get('date', '') }}" required>
+            <input type="date" name="date" value="{{ form_data.get('date', today_date) }}" max="{{ today_date }}" required>
             {% if errors.get('date') %}<span class="error">{{ errors.date }}</span>{% endif %}
         </label>
 
@@ -186,5 +188,11 @@
             </tbody>
         </table>
     </div>
+    <nav aria-label="Transaction pages">
+        {% if filters.page > 1 %}<a href="{{ transaction_page_url(filters.page - 1) }}">Previous</a>{% endif %}
+        <span>Page {{ filters.page }}</span>
+        {% if filters.has_next %}<a href="{{ transaction_page_url(filters.page + 1) }}">Next</a>{% endif %}
+    </nav>
+    <p class="muted">Up to 50 records per page. Total includes all matching transactions.</p>
 </section>
 {% endblock %}
