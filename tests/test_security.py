@@ -168,3 +168,60 @@ def test_sec03_foreign_category_cannot_be_used_on_new_expense(two_users):
 SQLI_EMAILS = ["' OR '1'='1' --", "admin'--", "a@example.com' OR '1'='1"]
 
 
+@pytest.mark.parametrize('email', SQLI_EMAILS)
+def test_sec04_sql_injection_cannot_bypass_login(client, email):
+    account(client, 'victim@example.com', 'Victim')
+    attacker = client.application.test_client()
+    resp = write(attacker, '/login', {'email': email, 'password': "' OR '1'='1"})
+    assert resp.status_code == 401
+    assert attacker.get_cookie('sid') is None
+    assert attacker.get('/dashboard').status_code == 302
+
+
+def test_sec04_sql_text_is_stored_as_plain_text_and_tables_survive(client, app):
+    account(client)
+    evil = "Robert'); DROP TABLE category;--"
+    assert write(client, '/categories', {'name': evil}).status_code == 201
+    cats = client.get('/categories', headers={'Accept': 'application/json'}).json['categories']
+    assert evil in [c['name'] for c in cats] and len(cats) == 9
+    with app.app_context():
+        assert db.session.scalar(db.select(db.func.count()).select_from(Category)) == 9
+
+
+def test_sec04_sql_in_ids_and_filters_is_rejected(client, app):
+    account(client)
+    other = app.test_client()
+    account(other, 'b@example.com', 'B')
+    add_transaction(app, 'b@example.com', note='B only')
+    assert write(client, '/budgets', {'month': '2026-10', 'limit': '10', 'category_id': '1 OR 1=1'}, 'put').status_code == 404
+    assert client.get('/api/dashboard', query_string={'month': "2026-10' OR '1'='1"}).status_code == 422
+    assert client.get('/transactions/1 OR 1=1').status_code == 404
+    with app.app_context():
+        assert db.session.scalar(db.select(db.func.count()).select_from(Budget)) == 0
+
+
+XSS = ['<script>alert(\'xss\')</script>', '<img src=x onerror=alert(1)>']
+
+
+@pytest.mark.parametrize('payload', XSS)
+def test_sec04_stored_xss_is_escaped_everywhere(client, app, payload):
+    account(client)
+    cat = write(client, '/categories', {'name': payload}).json['category']['id']
+    write(client, '/budgets', {'month': '2026-10', 'limit': '1000', 'category_id': cat}, 'put')
+    add_transaction(app, 'a@example.com', note=payload, category_id=cat)
+    for path in ('/categories', '/budgets?month=2026-10', '/dashboard?month=2026-10', '/transactions'):
+        page = client.get(path).text
+        assert payload not in page, path
+        assert '&lt;' in page, path
+
+
+def test_sec04_source_has_no_string_built_sql_or_unsafe_output():
+    py = '\n'.join(p.read_text(encoding='utf-8') for p in SRC.glob('*.py'))
+    assert not re.search(r'execute\(\s*f[\'"]', py)
+    assert not re.search(r'execute\([^)]*(%|\+|\.format)', py)
+    assert 'Markup(' not in py
+    for template in (SRC / 'templates').glob('*.html'):
+        assert '|safe' not in template.read_text(encoding='utf-8'), template.name
+
+
+# ---------------------------------------------------------------- TC-SEC-05
