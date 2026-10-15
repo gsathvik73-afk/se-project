@@ -67,3 +67,33 @@ def test_sec01_deployed_tls12_ok_and_valid_certificate():
 
 
 # ---------------------------------------------------------------- TC-SEC-02
+def test_sec02_hashes_are_salted_and_passwords_never_stored(app, tmp_path, caplog):
+    caplog.set_level('DEBUG')
+    a, b = app.test_client(), app.test_client()
+    account(a, 'a@example.com', 'A')
+    account(b, 'b@example.com', 'B')                      # same password as A
+    write(a, '/login', {'email': 'a@example.com', 'password': 'wrong-password'})   # a failed login too
+    with app.app_context():
+        hashes = [u.password_hash for u in db.session.scalars(db.select(User).order_by(User.id))]
+    assert len(hashes) == 2 and hashes[0] != hashes[1]
+    assert all(h.startswith(b'$2b$') and len(h) == 60 for h in hashes)     # bcrypt, per-user salt
+    assert all(PASSWORD.encode() not in h for h in hashes)
+    assert PASSWORD.encode() not in (tmp_path / 'test.db').read_bytes()   # not anywhere in the database file
+    for secret in (PASSWORD, 'wrong-password', hashes[0].decode()):
+        assert secret not in caplog.text                                   # not in logs
+
+
+def test_sec02_responses_never_contain_hash(client):
+    account(client)
+    for path in ('/dashboard', '/transactions', '/categories', '/budgets'):
+        assert '$2b$' not in client.get(path).text
+
+
+def test_sec02_correct_password_accepted_wrong_rejected(client):
+    account(client)
+    other = client.application.test_client()
+    assert write(other, '/login', {'email': 'a@example.com', 'password': 'not-it-at-all'}).status_code == 401
+    assert write(other, '/login', {'email': 'a@example.com', 'password': PASSWORD}).status_code == 200
+
+
+# ---------------------------------------------------------------- TC-SEC-03
