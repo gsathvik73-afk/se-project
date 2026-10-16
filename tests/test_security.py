@@ -38,7 +38,6 @@ def test_sec01_no_external_resources(client):
         assert not re.search(r'(?:src|href)="https?://', page), path
 
 
-@pytest.mark.xfail(strict=False, reason='SAD 3.9 asks for HSTS and CSP headers; not added yet')
 def test_sec01_security_headers(client):
     headers = client.get('/login').headers
     assert 'Strict-Transport-Security' in headers
