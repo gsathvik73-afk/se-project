@@ -9,13 +9,17 @@ import csv
 from io import StringIO
 import bcrypt
 from flask import Response, Blueprint, abort, current_app, flash, g, jsonify, redirect, render_template, request, url_for
-from sqlalchemy import func, or_
+from sqlalchemy import case, func, or_
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import NotFound
-from .models import db, User, LoginSession, Category, Transaction, Budget
+from .models import db, User, LoginSession, LoginGuard, Category, Transaction, Budget
 
 bp = Blueprint('web', __name__)
 IST = ZoneInfo('Asia/Kolkata')
+
+def utcnow():
+    return datetime.now(timezone.utc)
+
 
 def today():
     return datetime.now(IST).date()
@@ -142,10 +146,33 @@ def login():
     if request.method=='GET': return render_template('auth.html',mode='login',errors={})
     data=payload(); email=str(data.get('email','')).strip().lower(); password=data.get('password','')
     user=db.session.scalar(db.select(User).where(User.email==email))
+    now = utcnow()
+    guard = db.session.get(LoginGuard, user.id) if user else None
+    if guard and guard.locked_until:
+        remaining = (guard.locked_until.replace(tzinfo=timezone.utc) - now).total_seconds()
+        if remaining > 0:
+            response = jsonify(error='LOGIN_LOCKED') if json_request() else current_app.make_response(
+                render_template('auth.html', mode='login', errors={'password': 'Too many failed attempts. Try again in five minutes.'}))
+            response.status_code = 429
+            response.headers['Retry-After'] = str(max(1, int(remaining + 0.999)))
+            return response
+        guard.failures = 0
+        guard.locked_until = None
+    if user and guard is None:
+        guard = LoginGuard(user_id=user.id, failures=0)
+        db.session.add(guard)
+        db.session.flush()
     valid=isinstance(password,str) and len(password.encode('utf-8'))<=72 and user and bcrypt.checkpw(password.encode(),user.password_hash)
     if not valid:
+        if guard:
+            db.session.execute(db.update(LoginGuard).where(LoginGuard.user_id == user.id).values(
+                failures=LoginGuard.failures + 1,
+                locked_until=case((LoginGuard.failures >= 4, now + timedelta(minutes=5)), else_=None)))
+            db.session.commit()
         if json_request(): return jsonify(error='INVALID_CREDENTIALS'),401
         return render_template('auth.html',mode='login',errors={'password':'Invalid email or password.'}),401
+    guard.failures = 0
+    guard.locked_until = None
     if g.login_session: db.session.delete(g.login_session)
     token=token_urlsafe(32)
     db.session.add(LoginSession(token=token,user_id=user.id,expires_at=datetime.now(timezone.utc)+timedelta(hours=8)))
