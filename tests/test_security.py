@@ -147,7 +147,6 @@ def test_sec03_anonymous_gets_no_data(app, two_users):
     assert anon.get('/transactions').status_code == 302
 
 
-@pytest.mark.xfail(strict=False, reason='transaction edit/delete/add routes (SEB-F-005, 008, 009) not implemented yet')
 @pytest.mark.parametrize('method,body', [('put', {'amount': '1.00'}), ('delete', None)])
 def test_sec03_foreign_transaction_cannot_be_changed(two_users, method, body):
     app, a, _, _, b_txn = two_users
@@ -157,7 +156,6 @@ def test_sec03_foreign_transaction_cannot_be_changed(two_users, method, body):
         assert db.session.get(Transaction, b_txn).amount == 100
 
 
-@pytest.mark.xfail(strict=False, reason='POST /transactions (SEB-F-005) not implemented yet')
 def test_sec03_foreign_category_cannot_be_used_on_new_expense(two_users):
     _, a, _, b_cat, _ = two_users
     body = {'type': 'expense', 'amount': '10.00', 'date': '2026-10-08', 'category_id': b_cat, 'payment_mode': 'UPI'}
