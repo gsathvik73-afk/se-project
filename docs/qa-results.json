@@ -1,0 +1,31 @@
+{
+  "environment": "Python 3.11 / SQLite, local Flask test client",
+  "tests": 107,
+  "passed": 105,
+  "skipped": 2,
+  "failures": 0,
+  "errors": 0,
+  "duration_seconds": 110.797,
+  "suites": {
+    "tests.test_core": {
+      "passed": 34,
+      "skipped": 0
+    },
+    "tests.test_csv_export": {
+      "passed": 8,
+      "skipped": 0
+    },
+    "tests.test_nonfunctional": {
+      "passed": 17,
+      "skipped": 0
+    },
+    "tests.test_security": {
+      "passed": 27,
+      "skipped": 2
+    },
+    "tests.test_transactions": {
+      "passed": 19,
+      "skipped": 0
+    }
+  }
+}

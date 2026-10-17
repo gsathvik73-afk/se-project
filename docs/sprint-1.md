@@ -1,63 +1,35 @@
-# Epic 1 / Sprint 1 handoff
+# Sprint 1 integration
 
-- Project: SmartExpense — Team 14 (`SEB`).
-- Epic 1: [SEB-1](https://sathvikgullipalli.atlassian.net/browse/SEB-1).
-- Board: [SEB backlog](https://sathvikgullipalli.atlassian.net/jira/software/projects/SEB/boards/36/backlog).
-- Sprint: **SEB Sprint 1**, ID 70. Planned, not started. Dates must reflect the team's current schedule; the September dates in the old test plan are historical and were not copied.
-- All 27 requirement stories are children of SEB-1 and in Sprint 1, created in requirement order.
-- Sathvik's tickets: SEB-2–5 and SEB-12–17. Teammate tickets: SEB-6–11 and SEB-18–28.
-- Arya and Sahana are the requested collaborators. Their exact Jira accounts and which taken bundle belongs to each have not been supplied; taken stories remain unassigned. The SRS lists four members; it does not establish these new allocations.
+All 27 requirements are mapped to [GitHub issues](github-issues.json). The local app includes all 17 functional requirements and the locally verifiable quality/security work. Three acceptance items remain open; the sprint is not claimed fully accepted.
 
-## Add Arya and Sahana to Jira
+## Contributions and review
 
-Jira calls projects “spaces” in this site's current UI. Open SmartExpense, then **Space settings → Access → Add people**. If the person is already on the site, select their verified account. This site currently uses the Free plan: its Access screen says **Everyone’s an admin** and offers only the Administrator role. Granular Member permissions require a plan upgrade; no upgrade was made. Sathvik remains the space owner, and ticket assignees track who does the work. If they are not on the site, an administrator must first invite their email through **Atlassian Administration → Directory → Users → Invite users**, granting Jira access, then add them to this space. After acceptance, set each ticket's **Assignee** to the correct person. No email address has been guessed or invitation sent.
+- Arya's [PR #3](https://github.com/gsathvik73-afk/se-project/pull/3) was already merged. Reviewed the detailed cases and automated tests. They correctly identified missing CSV, lockout, error handling and responsive UI work; completed checks now run normally instead of xfail.
+- Sahana's [PR #4](https://github.com/gsathvik73-afk/se-project/pull/4) was reviewed, fixed in focused follow-up commits, approved and merged after CI passed. Transaction CRUD, field validation, confirmation, sorting and filtering now integrate with budgets, dashboard and owner checks.
+- Sathvik's existing foundation is retained. Integration adds CSV, persistent five-failure/five-minute login lockout, safe failure messages/logging, security headers, pagination and one-command startup.
 
-Project access plus an Assignee is how they work on your project. Jira's Epic→Story hierarchy describes work, not a manager→employee reporting hierarchy. Keep the work in SEB-1 / SEB Sprint 1 and use the owner labels until allocations are confirmed.
+Contributor identities and original commit timestamps are preserved. No shared history was rewritten or backdated. Follow-up commits describe actual work performed during this integration.
 
-## GitHub collaboration
+## Acceptance left open
 
-Sahana's existing collaborator account is `SahanaShivakumarBadiger`; no duplicate invitation is needed. Arya's GitHub username is still needed. In **Repository Settings → Collaborators → Add people**, search the verified username and invite with Write access; each teammate accepts their invitation.
+| GitHub issue | Requirement / case | Remaining evidence |
+|---|---|---|
+| [#25](https://github.com/gsathvik73-afk/se-project/issues/25) | SEB-NF-004 / TC-UX-01 | Five first-time users perform the entry/error-correction exercise. Add Expense and field errors are implemented; one browser smoke check is insufficient. |
+| [#26](https://github.com/gsathvik73-afk/se-project/issues/26) | SEB-NF-005 / TC-PORT-01 | Run the complete Chrome, Firefox and Edge matrix. In-app browser and 360px checks are partial evidence only. |
+| [#27](https://github.com/gsathvik73-afk/se-project/issues/27) | SEB-SR-001 / TC-SEC-01 | Public HTTPS, HTTP redirect and valid TLS certificate. User confirmed the local app is sufficient for this handoff. |
 
-Clone and check out the shared starting point:
+## Run and test
 
 ```sh
-git clone https://github.com/gsathvik73-afk/se-project.git
-cd se-project
-git fetch origin
-git switch main
-# Example after SEB-6 is assigned to you:
-git switch -c SEB-6-add-expense
+./run.sh
+# In another terminal:
+.venv/bin/python -m pytest -q
 ```
 
-Use Jira keys in branch names, commits and PR titles, e.g. `SEB-6 Add expense`. In each PR include exact SEB-F/NF/SR requirements, TC IDs, evidence and integration dependencies. Select Sathvik as reviewer. The foundation is on main. Base teammate branches and pull requests on main, using the matching Jira key.
+Open http://127.0.0.1:5050. Register, log in, add income/expense, edit, cancel a deletion, apply filters, export CSV, set budgets and inspect the dashboard. Database and local key are under ignored `instance/`; restart preserves data.
 
-## Work in dependency order
+[Verification](verification.md) records the actual result and limits. Source SRS, SAD and Test Plan remain in this directory.
 
-1. Integrate account/session foundation and default/custom categories.
-2. Teammate adds transaction CRUD and filters using the shared model/API contract.
-3. Integrate budgets/alerts and dashboard/charts; totals query stored transactions and recalculate on each read.
-4. Teammate adds CSV with the same filters and owner scope as the list.
-5. Team executes all mapped functional tests, then performance, rollback, usability, browser and security acceptance tests on the integrated build.
+## Original Jira allocation
 
-Definition of done: reviewed code; mapped test evidence (build, tester, date, actual result, status, defect); RTM updated; no Critical/Major open defect. Creating tickets or passing foundation tests alone does not complete Sprint 1.
-
-## Corrected scope and role allocation
-
-Sathvik’s scope is only SEB-F-001–004 and SEB-F-011–016 (SEB-2–5, SEB-12–17). Those ten implementation stories remain Done. The 17 teammate stories are To Do and unassigned, under the same Epic 1 / Sprint 1. Whole-project completion claims from the earlier integration attempt are superseded.
-
-| Delivery role | Jira stories | Requirements | Tests |
-|---|---|---|---|
-| Transaction developer | SEB-6–11 | SEB-F-005–010 | TC-EXP-01–06 |
-| Reporting developer | SEB-18 | SEB-F-017 | TC-RPT-01 |
-| QA / performance tester | SEB-19–23 | SEB-NF-001–005 | TC-PERF-01–02, TC-REL-01, TC-UX-01, TC-PORT-01 |
-| Security / deployment engineer | SEB-24–28 | SEB-SR-001–005 | TC-SEC-01–05 |
-
-Roles are delivery responsibilities in issue descriptions and `role-*` labels, not invented Jira user accounts or permission roles. A member can hold more than one bundle. After adding Arya and Sahana, set each bundle’s Assignee to the verified member. Their exact allocation remains your choice.
-
-Basic password hashing, CSRF, owner checks and the transaction model remain necessary dependencies of Sathvik’s account/data-isolation/budget/dashboard work. Their presence does not complete the teammates’ security acceptance suite.
-
-Your demo: register/login/logout; category defaults/add/rename; monthly/category budgets; usage figures and thresholds; selected-month totals, category pie and six-month trend. Use synthetic stored transactions for figures while the transaction developer builds CRUD. CSV isolation, custom-category selection in the expense form and adding a new expense after budget warnings require later teammate integration and must be rechecked then.
-
-## Confirmed Transaction Management owner
-
-Sahana Shivakumar is allocated Transaction Management: implementation SEB-F-005–010; test plan TC-EXP-01–06; Jira SEB-6–11. All six tickets remain To Do under Epic 1 / Sprint 1 and carry owner-sahana / transaction-management labels. Her Jira account does not resolve yet. The invitation is prepared; this Free plan offers only Administrator access, which awaits explicit permission. Until the account is added, named ownership is recorded but the Jira Assignee field remains empty. Other role bundles remain unallocated.
+The original Epic is [SEB-1](https://sathvikgullipalli.atlassian.net/browse/SEB-1), board 36, sprint 70. Sathvik owns SEB-2–5 and SEB-12–17; Sahana's transaction allocation is SEB-6–11. Arya contributed test cases for SEB-18–28. GitHub issue status is the current integration tracker. The `jira_status` values in the JSON/CSV are a historical Jira snapshot, not a claim that Jira was updated during this handoff.
