@@ -1,11 +1,4 @@
-"""TC-RPT-01: filtered CSV export (SEB-F-017).
-
-The export route does not exist yet (the reporting developer is building it), so every test here
-is marked xfail. Once GET /transactions/export.csv is added they start to run for real:
-an XPASS means the feature meets the SAD contract (section 4.3); remove the marker then.
-Contract: same filters as the list (from, to, category_id, min, max, sort), owner only,
-header row date,type,category,amount,payment_mode,source,note, UTF-8, formula cells neutralised.
-"""
+"""TC-RPT-01: owner-scoped CSV using the same filters as the transaction list."""
 import csv
 import io
 from datetime import date
@@ -15,7 +8,6 @@ import pytest
 
 from support import PASSWORD, account, add_transaction, app, category_id, client, write  # noqa: F401
 
-pytestmark = pytest.mark.xfail(strict=False, reason='SEB-F-017 CSV export route is not implemented yet')
 
 URL = '/transactions/export.csv'
 HEADER = ['date', 'type', 'category', 'amount', 'payment_mode', 'source', 'note']
@@ -87,3 +79,12 @@ def test_rpt01_from_after_to_is_rejected(data):
 
 def test_rpt01_anonymous_cannot_export(app):
     assert app.test_client().get(URL, headers={'Accept': 'application/json'}).status_code in (401, 302)
+
+
+def test_rpt01_export_includes_matches_beyond_first_page(app, client):
+    account(client)
+    for i in range(55):
+        add_transaction(app, 'a@example.com', note=f'row {i}')
+    assert len(parse(client.get(URL))) == 56
+    assert len(parse(client.get(URL + '?page=2'))) == 56
+    assert 'Export filtered CSV' in client.get('/transactions').text

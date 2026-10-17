@@ -62,7 +62,7 @@ def test_dates_required_fields_custom_category_and_html_retry(app, client):
     assert response.status_code == 422 and 'keep my input' in response.text
     assert 'positive amount' in response.text
     assert client.post('/transactions', json=expense(app)).status_code == 400
-    assert "confirm('Delete this transaction?')" in client.get('/transactions').text
+    assert '/delete' in client.get('/transactions').text
 
 
 @pytest.mark.parametrize('filters', [{'start': 'bad'}, {'min': 'NaN'}, {'max': 'Infinity'},
@@ -90,3 +90,17 @@ def test_filters_sort_pagination_and_total(app, client):
     assert [Decimal(t['amount']) for t in filtered['transactions']] == list(map(Decimal, range(20, 9, -1)))
     assert 'Next' in client.get('/transactions?sort=amount_asc').text
     assert client.get('/transactions?min=100', headers=headers).json['total'] == '0.00'
+
+
+def test_html_delete_requires_confirmation_and_cancel_keeps_record(app, client):
+    account(client)
+    txn = write(client, '/transactions', expense(app)).json['transaction']
+    path = f"/transactions/{txn['id']}/delete"
+    confirm = client.get(path)
+    assert confirm.status_code == 200 and 'Confirm delete' in confirm.text and 'Cancel' in confirm.text
+    assert client.get('/transactions').status_code == 200
+    assert client.get(f"/transactions/{txn['id']}").status_code == 200
+    assert client.post(path, data={'csrf_token': csrf(client)}).status_code == 200
+    assert client.get(f"/transactions/{txn['id']}").status_code == 200
+    assert client.post(path, data={'csrf_token': csrf(client), 'confirm': 'yes'}).status_code == 302
+    assert client.get(f"/transactions/{txn['id']}").status_code == 404
