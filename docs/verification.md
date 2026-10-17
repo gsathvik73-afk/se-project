@@ -1,12 +1,12 @@
-# Sprint 1 local verification — 29 October 2026
+# Local verification — 29 October 2026
 
-The integrated application is ready for local use. **105 passed, 2 skipped, no expected failures** in 110.82 seconds, Python 3.11 / SQLite:
+The 29 October 2026 local run recorded **105 passed, 2 skipped, no expected failures** in 110.82 seconds on Python 3.11 / SQLite:
 
 ```sh
 .venv/bin/python -m pytest -q -s --junitxml=/tmp/sprint1-final-results.xml
 ```
 
-The two skips are the deployed HTTP-to-HTTPS redirect and TLS certificate tests: no public deployment URL was configured. The user confirmed local operation is sufficient for this handoff. This is local acceptance evidence; it does not close all manual/deployed requirements.
+The two skips are the deployed HTTP-to-HTTPS redirect and TLS certificate tests: no public deployment URL was configured. No public deployment was tested. These results cover the local application; the manual and deployed checks below remain open.
 
 ## What passed
 
@@ -32,10 +32,18 @@ The browser smoke check covers one tester and one embedded browser engine. It is
 |---|---|---|
 | SEB-NF-004 | [#25](https://github.com/gsathvik73-afk/se-project/issues/25) | Five first-time users and their three-click entry/error-correction results. |
 | SEB-NF-005 | [#26](https://github.com/gsathvik73-afk/se-project/issues/26) | Complete Chrome, Firefox and Edge action matrix including mobile width. |
-| SEB-SR-001 | [#27](https://github.com/gsathvik73-afk/se-project/issues/27) | Public valid HTTPS, HTTP redirect and TLS 1.2+ certificate validation; deferred for local-only handoff. |
+| SEB-SR-001 | [#27](https://github.com/gsathvik73-afk/se-project/issues/27) | Public valid HTTPS, HTTP redirect, certificate validation, and TLS 1.2+ support. Configure a deployment URL before running the two skipped checks. |
 
-## Review and build
+## Reproduce and interpret the results
 
-Arya PR #3 was already merged and reviewed retrospectively. Sahana PR #4 was approved and merged after both CI jobs passed at `893c9da575f541c61a8927271a26f5e14e831b1e`; merge `a569aa5216cac7b0ebfbbf80011fe789fc05346f`. Original contributor commits remain intact. Follow-up integration code is split into task-based commits. Final PR CI provides the reproducible clean-run result.
+Run the command above from the project root after starting with the pinned dependencies. The JUnit path is a local output artifact. The [machine-readable summary](qa-results.json) records 107 collected tests: 105 passed, two skipped, and no failures or errors. It reports 110.797 seconds, while the console result above includes rounded run timing.
 
-Original foundation-only/reverted-build notes are superseded by this integrated-build result. Jira status fields in the traceability files remain the historical Jira snapshot; GitHub tracks this handoff.
+For deployment checks, set `SEB_DEPLOYED_URL` to the public application URL before running the security suite. A passing local header or cookie check does not establish a valid public certificate or HTTP redirect.
+
+The browser evidence and performance measurements above are from the 29 October run. They describe that environment and should not be treated as a cross-browser trial or a hosted load benchmark. Add dated results when completing the remaining acceptance work.
+
+## Implementation and tracking
+
+Arya's [PR #3](https://github.com/gsathvik73-afk/se-project/pull/3) delivered detailed cases and automated CSV, nonfunctional, and security tests. Sahana's [PR #4](https://github.com/gsathvik73-afk/se-project/pull/4) delivered transaction management and passed its CI review before merge. Integration work added the fixes needed by the combined application.
+
+The [two-sprint plan](sprint-1.md) records the current Jira allocation across four epics. The 29 October verification results remain historical evidence even when Jira workflow states change. GitHub issues #25–27 retain the manual and deployed acceptance work listed above.
