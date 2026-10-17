@@ -15,6 +15,12 @@ class LoginSession(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     expires_at = db.Column(db.DateTime(timezone=True), nullable=False)
 
+class LoginGuard(db.Model):
+    # Separate table so init-db upgrades existing local databases without replacing users.
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
+    failures = db.Column(db.Integer, nullable=False, default=0)
+    locked_until = db.Column(db.DateTime(timezone=True))
+
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)

@@ -17,8 +17,10 @@
       "jira_key": "SEB-2",
       "delivery_role": "Account, categories, budgets and dashboard developer",
       "jira_status": "Done",
-      "implementation_status": "Own scope implemented; teammate integration checks pending",
-      "evidence": "docs/verification.md"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/5",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-002",
@@ -32,8 +34,10 @@
       "jira_key": "SEB-3",
       "delivery_role": "Account, categories, budgets and dashboard developer",
       "jira_status": "Done",
-      "implementation_status": "Own scope implemented; teammate integration checks pending",
-      "evidence": "docs/verification.md"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/6",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-003",
@@ -47,8 +51,10 @@
       "jira_key": "SEB-4",
       "delivery_role": "Account, categories, budgets and dashboard developer",
       "jira_status": "Done",
-      "implementation_status": "Own scope implemented; teammate integration checks pending",
-      "evidence": "docs/verification.md"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/7",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-004",
@@ -62,8 +68,10 @@
       "jira_key": "SEB-5",
       "delivery_role": "Account, categories, budgets and dashboard developer",
       "jira_status": "Done",
-      "implementation_status": "Own scope implemented; teammate integration checks pending",
-      "evidence": "docs/verification.md"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/8",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-005",
@@ -77,9 +85,11 @@
       "jira_key": "SEB-6",
       "delivery_role": "Transaction developer",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": "",
-      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/9",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-006",
@@ -93,9 +103,11 @@
       "jira_key": "SEB-7",
       "delivery_role": "Transaction developer",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": "",
-      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/10",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-007",
@@ -109,9 +121,11 @@
       "jira_key": "SEB-8",
       "delivery_role": "Transaction developer",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": "",
-      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/11",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-008",
@@ -125,9 +139,11 @@
       "jira_key": "SEB-9",
       "delivery_role": "Transaction developer",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": "",
-      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/12",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-009",
@@ -141,9 +157,11 @@
       "jira_key": "SEB-10",
       "delivery_role": "Transaction developer",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": "",
-      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/13",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-010",
@@ -157,9 +175,11 @@
       "jira_key": "SEB-11",
       "delivery_role": "Transaction developer",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": "",
-      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "member_assignment": "Confirmed named owner; Jira Assignee pending invitation/access",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/14",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-011",
@@ -173,8 +193,10 @@
       "jira_key": "SEB-12",
       "delivery_role": "Account, categories, budgets and dashboard developer",
       "jira_status": "Done",
-      "implementation_status": "Own scope implemented; teammate integration checks pending",
-      "evidence": "docs/verification.md"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/15",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-012",
@@ -188,8 +210,10 @@
       "jira_key": "SEB-13",
       "delivery_role": "Account, categories, budgets and dashboard developer",
       "jira_status": "Done",
-      "implementation_status": "Own scope implemented; teammate integration checks pending",
-      "evidence": "docs/verification.md"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/16",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-013",
@@ -203,8 +227,10 @@
       "jira_key": "SEB-14",
       "delivery_role": "Account, categories, budgets and dashboard developer",
       "jira_status": "Done",
-      "implementation_status": "Own scope implemented; teammate integration checks pending",
-      "evidence": "docs/verification.md"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/17",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-014",
@@ -218,8 +244,10 @@
       "jira_key": "SEB-15",
       "delivery_role": "Account, categories, budgets and dashboard developer",
       "jira_status": "Done",
-      "implementation_status": "Own scope implemented; teammate integration checks pending",
-      "evidence": "docs/verification.md"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/18",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-015",
@@ -233,8 +261,10 @@
       "jira_key": "SEB-16",
       "delivery_role": "Account, categories, budgets and dashboard developer",
       "jira_status": "Done",
-      "implementation_status": "Own scope implemented; teammate integration checks pending",
-      "evidence": "docs/verification.md"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/19",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-016",
@@ -248,8 +278,10 @@
       "jira_key": "SEB-17",
       "delivery_role": "Account, categories, budgets and dashboard developer",
       "jira_status": "Done",
-      "implementation_status": "Own scope implemented; teammate integration checks pending",
-      "evidence": "docs/verification.md"
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/20",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-F-017",
@@ -263,8 +295,10 @@
       "jira_key": "SEB-18",
       "delivery_role": "Reporting developer",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/21",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-NF-001",
@@ -278,8 +312,10 @@
       "jira_key": "SEB-19",
       "delivery_role": "QA / performance tester",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/22",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-NF-002",
@@ -293,8 +329,10 @@
       "jira_key": "SEB-20",
       "delivery_role": "QA / performance tester",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/23",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-NF-003",
@@ -308,8 +346,10 @@
       "jira_key": "SEB-21",
       "delivery_role": "QA / performance tester",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/24",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-NF-004",
@@ -323,8 +363,10 @@
       "jira_key": "SEB-22",
       "delivery_role": "QA / performance tester",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "implementation_status": "Implemented locally; external/manual acceptance pending",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/25",
+      "acceptance_status": "Pending manual/deployed acceptance"
     },
     {
       "requirement": "SEB-NF-005",
@@ -338,8 +380,10 @@
       "jira_key": "SEB-23",
       "delivery_role": "QA / performance tester",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "implementation_status": "Implemented locally; external/manual acceptance pending",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/26",
+      "acceptance_status": "Pending manual/deployed acceptance"
     },
     {
       "requirement": "SEB-SR-001",
@@ -353,8 +397,10 @@
       "jira_key": "SEB-24",
       "delivery_role": "Security / deployment engineer",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "implementation_status": "Implemented locally; external/manual acceptance pending",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/27",
+      "acceptance_status": "Pending manual/deployed acceptance"
     },
     {
       "requirement": "SEB-SR-002",
@@ -368,8 +414,10 @@
       "jira_key": "SEB-25",
       "delivery_role": "Security / deployment engineer",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/28",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-SR-003",
@@ -383,8 +431,10 @@
       "jira_key": "SEB-26",
       "delivery_role": "Security / deployment engineer",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/29",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-SR-004",
@@ -398,8 +448,10 @@
       "jira_key": "SEB-27",
       "delivery_role": "Security / deployment engineer",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/30",
+      "acceptance_status": "Verified locally"
     },
     {
       "requirement": "SEB-SR-005",
@@ -413,16 +465,22 @@
       "jira_key": "SEB-28",
       "delivery_role": "Security / deployment engineer",
       "jira_status": "To Do",
-      "implementation_status": "Awaiting role owner implementation and acceptance",
-      "evidence": ""
+      "implementation_status": "Integrated and verified locally",
+      "evidence": "docs/verification.md",
+      "github_issue": "https://github.com/gsathvik73-afk/se-project/issues/31",
+      "acceptance_status": "Verified locally"
     }
   ],
   "scope_summary": {
-    "own_done": 10,
-    "teammate_todo": 17,
     "epic": "SEB-1",
     "sprint_id": 70,
-    "members_assignment": "pending verified accounts",
-    "closed": false
+    "verified_locally": 24,
+    "pending_acceptance": [
+      "SEB-NF-004",
+      "SEB-NF-005",
+      "SEB-SR-001"
+    ],
+    "closed": false,
+    "jira_status_note": "jira_status is the historical Jira snapshot; current integration work is tracked in GitHub."
   }
 }

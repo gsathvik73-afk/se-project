@@ -74,7 +74,9 @@
 </section>
 
 <section class="panel">
-    <h2>Filter and sort</h2>
+    <div class="page-heading"><h2>Filter and sort</h2>
+        <a href="{{ url_for('web.transaction_export', **request.args.to_dict()) }}">Export filtered CSV</a>
+    </div>
 
     <form method="get" action="{{ url_for('web.transaction_list') }}">
         <div class="budget-form">
@@ -174,12 +176,7 @@
                     <td>
                         <a href="{{ url_for('web.transaction_edit', transaction_id=t.id) }}">Edit</a>
 
-                        <form method="post"
-                              action="{{ url_for('web.transaction_delete', transaction_id=t.id) }}"
-                              onsubmit="return confirm('Delete this transaction?');">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button type="submit">Delete</button>
-                        </form>
+                        <a href="{{ url_for('web.transaction_delete', transaction_id=t.id) }}">Delete</a>
                     </td>
                 </tr>
                 {% else %}
