@@ -1,8 +1,7 @@
-Describe the problem and resulting behaviour.
+## Change
 
-Jira ticket:
-Requirements (SEB-*):
-Test cases (TC-*):
+Explain the problem and what this change does. Link the relevant Jira or GitHub issue.
 
-Validation and evidence:
-Integration dependencies or remaining checks:
+## Validation
+
+Record the checks run and their results. Include screenshots for visible changes when useful, and list any acceptance checks that remain open.
