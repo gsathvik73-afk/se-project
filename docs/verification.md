@@ -1,15 +1,41 @@
-# Foundation verification — 8 October 2026
+# Sprint 1 local verification — 29 October 2026
 
-Local automated result: **34 passed** (`python -m pytest -q`, Python 3.11, SQLite; 22.35 seconds).
+The integrated application is ready for local use. **105 passed, 2 skipped, no expected failures** in 110.82 seconds, Python 3.11 / SQLite:
 
-Verified: valid registration, duplicate email normalization, invalid account inputs, login success/failure, logout with rejected replay of old session; anonymous guards; CSRF on writes; default/custom categories, rename and default protection; foreign category/transaction rejection and owner-only totals; monthly/category budget persistence and upsert; INR 1800 spent / 3200 remaining / 36%, Food 500 / 500 / 50%; alert values below 80%, at 80%, at 100%, above 100%; monthly totals 10000/1800/8200; category breakdown; six-month zeros and year rollover; invalid budgets/months; escaped display of user text.
+```sh
+.venv/bin/python -m pytest -q -s --junitxml=/tmp/sprint1-final-results.xml
+```
 
-These are foundation tests, not the final complete STP run. Transaction entry, export and editing remain teammate work. TC-AUTH-04's CSV check, TC-CAT-01's expense-form selector, and TC-BUD-03's integrated new-entry check are pending team integration. Performance, concurrency, restart/rollback fault injection, five-user three-click usability, full three-browser/mobile compatibility, deployed HTTPS, and full security-suite execution have not passed merely because core tests passed. The ten own-scope implementation stories are Done; their teammate integration dependencies remain explicitly pending.
+The two skips are the deployed HTTP-to-HTTPS redirect and TLS certificate tests: no public deployment URL was configured. The user confirmed local operation is sufficient for this handoff. This is local acceptance evidence; it does not close all manual/deployed requirements.
 
-Design decisions: server-side sessions have an 8-hour absolute lifetime in this build (SRS does not specify a lifetime); Canvas charts replace the SAD's suggested Chart.js while retaining numerical tables. HTTPS-only cookie mode is enabled with COOKIE_SECURE=1 in deployment. Login lockout is pending SEB-SR-005.
+## What passed
 
-Browser smoke check: synthetic sample login, dashboard totals/charts, budget form save and default category choices verified in the in-app browser. This does not establish the complete TC-PORT-01 browser matrix.
+- TC-AUTH-01–04: normalized unique registration, input boundaries, successful/failed login, logout/session replay rejection and user isolation including CSV.
+- TC-EXP-01–06: expense/income creation, amount/date/required-field validation, custom-category selection, persisted edits, confirmation/cancel behaviour, deletion, filter validation, sort, pagination and complete filtered totals. Mutations update dashboard/budget reads; over-budget warnings permit further entries.
+- TC-CAT-01, TC-BUD-01–03 and TC-DSH-01–02: defaults/custom categories, rename, saved monthly/category budgets, exact spending/remaining/percentage, 80%/100% boundaries, monthly totals, category breakdown, six-month empty months and year rollover.
+- TC-RPT-01: eight CSV checks including headers, UTF-8/escaping, matched filters/order, foreign-user exclusion, formula neutralization, empty results and export beyond the first 50 rows.
+- TC-PERF-01: 5,000 stored expenses; 100/100 dashboard and 100/100 transaction loads under three seconds. Dashboard p90 **26.2 ms**, maximum **28.8 ms**; transactions p90 **10.6 ms**, maximum **12.4 ms**. Flask test-client measurements, not a deployed network/load benchmark. Dashboard total was INR 50,000; each page showed 50 transactions.
+- TC-PERF-02: **20 concurrent users, 260 successful actions**, including login, page reads, category saves and income saves. Each user saw only their own records and totals. The first run exposed SQLite contention while checking passwords; moving password verification before acquiring the write lock fixed it, and the targeted and full runs then passed.
+- TC-REL-01: data survives application restart; forced failures after flush leave no partial record, allow retry and return a safe message. Failure logging omits exception details/SQL parameters.
+- TC-SEC-02–05: distinct salted bcrypt hashes, no stored/logged plaintext passwords, owner protection on transaction mutations and categories/budgets, SQL/XSS payload checks, CSRF, password boundary, five-failure/five-minute lockout, Retry-After and restart/expiry/reset checks.
+- Local parts of TC-SEC-01/TC-UX-01/TC-PORT-01: Secure-cookie configuration, CSP/HSTS headers, local resources, readable errors/input retention, Add Expense action, responsive CSS/table wrappers and chart script.
 
-## Scope correction
+## Browser smoke evidence
 
-The whole-project additions and 62-test/load acceptance claims were reverted from the current build at Sathvik’s request. This build retains only his account, category, budget, dashboard and chart scope plus shared foundations. The 17 teammate requirements are To Do with delivery-role labels. Earlier integrated-build evidence remains historical in Git/Jira and is not acceptance evidence for the current reverted build.
+In-app browser, synthetic local demo account: registration, login, expense save, explicit delete-confirmation page, cancellation preserving the record, monthly budget save and dashboard figures verified. INR 250 Food spending against an INR 500 monthly budget showed INR 250 remaining and 50%. The local server was restarted after the final route changes, and the session/data persisted. At 360px the dashboard had no document overflow; the transaction form/table was also inspected at that width. Screenshots are local QA artifacts outside the source repository.
+
+The browser smoke check covers one tester and one embedded browser engine. It is partial evidence for usability and portability.
+
+## Still open
+
+| Requirement | GitHub issue | Remaining acceptance |
+|---|---|---|
+| SEB-NF-004 | [#25](https://github.com/gsathvik73-afk/se-project/issues/25) | Five first-time users and their three-click entry/error-correction results. |
+| SEB-NF-005 | [#26](https://github.com/gsathvik73-afk/se-project/issues/26) | Complete Chrome, Firefox and Edge action matrix including mobile width. |
+| SEB-SR-001 | [#27](https://github.com/gsathvik73-afk/se-project/issues/27) | Public valid HTTPS, HTTP redirect and TLS 1.2+ certificate validation; deferred for local-only handoff. |
+
+## Review and build
+
+Arya PR #3 was already merged and reviewed retrospectively. Sahana PR #4 was approved and merged after both CI jobs passed at `893c9da575f541c61a8927271a26f5e14e831b1e`; merge `a569aa5216cac7b0ebfbbf80011fe789fc05346f`. Original contributor commits remain intact. Follow-up integration code is split into task-based commits. Final PR CI provides the reproducible clean-run result.
+
+Original foundation-only/reverted-build notes are superseded by this integrated-build result. Jira status fields in the traceability files remain the historical Jira snapshot; GitHub tracks this handoff.
