@@ -1,1 +1,198 @@
-{% extends 'base.html' %}{% block content %}<p class="eyebrow">Activity</p><h1>Transactions</h1><section class="panel"><p>Transaction entry, editing, filters and CSV export are awaiting team integration.</p><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Note / source</th></tr></thead><tbody>{% for t in rows %}<tr><td>{{ t.txn_date }}</td><td>{{ t.type }}</td><td>₹{{ t.amount }}</td><td>{{ t.note or t.source or '' }}</td></tr>{% else %}<tr><td colspan="4">No transactions yet.</td></tr>{% endfor %}</tbody></table></div><p class="muted">Latest 50 records.</p></section>{% endblock %}
+{% extends 'base.html' %}
+
+{% block content %}
+<p class="eyebrow">Activity</p>
+<h1>Transactions</h1>
+
+<section class="panel" id="add-transaction">
+    <h2>Add a transaction</h2>
+
+    <form method="post" action="{{ url_for('web.transaction_list') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label>
+            Transaction type
+            <select name="type" required>
+                <option value="expense" {% if form_data.get('type', 'expense') == 'expense' %}selected{% endif %}>Expense</option>
+                <option value="income" {% if form_data.get('type') == 'income' %}selected{% endif %}>Income</option>
+            </select>
+        </label>
+
+        {% if errors.get('type') %}<p class="error">{{ errors.type }}</p>{% endif %}
+
+        <label>
+            Amount (₹)
+            <input type="number" name="amount" min="0.01" step="0.01"
+                   value="{{ form_data.get('amount', '') }}" required>
+            {% if errors.get('amount') %}<span class="error">{{ errors.amount }}</span>{% endif %}
+        </label>
+
+        <label>
+            Date
+            <input type="date" name="date" value="{{ form_data.get('date', today_date) }}" max="{{ today_date }}" required>
+            {% if errors.get('date') %}<span class="error">{{ errors.date }}</span>{% endif %}
+        </label>
+
+        <label>
+            Category (for expenses)
+            <select name="category_id">
+                <option value="">Choose a category</option>
+                {% for c in cats %}
+                <option value="{{ c.id }}" {% if form_data.get('category_id', '')|string == c.id|string %}selected{% endif %}>
+                    {{ c.name }}
+                </option>
+                {% endfor %}
+            </select>
+            {% if errors.get('category_id') %}<span class="error">{{ errors.category_id }}</span>{% endif %}
+        </label>
+
+        <label>
+            Payment mode (for expenses)
+            <input type="text" name="payment_mode" maxlength="30"
+                   placeholder="UPI, Cash, Card..."
+                   value="{{ form_data.get('payment_mode', '') }}">
+            {% if errors.get('payment_mode') %}<span class="error">{{ errors.payment_mode }}</span>{% endif %}
+        </label>
+
+        <label>
+            Income source (for income)
+            <input type="text" name="source" maxlength="100"
+                   placeholder="Salary, Scholarship..."
+                   value="{{ form_data.get('source', '') }}">
+            {% if errors.get('source') %}<span class="error">{{ errors.source }}</span>{% endif %}
+        </label>
+
+        <label>
+            Note (optional)
+            <input type="text" name="note" maxlength="2000"
+                   value="{{ form_data.get('note', '') }}">
+            {% if errors.get('note') %}<span class="error">{{ errors.note }}</span>{% endif %}
+        </label>
+
+        <button class="primary" type="submit">Save transaction</button>
+    </form>
+</section>
+
+<section class="panel">
+    <h2>Filter and sort</h2>
+
+    <form method="get" action="{{ url_for('web.transaction_list') }}">
+        <div class="budget-form">
+            <label>
+                From date
+                <input type="date" name="start" value="{{ filters.get('start', '') }}">
+            </label>
+
+            <label>
+                To date
+                <input type="date" name="end" value="{{ filters.get('end', '') }}">
+            </label>
+
+            <label>
+                Category
+                <select name="category_id">
+                    <option value="">All categories</option>
+                    {% for c in cats %}
+                    <option value="{{ c.id }}" {% if filters.get('category_id', '')|string == c.id|string %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label>
+                Minimum amount (₹)
+                <input type="number" name="min_amount" min="0" step="0.01"
+                       value="{{ filters.get('min_amount', '') }}">
+            </label>
+
+            <label>
+                Maximum amount (₹)
+                <input type="number" name="max_amount" min="0" step="0.01"
+                       value="{{ filters.get('max_amount', '') }}">
+            </label>
+
+            <label>
+                Sort by
+                <select name="sort">
+                    <option value="date" {% if filters.get('sort') == 'date' %}selected{% endif %}>Date</option>
+                    <option value="amount" {% if filters.get('sort') == 'amount' %}selected{% endif %}>Amount</option>
+                    <option value="type" {% if filters.get('sort') == 'type' %}selected{% endif %}>Type</option>
+                </select>
+            </label>
+
+            <label>
+                Order
+                <select name="direction">
+                    <option value="desc" {% if filters.get('direction') == 'desc' %}selected{% endif %}>Descending</option>
+                    <option value="asc" {% if filters.get('direction') == 'asc' %}selected{% endif %}>Ascending</option>
+                </select>
+            </label>
+        </div>
+
+        <button class="primary" type="submit">Apply filters</button>
+        <a href="{{ url_for('web.transaction_list') }}">Clear filters</a>
+    </form>
+
+    {% set filter_error_items = filter_errors|default({}) %}
+    {% for field, message in filter_error_items.items() %}
+        <p class="error">{{ message }}</p>
+    {% endfor %}
+
+    <p><strong>Filtered transaction total: ₹{{ total }}</strong></p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Category / Source</th>
+                    <th>Payment mode</th>
+                    <th>Note</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in rows %}
+                <tr>
+                    <td>{{ t.txn_date }}</td>
+                    <td>{{ t.type|title }}</td>
+                    <td>₹{{ t.amount }}</td>
+                    <td>
+                        {% if t.type == 'expense' %}
+                            {% for c in cats %}
+                                {% if c.id == t.category_id %}{{ c.name }}{% endif %}
+                            {% endfor %}
+                        {% else %}
+                            {{ t.source }}
+                        {% endif %}
+                    </td>
+                    <td>{{ t.payment_mode or '—' }}</td>
+                    <td>{{ t.note or '—' }}</td>
+                    <td>
+                        <a href="{{ url_for('web.transaction_edit', transaction_id=t.id) }}">Edit</a>
+
+                        <form method="post"
+                              action="{{ url_for('web.transaction_delete', transaction_id=t.id) }}"
+                              onsubmit="return confirm('Delete this transaction?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="7">No transactions match these filters.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <nav aria-label="Transaction pages">
+        {% if filters.page > 1 %}<a href="{{ transaction_page_url(filters.page - 1) }}">Previous</a>{% endif %}
+        <span>Page {{ filters.page }}</span>
+        {% if filters.has_next %}<a href="{{ transaction_page_url(filters.page + 1) }}">Next</a>{% endif %}
+    </nav>
+    <p class="muted">Up to 50 records per page. Total includes all matching transactions.</p>
+</section>
+{% endblock %}
