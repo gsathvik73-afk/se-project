@@ -2,6 +2,8 @@
 
 A small Flask app for personal expenses, income, categories, monthly/category budgets, dashboard charts and filtered CSV exports. Uses Python 3.11+ and SQLite locally.
 
+Project requirements: [SRS (Word)](docs/SRS_Team14_SmartExpense.docx) · [SRS (PDF)](docs/SRS_Team14_SmartExpense.pdf).
+
 ## Start locally
 
 ```sh
