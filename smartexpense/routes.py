@@ -5,8 +5,10 @@ from functools import wraps
 from secrets import token_urlsafe
 from zoneinfo import ZoneInfo
 import re
+import csv
+from io import StringIO
 import bcrypt
-from flask import Blueprint, abort, current_app, flash, g, jsonify, redirect, render_template, request, url_for
+from flask import Response, Blueprint, abort, current_app, flash, g, jsonify, redirect, render_template, request, url_for
 from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import NotFound
@@ -547,3 +549,27 @@ def transaction_delete(transaction_id):
 def transaction_detail(transaction_id):
     txn = owned_transaction(transaction_id)
     return jsonify(transaction=transaction_record(txn))
+
+
+@bp.get('/transactions/export.csv')
+@protected
+def transaction_export():
+    rows, _, _, fields = transaction_rows(request.args, limit=None)
+    if fields:
+        return error(fields, 'message.html', title='Invalid export filters')
+    names = {c.id: c.name for c in categories()}
+    output = StringIO(newline='')
+    writer = csv.writer(output)
+    writer.writerow(['date', 'type', 'category', 'amount', 'payment_mode', 'source', 'note'])
+
+    def safe_cell(value):
+        text = str(value or '')
+        if text.lstrip().startswith(('=', '+', '-', '@')) or text.startswith(('\t', '\r', '\n')):
+            return "'" + text
+        return text
+
+    for txn in rows:
+        writer.writerow([txn.txn_date.isoformat(), txn.type, safe_cell(names.get(txn.category_id, '')),
+                         fmt(txn.amount), safe_cell(txn.payment_mode), safe_cell(txn.source), safe_cell(txn.note)])
+    return Response(output.getvalue(), content_type='text/csv; charset=utf-8',
+                    headers={'Content-Disposition': 'attachment; filename="smartexpense.csv"'})

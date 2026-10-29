@@ -74,7 +74,9 @@
 </section>
 
 <section class="panel">
-    <h2>Filter and sort</h2>
+    <div class="page-heading"><h2>Filter and sort</h2>
+        <a href="{{ url_for('web.transaction_export', **request.args.to_dict()) }}">Export filtered CSV</a>
+    </div>
 
     <form method="get" action="{{ url_for('web.transaction_list') }}">
         <div class="budget-form">
