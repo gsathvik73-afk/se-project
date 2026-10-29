@@ -9,6 +9,7 @@ import bcrypt
 from flask import Blueprint, abort, current_app, flash, g, jsonify, redirect, render_template, request, url_for
 from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError
+from werkzeug.exceptions import NotFound
 from .models import db, User, LoginSession, Category, Transaction, Budget
 
 bp = Blueprint('web', __name__)
@@ -233,16 +234,316 @@ def budget_list():
     if json_request(): return jsonify(budget=dict(id=budget.id,month=month,category_id=category_id,limit=fmt(limit)))
     return redirect(url_for('web.budget_list',month=month))
 
-@bp.get('/transactions')
+@bp.app_context_processor
+def transaction_helpers():
+    def page_url(page):
+        args = request.args.to_dict()
+        args['page'] = page
+        return url_for('web.transaction_list', **args)
+    return dict(today_date=today().isoformat(), transaction_page_url=page_url)
+
+
+def transaction_record(txn):
+    return {
+        'id': txn.id,
+        'type': txn.type,
+        'amount': fmt(txn.amount),
+        'date': txn.txn_date.isoformat(),
+        'category_id': txn.category_id,
+        'payment_mode': txn.payment_mode,
+        'source': txn.source,
+        'note': txn.note,
+    }
+
+
+def owned_transaction(transaction_id):
+    txn = db.session.scalar(
+        db.select(Transaction).where(
+            Transaction.id == transaction_id,
+            Transaction.user_id == g.user.id,
+        )
+    )
+    if txn is None:
+        abort(404)
+    return txn
+
+
+def transaction_rows(args, limit=50):
+    stmt = db.select(Transaction).where(Transaction.user_id == g.user.id)
+    errors = {}
+
+    start = args.get('start', args.get('from', '')).strip()
+    end = args.get('end', args.get('to', '')).strip()
+    category = args.get('category_id', '').strip()
+    minimum = args.get('min_amount', args.get('min', '')).strip()
+    maximum = args.get('max_amount', args.get('max', '')).strip()
+    sort = args.get('sort', 'date')
+    direction = args.get('direction', 'desc')
+    if sort in ('date_asc', 'date_desc', 'amount_asc', 'amount_desc', 'type_asc', 'type_desc'):
+        sort, direction = sort.rsplit('_', 1)
+    try:
+        page = int(args.get('page', 1))
+        if page < 1 or page > 1000000:
+            raise ValueError()
+    except ValueError:
+        errors['page'] = 'Choose a positive page number.'
+        page = 1
+
+    if start:
+        try:
+            stmt = stmt.where(Transaction.txn_date >= date.fromisoformat(start))
+        except ValueError:
+            errors['start'] = 'Enter a valid start date.'
+
+    if end:
+        try:
+            stmt = stmt.where(Transaction.txn_date <= date.fromisoformat(end))
+        except ValueError:
+            errors['end'] = 'Enter a valid end date.'
+
+    if start and end:
+        try:
+            if date.fromisoformat(start) > date.fromisoformat(end):
+                errors['end'] = 'End date must not be before start date.'
+        except ValueError:
+            pass
+
+    if category:
+        try:
+            category_id = visible_category(category).id
+            stmt = stmt.where(Transaction.category_id == category_id)
+        except (ValueError, TypeError, NotFound):
+            errors['category_id'] = 'Choose a valid category.'
+
+    if minimum:
+        try:
+            value = Decimal(minimum)
+            if not value.is_finite() or value < 0:
+                raise ValueError()
+            stmt = stmt.where(Transaction.amount >= value)
+        except (InvalidOperation, ValueError):
+            errors['min_amount'] = 'Enter a valid minimum amount.'
+
+    if maximum:
+        try:
+            value = Decimal(maximum)
+            if not value.is_finite() or value < 0:
+                raise ValueError()
+            stmt = stmt.where(Transaction.amount <= value)
+        except (InvalidOperation, ValueError):
+            errors['max_amount'] = 'Enter a valid maximum amount.'
+
+    if sort not in ('date', 'amount', 'type'):
+        sort = 'date'
+    column = {
+        'date': Transaction.txn_date,
+        'amount': Transaction.amount,
+        'type': Transaction.type,
+    }[sort]
+    ordering = column.asc() if direction == 'asc' else column.desc()
+    stmt = stmt.order_by(ordering, Transaction.id.desc())
+
+    if minimum and maximum and not any(k in errors for k in ('min_amount', 'max_amount')):
+        if Decimal(minimum) > Decimal(maximum):
+            errors['max_amount'] = 'Maximum amount must not be below minimum amount.'
+
+    filtered_stmt = stmt.order_by(None)
+    total = db.session.scalar(
+        filtered_stmt.with_only_columns(func.coalesce(func.sum(Transaction.amount), 0))
+    ) or Decimal('0.00')
+    rows = db.session.scalars(stmt.limit(limit + 1).offset((page - 1) * limit) if limit else stmt).all()
+    has_next = bool(limit and len(rows) > limit)
+    if limit:
+        rows = rows[:limit]
+
+    filters = {
+        'start': start,
+        'end': end,
+        'category_id': category,
+        'min_amount': minimum,
+        'max_amount': maximum,
+        'sort': sort,
+        'direction': direction,
+        'page': page,
+        'has_next': has_next,
+    }
+    return rows, total, filters, errors
+
+
+def validate_transaction(data, txn=None):
+    fields = {}
+
+    txn_type = str(data.get('type', txn.type if txn else 'expense')).strip().lower()
+    if txn_type not in ('expense', 'income'):
+        fields['type'] = 'Choose expense or income.'
+
+    try:
+        amount = money(data.get('amount', txn.amount if txn else ''))
+    except ValueError as exc:
+        fields['amount'] = str(exc)
+        amount = None
+
+    raw_date = str(data.get('date', txn.txn_date.isoformat() if txn else '')).strip()
+    try:
+        txn_date = date.fromisoformat(raw_date)
+        if txn_date > today():
+            fields['date'] = 'Transaction date cannot be in the future.'
+    except ValueError:
+        fields['date'] = 'Enter a valid transaction date.'
+        txn_date = None
+
+    category_id = None
+    payment_mode = None
+    source = None
+
+    if txn_type == 'expense':
+        raw_category = data.get(
+            'category_id',
+            txn.category_id if txn else '',
+        )
+        if raw_category in (None, ''):
+            fields['category_id'] = 'Choose a valid category.'
+        else:
+            category_id = visible_category(raw_category).id
+
+        payment_mode = str(
+            data.get('payment_mode', txn.payment_mode if txn else '') or ''
+        ).strip()
+        if not payment_mode or len(payment_mode) > 30:
+            fields['payment_mode'] = 'Enter a payment mode of 1 to 30 characters.'
+
+    elif txn_type == 'income':
+        source = str(data.get('source', txn.source if txn else '') or '').strip()
+        if not source or len(source) > 100:
+            fields['source'] = 'Enter an income source of 1 to 100 characters.'
+
+    note = str(data.get('note', txn.note if txn else '') or '').strip()
+    if len(note) > 2000:
+        fields['note'] = 'The note must be at most 2000 characters.'
+
+    return fields, {
+        'type': txn_type,
+        'amount': amount,
+        'txn_date': txn_date,
+        'category_id': category_id,
+        'payment_mode': payment_mode,
+        'source': source,
+        'note': note or None,
+    }
+
+
+@bp.route('/transactions', methods=['GET', 'POST'])
 @protected
 def transaction_list():
-    # Read-only integration view. Teammate adds CRUD, filters and sorting (F-005–010).
-    rows=db.session.scalars(db.select(Transaction).where(Transaction.user_id==g.user.id).order_by(Transaction.txn_date.desc(),Transaction.id.desc()).limit(50)).all()
-    return render_template('transactions.html',rows=rows)
+    if request.method == 'POST':
+        data = payload()
+        fields, values = validate_transaction(data)
+
+        if fields:
+            rows, total, filters, _ = transaction_rows(request.args)
+            return error(
+                fields,
+                'transactions.html',
+                rows=rows,
+                total=fmt(total),
+                filters=filters,
+                cats=categories(),
+                form_data=data,
+            )
+
+        txn = Transaction(user_id=g.user.id, **values)
+        db.session.add(txn)
+        db.session.commit()
+
+        if json_request():
+            return jsonify(transaction=transaction_record(txn)), 201
+
+        flash('Transaction added successfully.')
+        return redirect(url_for('web.transaction_list'))
+
+    rows, total, filters, filter_errors = transaction_rows(request.args)
+
+    if filter_errors:
+        return error(filter_errors, 'transactions.html', rows=[], total='0.00', filters=filters,
+                     filter_errors=filter_errors, cats=categories(), form_data={})
+
+    if json_request():
+        return jsonify(
+            page=filters['page'], has_next=filters['has_next'],
+            transactions=[transaction_record(row) for row in rows],
+            total=fmt(total),
+        )
+
+    return render_template(
+        'transactions.html',
+        rows=rows,
+        total=fmt(total),
+        filters=filters,
+        filter_errors=filter_errors,
+        cats=categories(),
+        errors={},
+        form_data={},
+    )
+
+
+@bp.put('/transactions/<int:transaction_id>')
+@bp.route('/transactions/<int:transaction_id>/edit', methods=['GET', 'POST', 'PUT'])
+@protected
+def transaction_edit(transaction_id):
+    txn = owned_transaction(transaction_id)
+
+    if request.method == 'GET':
+        return render_template(
+            'transaction_form.html',
+            txn=txn,
+            cats=categories(),
+            errors={},
+            form_data=transaction_record(txn),
+        )
+
+    data = payload()
+    fields, values = validate_transaction(data, txn)
+
+    if fields:
+        if json_request():
+            return jsonify(error='VALIDATION_ERROR', fields=fields), 422
+        return render_template(
+            'transaction_form.html',
+            txn=txn,
+            cats=categories(),
+            errors=fields,
+            form_data=data,
+        ), 422
+
+    for key, value in values.items():
+        setattr(txn, key, value)
+
+    db.session.commit()
+
+    if json_request():
+        return jsonify(transaction=transaction_record(txn))
+
+    flash('Transaction updated successfully.')
+    return redirect(url_for('web.transaction_list'))
+
+
+@bp.delete('/transactions/<int:transaction_id>')
+@bp.route('/transactions/<int:transaction_id>/delete', methods=['POST', 'DELETE'])
+@protected
+def transaction_delete(transaction_id):
+    txn = owned_transaction(transaction_id)
+    db.session.delete(txn)
+    db.session.commit()
+
+    if json_request():
+        return jsonify(ok=True)
+
+    flash('Transaction deleted successfully.')
+    return redirect(url_for('web.transaction_list'))
+
 
 @bp.get('/transactions/<int:transaction_id>')
 @protected
 def transaction_detail(transaction_id):
-    txn=db.session.scalar(db.select(Transaction).where(Transaction.id==transaction_id,Transaction.user_id==g.user.id))
-    if not txn: abort(404)
-    return jsonify(transaction=dict(id=txn.id,type=txn.type,amount=fmt(txn.amount),date=txn.txn_date.isoformat(),category_id=txn.category_id,payment_mode=txn.payment_mode,source=txn.source,note=txn.note))
+    txn = owned_transaction(transaction_id)
+    return jsonify(transaction=transaction_record(txn))
