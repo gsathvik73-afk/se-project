@@ -158,11 +158,11 @@ def login():
             return response
         guard.failures = 0
         guard.locked_until = None
+    valid=isinstance(password,str) and len(password.encode('utf-8'))<=72 and user and bcrypt.checkpw(password.encode(),user.password_hash)
     if user and guard is None:
         guard = LoginGuard(user_id=user.id, failures=0)
         db.session.add(guard)
         db.session.flush()
-    valid=isinstance(password,str) and len(password.encode('utf-8'))<=72 and user and bcrypt.checkpw(password.encode(),user.password_hash)
     if not valid:
         if guard:
             db.session.execute(db.update(LoginGuard).where(LoginGuard.user_id == user.id).values(
@@ -557,10 +557,12 @@ def transaction_edit(transaction_id):
 
 
 @bp.delete('/transactions/<int:transaction_id>')
-@bp.route('/transactions/<int:transaction_id>/delete', methods=['POST', 'DELETE'])
+@bp.route('/transactions/<int:transaction_id>/delete', methods=['GET', 'POST', 'DELETE'])
 @protected
 def transaction_delete(transaction_id):
     txn = owned_transaction(transaction_id)
+    if request.method == 'GET' or (request.method == 'POST' and not request.is_json and request.form.get('confirm') != 'yes'):
+        return render_template('transaction_delete.html', txn=txn)
     db.session.delete(txn)
     db.session.commit()
 
