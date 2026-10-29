@@ -9,6 +9,7 @@ import bcrypt
 from flask import Blueprint, abort, current_app, flash, g, jsonify, redirect, render_template, request, url_for
 from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError
+from werkzeug.exceptions import NotFound
 from .models import db, User, LoginSession, Category, Transaction, Budget
 
 bp = Blueprint('web', __name__)
@@ -233,20 +234,15 @@ def budget_list():
     if json_request(): return jsonify(budget=dict(id=budget.id,month=month,category_id=category_id,limit=fmt(limit)))
     return redirect(url_for('web.budget_list',month=month))
 
-'''@bp.get('/transactions')
-@protected
-def transaction_list():
-    # Read-only integration view. Teammate adds CRUD, filters and sorting (F-005–010).
-    rows=db.session.scalars(db.select(Transaction).where(Transaction.user_id==g.user.id).order_by(Transaction.txn_date.desc(),Transaction.id.desc()).limit(50)).all()
-    return render_template('transactions.html',rows=rows)
+@bp.app_context_processor
+def transaction_helpers():
+    def page_url(page):
+        args = request.args.to_dict()
+        args['page'] = page
+        return url_for('web.transaction_list', **args)
+    return dict(today_date=today().isoformat(), transaction_page_url=page_url)
 
-@bp.get('/transactions/<int:transaction_id>')
-@protected
-def transaction_detail(transaction_id):
-    txn=db.session.scalar(db.select(Transaction).where(Transaction.id==transaction_id,Transaction.user_id==g.user.id))
-    if not txn: abort(404)
-    return jsonify(transaction=dict(id=txn.id,type=txn.type,amount=fmt(txn.amount),date=txn.txn_date.isoformat(),category_id=txn.category_id,payment_mode=txn.payment_mode,source=txn.source,note=txn.note))
-'''
+
 def transaction_record(txn):
     return {
         'id': txn.id,
@@ -272,18 +268,26 @@ def owned_transaction(transaction_id):
     return txn
 
 
-def transaction_rows(args):
+def transaction_rows(args, limit=50):
     stmt = db.select(Transaction).where(Transaction.user_id == g.user.id)
-    filters = {}
     errors = {}
 
-    start = args.get('start', '').strip()
-    end = args.get('end', '').strip()
+    start = args.get('start', args.get('from', '')).strip()
+    end = args.get('end', args.get('to', '')).strip()
     category = args.get('category_id', '').strip()
-    minimum = args.get('min_amount', '').strip()
-    maximum = args.get('max_amount', '').strip()
+    minimum = args.get('min_amount', args.get('min', '')).strip()
+    maximum = args.get('max_amount', args.get('max', '')).strip()
     sort = args.get('sort', 'date')
     direction = args.get('direction', 'desc')
+    if sort in ('date_asc', 'date_desc', 'amount_asc', 'amount_desc', 'type_asc', 'type_desc'):
+        sort, direction = sort.rsplit('_', 1)
+    try:
+        page = int(args.get('page', 1))
+        if page < 1 or page > 1000000:
+            raise ValueError()
+    except ValueError:
+        errors['page'] = 'Choose a positive page number.'
+        page = 1
 
     if start:
         try:
@@ -308,7 +312,7 @@ def transaction_rows(args):
         try:
             category_id = visible_category(category).id
             stmt = stmt.where(Transaction.category_id == category_id)
-        except (ValueError, TypeError):
+        except (ValueError, TypeError, NotFound):
             errors['category_id'] = 'Choose a valid category.'
 
     if minimum:
@@ -339,20 +343,18 @@ def transaction_rows(args):
     ordering = column.asc() if direction == 'asc' else column.desc()
     stmt = stmt.order_by(ordering, Transaction.id.desc())
 
-    total_stmt = (
-        db.select(db.func.coalesce(db.func.sum(Transaction.amount), 0))
-        .where(Transaction.user_id == g.user.id)
-    )
+    if minimum and maximum and not any(k in errors for k in ('min_amount', 'max_amount')):
+        if Decimal(minimum) > Decimal(maximum):
+            errors['max_amount'] = 'Maximum amount must not be below minimum amount.'
 
-    # Reuse the filters and ordering from stmt, excluding ordering for the total.
     filtered_stmt = stmt.order_by(None)
     total = db.session.scalar(
-        filtered_stmt.with_only_columns(
-            db.func.coalesce(db.func.sum(Transaction.amount), 0)
-        )
+        filtered_stmt.with_only_columns(func.coalesce(func.sum(Transaction.amount), 0))
     ) or Decimal('0.00')
-
-    rows = db.session.scalars(stmt.limit(50)).all()
+    rows = db.session.scalars(stmt.limit(limit + 1).offset((page - 1) * limit) if limit else stmt).all()
+    has_next = bool(limit and len(rows) > limit)
+    if limit:
+        rows = rows[:limit]
 
     filters = {
         'start': start,
@@ -362,6 +364,8 @@ def transaction_rows(args):
         'max_amount': maximum,
         'sort': sort,
         'direction': direction,
+        'page': page,
+        'has_next': has_next,
     }
     return rows, total, filters, errors
 
@@ -397,43 +401,23 @@ def validate_transaction(data, txn=None):
             'category_id',
             txn.category_id if txn else '',
         )
-        '''try:
-            if str(raw_category).strip() == '':
-                raise ValueError()
-            category_id = visible_category(raw_category).id
-        except (ValueError, TypeError):
-            fields['category_id'] = ''Choose a valid category.'''''
-
-        try:
-            if str(raw_category).strip() == '':
-                raise ValueError()
-
-            category_id = visible_category(raw_category).id
-
-        except (ValueError, TypeError):
+        if raw_category in (None, ''):
             fields['category_id'] = 'Choose a valid category.'
-
-        except Exception as exc:
-            from werkzeug.exceptions import HTTPException
-
-            if isinstance(exc, HTTPException) and exc.code == 404:
-                fields['category_id'] = 'Choose a valid category.'
-            else:
-                raise
-
+        else:
+            category_id = visible_category(raw_category).id
 
         payment_mode = str(
-            data.get('payment_mode', txn.payment_mode if txn else '')
+            data.get('payment_mode', txn.payment_mode if txn else '') or ''
         ).strip()
         if not payment_mode or len(payment_mode) > 30:
             fields['payment_mode'] = 'Enter a payment mode of 1 to 30 characters.'
 
     elif txn_type == 'income':
-        source = str(data.get('source', txn.source if txn else '')).strip()
+        source = str(data.get('source', txn.source if txn else '') or '').strip()
         if not source or len(source) > 100:
             fields['source'] = 'Enter an income source of 1 to 100 characters.'
 
-    note = str(data.get('note', txn.note if txn else '')).strip()
+    note = str(data.get('note', txn.note if txn else '') or '').strip()
     if len(note) > 2000:
         fields['note'] = 'The note must be at most 2000 characters.'
 
@@ -479,8 +463,13 @@ def transaction_list():
 
     rows, total, filters, filter_errors = transaction_rows(request.args)
 
+    if filter_errors:
+        return error(filter_errors, 'transactions.html', rows=[], total='0.00', filters=filters,
+                     filter_errors=filter_errors, cats=categories(), form_data={})
+
     if json_request():
         return jsonify(
+            page=filters['page'], has_next=filters['has_next'],
             transactions=[transaction_record(row) for row in rows],
             total=fmt(total),
         )
@@ -497,6 +486,7 @@ def transaction_list():
     )
 
 
+@bp.put('/transactions/<int:transaction_id>')
 @bp.route('/transactions/<int:transaction_id>/edit', methods=['GET', 'POST', 'PUT'])
 @protected
 def transaction_edit(transaction_id):
@@ -537,6 +527,7 @@ def transaction_edit(transaction_id):
     return redirect(url_for('web.transaction_list'))
 
 
+@bp.delete('/transactions/<int:transaction_id>')
 @bp.route('/transactions/<int:transaction_id>/delete', methods=['POST', 'DELETE'])
 @protected
 def transaction_delete(transaction_id):
