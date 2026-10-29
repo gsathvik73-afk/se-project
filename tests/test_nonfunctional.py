@@ -41,6 +41,7 @@ def test_perf01_pages_load_within_3_seconds_with_5000_transactions(app, client):
             times.append(time.perf_counter() - start)
             assert resp.status_code == 200
         fast = sum(t <= 3.0 for t in times)
+        print(f'{path}: {fast}/100 within 3s; p90={sorted(times)[89]*1000:.1f}ms; max={max(times)*1000:.1f}ms')
         assert fast >= 90, f'{path}: only {fast}/100 loads within 3 s (slowest {max(times):.2f}s)'
 
     # A fast but wrong page must not pass: totals come from the database, the list is capped at 50 rows.
@@ -65,6 +66,8 @@ def test_perf02_twenty_concurrent_users_no_errors_no_mixed_data(app):
                 statuses.append(c.get('/dashboard').status_code)
                 statuses.append(c.get('/transactions').status_code)
                 statuses.append(write(c, '/categories', {'name': f'U{n:02d}-note-{i}'}).status_code)
+                statuses.append(write(c, '/transactions', {'type': 'income', 'amount': str(n + 1),
+                    'date': '2026-10-08', 'source': f'U{n:02d}'}).status_code)
         except Exception as exc:                                    # noqa: BLE001
             failures.append(f'user {n}: {exc!r}')
 
@@ -75,7 +78,7 @@ def test_perf02_twenty_concurrent_users_no_errors_no_mixed_data(app):
     assert not failures, failures
     counts = Counter(statuses)
     assert not [s for s in counts if s >= 500], f'server errors: {counts}'
-    assert counts[201] == users * rounds and counts[200] >= users * (1 + 2 * rounds)
+    assert counts[201] == 2 * users * rounds and counts[200] >= users * (1 + 2 * rounds)
 
     for n in range(users):                                          # every save present, nobody sees anyone else's
         c = app.test_client()
@@ -83,6 +86,9 @@ def test_perf02_twenty_concurrent_users_no_errors_no_mixed_data(app):
         names = [x['name'] for x in c.get('/categories', headers={'Accept': 'application/json'}).json['categories']]
         mine = [x for x in names if re.match(r'U\d\d-note-', x)]
         assert sorted(mine) == [f'U{n:02d}-note-{i}' for i in range(rounds)]
+        data = c.get('/api/dashboard?month=2026-10').json
+        assert data['income'] == f'{rounds * (n + 1):.2f}'
+    print(f'{users} concurrent users: {len(statuses)} successful actions, owner-isolated saves')
 
 
 # ---------------------------------------------------------------- TC-REL-01
@@ -127,7 +133,6 @@ def test_rel01_failed_save_leaves_no_partial_record_and_can_be_retried(tmp_path,
         assert db.session.scalar(db.select(db.func.count()).select_from(Budget)) == 1
 
 
-@pytest.mark.xfail(strict=False, reason='SAD 4.4 friendly 500 message and request reference not implemented yet')
 def test_rel01_failed_save_shows_friendly_message(tmp_path, monkeypatch):
     app = make_app(tmp_path, PROPAGATE_EXCEPTIONS=False)
     c = app.test_client()
@@ -152,7 +157,6 @@ def test_ux01_budget_errors_name_the_field_and_the_fix(client):
     assert 'positive amount' in resp.json['fields']['limit']
 
 
-@pytest.mark.xfail(strict=False, reason='Add Expense button/form (SEB-F-005) not implemented yet')
 def test_ux01_dashboard_links_to_add_expense(client):
     account(client)
     page = client.get('/dashboard').text
@@ -168,11 +172,10 @@ def test_port01_every_page_is_responsive(client, path):
     account(client)
     page = client.get(path).text
     assert '<meta name="viewport" content="width=device-width,initial-scale=1">' in page
-    if path != '/dashboard':                                                  # dashboard is covered by the xfail test below
+    if path != '/dashboard':                                                  # dashboard has its own wrapper check below
         assert not re.search(r'<table', page) or 'class="table-wrap"' in page  # wide tables scroll inside a wrapper
 
 
-@pytest.mark.xfail(strict=False, reason='Dashboard six-month table is not inside .table-wrap (2 columns, low risk); report to the dashboard owner')
 def test_port01_dashboard_table_scrolls_inside_a_wrapper(client):
     account(client)
     assert 'class="table-wrap"' in client.get('/dashboard').text

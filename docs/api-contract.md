@@ -1,29 +1,28 @@
 # Shared API and data contract
 
-The simplified SAD and SRS remain the requirement sources. This implementation uses Flask/Jinja, SQLAlchemy, bcrypt and Flask-WTF. Charts use local Canvas JavaScript rather than Chart.js; numerical data is also shown as text/tables. This is a small design change, not a requirement change.
-
-Implemented routes:
+Flask/Jinja, SQLAlchemy, bcrypt and Flask-WTF; local Canvas charts also provide numerical tables. Authenticated requests use the server-side `sid` cookie (8-hour absolute lifetime). Send `Content-Type: application/json` for JSON writes, and `Accept: application/json` for JSON reads. Every write requires a Flask-WTF CSRF token from the login form, in `X-CSRFToken` or the form's `csrf_token` field.
 
 | Route | Behaviour |
 |---|---|
-| GET/POST /register | Unique normalized email, name, password; JSON creates with 201 |
-| GET/POST /login | Credentials create an 8-hour server-side session and HttpOnly `sid` cookie |
-| POST /logout | Deletes the server-side session; replay of old cookie fails |
-| GET /categories; POST /categories | Eight defaults plus owner's categories; add custom category |
-| PUT or form POST /categories/{id} | Owner rename; defaults read-only |
-| GET /budgets; PUT or form POST /budgets | Monthly or category budget upsert; `category_id=null` means overall |
-| GET /dashboard; GET /api/dashboard?month=YYYY-MM | Owner totals, budgets and alerts, category breakdown and six months |
-| GET /transactions | Latest 50 owned records, read-only integration view |
-| GET /transactions/{id} | Owned record JSON; absent or foreign records return 404 |
+| GET/POST /register | Normalized unique email, name, password; JSON creates with 201 |
+| GET/POST /login | Session on success; 401 on bad credentials; five failures block login for five minutes with 429 and Retry-After |
+| POST /logout | Revokes server session; old cookie replay fails |
+| GET/POST /categories | Eight shared defaults plus owned custom categories; create custom category |
+| PUT or form POST /categories/{id} | Rename owned custom category; defaults are immutable |
+| GET/PUT/POST /budgets | Read/upsert monthly or category budget; category_id=null means overall |
+| GET /dashboard; GET /api/dashboard?month=YYYY-MM | Owner-scoped totals, budgets/alerts, category breakdown and six-month trend |
+| GET/POST /transactions | Filtered/sorted/paged owner list or create expense/income |
+| GET/PUT/DELETE /transactions/{id} | Read, update or delete an owned transaction |
+| GET/POST /transactions/{id}/edit | Browser edit form; PUT is also accepted |
+| GET/POST /transactions/{id}/delete | Browser confirmation; cancel keeps record, form delete requires confirm=yes |
+| GET /transactions/export.csv | All owned matches with the same filters/sort as the list, independent of page |
 
-Use JSON `Content-Type: application/json` for JSON responses on writes. Every write needs the Flask-WTF CSRF token: obtain it from the login form, submit in `X-CSRFToken` for JSON or `csrf_token` for forms. Authentication state is loaded as `g.user`; protect teammate routes with `@protected`. Always include `Transaction.user_id == g.user.id` or the equivalent owner restriction before lookup or mutation.
+Transactions use `type=expense|income`, positive `amount` with at most two decimals, `date=YYYY-MM-DD` no later than server IST today, optional `note`. Expenses require a visible `category_id` and `payment_mode`; income requires `source`. No client-supplied user ID is trusted. Absent or foreign records/categories return 404. Invalid fields/filters return 422; unauthenticated JSON gets 401, browser requests redirect to login. Writes recalculate dashboard totals on the next read and never get blocked by budget warnings.
 
-Teammate transaction contract: `type` expense/income; `amount` Decimal NUMERIC(12,2); `txn_date` date; `user_id` owner. Expenses require visible `category_id` and payment mode; income requires source; note optional. Shared database constraints reject nonpositive values and invalid types. The teammate must add form validation (including server IST date), CRUD, confirmation, filters and sorting; do not replace the shared model.
+List/export filters: `start`/`end` (also `from`/`to`), `category_id`, `min_amount`/`max_amount` (also `min`/`max`), `sort=date|amount|type`, `direction=asc|desc`. Combined values such as `sort=amount_desc` are accepted. Dates and amounts include both bounds. List `page` starts at 1 with up to 50 records; JSON includes `page`, `has_next` and the total across all matches. CSV has UTF-8 header `date,type,category,amount,payment_mode,source,note`, correct escaping, and formula-neutralized text cells.
 
-The dashboard queries stored records, so transaction changes automatically affect the next dashboard read. Default categories have `user_id=NULL`; these are visible but immutable. Custom categories, budgets and transactions are owner-scoped. Category renames keep IDs stable.
+Money in JSON is a decimal string. Budgets are unique by owner/month/category including overall scope. Alerts: none below 80%, warning from 80% through 100%, over strictly above 100%. Trend includes selected month and five preceding months, including zeros.
 
-Money is formatted as decimal strings. Alert `none` below 80%, `warning` at 80% through 100%, `over` strictly above 100%; alerts never block writes. Trend spans the selected month and five preceding months, including zeros. Budget scope is unique by owner/month/category, including the monthly NULL scope.
+Unexpected save failures roll back, return 500 with a retry message and request reference, and omit technical details from the response. Failure logs contain the request reference, endpoint and exception type rather than passwords, SQL parameters, tokens or financial notes. Authenticated responses are not cached. Browser script/style resources are local and subject to CSP.
 
-Pending teammate endpoints: transaction POST/PUT/DELETE, filters and CSV. CSV must reuse list filters and owner scope. The TC-AUTH-04 export check and TC-CAT-01 expense selector check require those endpoints to be integrated.
-
-Security owner must add five-failure/five-minute lockout and verify the deployed TLS, cookie settings, ownership of every teammate mutation, SQL/XSS handling and logs. Basic password hashing and minimum length are included because registration needs them; they are not a substitute for TC-SEC-01–05 execution.
+`init-db` creates new tables, including persistent login guards, and seeds defaults without deleting existing data. `COOKIE_SECURE=1` enables Secure cookies for a future HTTPS deployment. HTTP redirect, certificate and deployed TLS remain hosting acceptance checks.

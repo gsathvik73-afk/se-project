@@ -38,7 +38,6 @@ def test_sec01_no_external_resources(client):
         assert not re.search(r'(?:src|href)="https?://', page), path
 
 
-@pytest.mark.xfail(strict=False, reason='SAD 3.9 asks for HSTS and CSP headers; not added yet')
 def test_sec01_security_headers(client):
     headers = client.get('/login').headers
     assert 'Strict-Transport-Security' in headers
@@ -245,7 +244,6 @@ def test_sec05_unknown_email_and_wrong_password_look_the_same(client):
     assert wrong.status_code == unknown.status_code == 401 and wrong.json == unknown.json
 
 
-@pytest.mark.xfail(strict=False, reason='login lockout (5 failures, 5 minutes) is not implemented yet')
 def test_sec05_login_locked_after_five_failures(client):
     account(client)
     c = client.application.test_client()
@@ -254,3 +252,24 @@ def test_sec05_login_locked_after_five_failures(client):
     locked = write(c, '/login', {'email': 'a@example.com', 'password': PASSWORD})   # correct password, still blocked
     assert locked.status_code == 429 and 'Retry-After' in locked.headers
     # The 5-minute wait and unlock are checked by hand in TC-SEC-05 steps 6 and 7.
+
+
+def test_sec05_lockout_survives_restart_and_expires(tmp_path, monkeypatch):
+    from datetime import timedelta
+    from smartexpense import routes
+    from smartexpense.models import LoginGuard
+    first = make_app(tmp_path)
+    c = first.test_client()
+    account(c)
+    for _ in range(5):
+        assert write(c, '/login', {'email': 'a@example.com', 'password': 'wrong'}).status_code == 401
+    restarted = make_app(tmp_path)
+    c2 = restarted.test_client()
+    locked = write(c2, '/login', {'email': 'a@example.com', 'password': PASSWORD})
+    assert locked.status_code == 429 and 0 < int(locked.headers['Retry-After']) <= 300
+    after_lockout = routes.utcnow() + timedelta(seconds=301)
+    monkeypatch.setattr(routes, 'utcnow', lambda: after_lockout)
+    assert write(c2, '/login', {'email': 'a@example.com', 'password': PASSWORD}).status_code == 200
+    with restarted.app_context():
+        guard = db.session.get(LoginGuard, user_id(restarted, 'a@example.com'))
+        assert guard.failures == 0 and guard.locked_until is None
