@@ -8,3 +8,8 @@ instance/
 
 .vercel/
 .env*
+.coverage
+coverage-html/
+*.webm
+*.log
+.ruff_cache/
