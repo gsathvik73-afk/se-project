@@ -139,7 +139,7 @@ def register():
     if not name or len(name)>100: fields['name']='Enter a name of 1 to 100 characters.'
     if len(email)>254 or not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+',email): fields['email']='Enter a valid email address.'
     if not isinstance(password,str) or len(password)<8 or len(password.encode('utf-8'))>72:
-        fields['password']='Use at least 8 characters and no more than 72 UTF-8 bytes.'
+        fields['password']='Use at least 8 characters and no more than 72 UTF-8 bytes.'  # nosec B105
     if fields: return error(fields,'auth.html',mode='register')
     user=User(name=name,email=email,password_hash=bcrypt.hashpw(password.encode(),bcrypt.gensalt()))
     db.session.add(user)
