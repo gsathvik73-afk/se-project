@@ -14,10 +14,12 @@ OUT = ROOT / 'docs' / 'reports'
 
 def run(*args, output=None, accepted=(0,)):
     result = subprocess.run([sys.executable, *args], cwd=ROOT, text=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     if output:
-        (OUT / output).write_text(result.stdout)
+        # Diagnostic logs must not corrupt machine-readable JSON reports.
+        (OUT / output).write_text(result.stdout if output.endswith('.json') else result.stdout + result.stderr)
     print(result.stdout, end='')
+    print(result.stderr, end='', file=sys.stderr)
     if result.returncode not in accepted:
         raise SystemExit(result.returncode)
     return result.returncode
