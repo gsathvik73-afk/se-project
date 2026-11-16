@@ -1636,5 +1636,15 @@
         }
       ]
     }
+  },
+  "original_pr_archive_branches": {
+    "evidence/arya-original-pr3": {
+      "head": "ae19df42269f583c99154bf838b4e251935d0bad",
+      "source_pr": 3
+    },
+    "evidence/sahana-original-pr4": {
+      "head": "893c9da575f541c61a8927271a26f5e14e831b1e",
+      "source_pr": 4
+    }
   }
 }

@@ -29,3 +29,7 @@ These details are taken from GitHub's original PR commit/file records, retained 
 - **Sahana, PR #4:** `b9f6600` implements transaction management; `a10a986` limits lists to 50 records. The same PR includes later owner-authored fixes (`b0fcdcd`, `893c9da`) and an integration merge. The guide distinguishes those authors rather than crediting every file/commit in the PR to Sahana.
 
 Each guide's page 1 explains these records, page 2 maps repository files, pages 4-5 include actual source excerpts and line links, page 7 names executable tests, page 9 shows actual milestones, and page 10 explains how to inspect issues, PRs, commits, checks and tags. The guides use immutable source links based on the recorded source revision, not unverified line numbers guessed from memory.
+
+## Inspect the original PR versions offline
+
+The exact original PR heads are also preserved as `evidence/arya-original-pr3` (`ae19df4`) and `evidence/sahana-original-pr4` (`893c9da`). These archive the actual PR versions, including original member commits and later review commits, without changing their content, author or timestamp. They are separate from current main. A complete clone or the revised Git bundle includes them, so the `git show` commands in the guides work even when an original PR commit is not an ancestor of the current integrated main history. Do not merge these archive branches as new feature work.
