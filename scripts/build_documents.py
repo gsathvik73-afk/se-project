@@ -59,7 +59,7 @@ def section(title,*paragraphs):
 
 
 def title(subject,subtitle):
-    return [p(subject,'GuideTitle'),p(subtitle),p('Version 2.0  |  November 2026  |  Current implementation and evidence')]
+    return [p(subject,'GuideTitle'),p(subtitle),p('Version 2.1  |  November 2026  |  Current implementation and evidence')]
 
 
 def arrow(d,x1,y1,x2,y2,label=None):
@@ -152,7 +152,7 @@ def build_srs():
       ['SEB-SR-004','ORM parameterization and escaped output keep SQL and script payloads inert; reject missing CSRF. TC-SEC-04.'],
       ['SEB-SR-005','Minimum password length 8 characters, maximum 72 UTF-8 bytes; five consecutive failures lock for five minutes. TC-SEC-05.']], [86,417]))
     st+=section('6 Quality attributes and acceptance','Money is positive, at most INR 9999999999.99 and has at most two decimal places. Income does not consume a budget. Remaining may be negative. Totals are computed on reads. Dates use server IST for the future-date check. Six-month dashboard queries require June 0001 or later to avoid calendar underflow.',
-      'Exit criteria: all high-priority requirements pass, every requirement links to an executed case, no open Critical or Major defect, and manual/deployed evidence exists where required. The current build does not claim unconditional acceptance while the three external checks remain open.')
+      'Exit criteria: all high-priority requirements pass, every requirement links to an executed case, no open Critical or Major defect, and manual/deployed evidence exists where required. The current build does not claim unconditional acceptance while five-real-user acceptance and valid public HTTPS remain open. The stable Chrome, Edge and Firefox desktop/360px matrix is verified in docs/reports/browser-acceptance.')
     st.append(PageBreak());st+=section('7 UML use case model','A guest can register or authenticate. A registered user manages owned records, categories, budgets and reports. Authentication is a precondition for all private use cases.');st.append(DIAGRAMS['use-cases'])
     st+=section('8 Requirements traceability matrix','The complete machine-readable RTM in traceability.csv links each of the 27 identifiers to source, test case, GitHub issue, owner, estimate and sprint. Requirements.json is the common data source. See the Test Plan case catalog for eight executable scenarios per functional requirement.')
     st.append(table(['Requirements','Design and code','Test family'],[
@@ -165,7 +165,7 @@ def build_srs():
 
 def build_sad():
     st=title('SmartExpense Architecture and Design','Actual Flask and SQLite implementation with traceable interfaces')
-    st+=section('1 Introduction','This SAD explains the implemented structure and decisions for the three-member team. It updates earlier proposed designs and API examples. Readers should use SRS.pdf for required behavior, Test_Plan.pdf for verification and deviations.md for the change rationale. Revision 2.0 records November repairs; approval remains with the team and evaluator.')
+    st+=section('1 Introduction','This SAD explains the implemented structure and decisions for the three-member team. It updates earlier proposed designs and API examples. Readers should use SRS.pdf for required behavior, Test_Plan.pdf for verification and deviations.md for the change rationale. Revision 2.1 records November repairs and verified browser acceptance; approval remains with the team and evaluator.')
     st+=section('2 Document overview','Architecture describes responsibilities and trust boundaries. Design specifies data, request sequences, APIs and error behavior. The code has one Flask blueprint, an application factory, SQLAlchemy models, Jinja templates and local static assets. Logical modules are functions within routes.py; this is not a claim that separate service processes exist.')
     st+=section('3 Architecture','Choose a layered monolith: a small student project needs simple deployment and inspectable request flows. Browser HTML and Canvas form the presentation layer; Flask handles authentication, validation and business rules; SQLAlchemy and SQLite provide persistence. This keeps one transaction boundary per write and avoids distributed-service overhead. SQLite suits the measured local load but has one writer at a time. A larger deployment would need measured capacity work and a reviewed database migration.')
     st.append(DIAGRAMS['components'])
@@ -187,7 +187,7 @@ def build_sad():
       'Transaction interface: GET /transactions lists up to 50 owned matches plus page, has_next and the total across matches. POST creates and returns 201 {transaction:{...}}. GET /transactions/{id} returns one owned record. PUT updates valid fields; DELETE removes an owned record. Form edit and confirmation routes support browsers. GET /transactions/export.csv returns all filtered rows with date,type,category,amount,payment_mode,source,note headers.',
       'Budget interface: GET /budgets reads a month. PUT or POST accepts month, limit and nullable category_id, then upserts one scope and returns the saved budget. GET /api/dashboard?month=2026-10 returns month, income, expense, balance, budgets, categories and trend. See api-contract.md for exact request and response examples.')
     st+=section('4.4 Error handling and logging','Validation returns 422 with field messages. Anonymous JSON requests get 401; foreign/absent records get 404; editing defaults gets 403. CSRF failures return 400. JSON HTTP errors use stable error identifiers. Unexpected failures roll back and return 500 with a retry message and a request reference. Failure logs contain endpoint, request reference and exception type, not SQL parameters or entered financial data. A 64 KiB request limit returns 413 for oversized requests.')
-    st+=section('4.5 UX and open issues','Labels, short forms, retained invalid values, a Dashboard Add Expense link, explicit delete confirmation, text threshold messages and responsive table wrappers support the intended flow. Canvas charts have numerical table counterparts. Remaining acceptance includes five first-time users, a complete current Chrome/Firefox/Edge matrix and valid deployed HTTPS. These are visible in evaluation-checklist.md and GitHub issues 25-27.')
+    st+=section('4.5 UX and open issues','Labels, short forms, retained invalid values, a Dashboard Add Expense link, explicit delete confirmation, text threshold messages and responsive table wrappers support the intended flow. Canvas charts have numerical table counterparts. The stable Chrome, Edge and Firefox desktop/360px matrix passed 90 checkpoints and closes issue 26. Five first-time users and valid deployed HTTPS remain open as issues 25 and 27; see evaluation-checklist.md.')
     st+=section('5 References and terms','Project SRS version 2.0; Test Plan version 2.0; supplied SAD template and Deliverables Parts 1-3; source code in smartexpense. UML describes structural and interaction models; API means application programming interface; ORM means object-relational mapper; CSRF means cross-site request forgery. Architecture is explained using the supplied IEEE-style outline without claiming formal certification.')
     pdf('SAD.pdf',st)
 
@@ -201,7 +201,7 @@ def build_test_plan():
       'Entry criteria: dependencies installed from pins, stable application factory, separate temporary database and known sample data. Baseline A: income INR 10000; Food expense 500, Travel 300 and Rent 1000; expense 1800 and balance 8200. Budget baseline: monthly 5000 and Food 1000. Tests reset state per case. Test-only hashing cost is reduced only inside the 136 scenario suite; original security and concurrency tests use the production bcrypt cost.')
     st+=section('5.1 Security validation','Use two synthetic users. Test password boundaries, different bcrypt salts, login lockout and expiry, logout cookie replay, cross-user reads/edits/deletes, SQL-injection and stored-XSS payloads, missing CSRF, no-store/CSP headers, formula-safe CSV and safe errors. Malformed category IDs and oversized amount filters must not bypass checks or trigger 500. Scan application source with pyflakes and Bandit without blanket security exclusions.',
       'For a public target, run TC-SEC-01 with SEB_DEPLOYED_URL: check HTTP redirect, valid certificate, TLS protocol and Secure/HttpOnly cookies. Without that target the two deployment tests skip and the requirement remains open. Authorized testing is limited to this application and synthetic data.')
-    st+=section('6 Environment','Python 3.11 with exact pins, pytest, coverage.py branch mode, pyflakes and Bandit. Temporary SQLite files isolate tests. Local browser recording uses isolated headless Chromium; browser report records actual versions and viewport. CI uses Ubuntu. Local test-client timings do not measure a public network or production service. Docker build and deployable package are checked by CI.')
+    st+=section('6 Environment','Python 3.11 with exact pins, pytest, coverage.py branch mode, pyflakes and Bandit. Temporary SQLite files isolate tests. Browser acceptance separately runs stable Chrome, Edge and Firefox at 1280px and 360px; its report records actual versions, screenshots and viewport. Earlier retrospective recording uses isolated Chromium. CI uses Ubuntu. Local test-client timings do not measure a public network or production service. Docker build and deployable package are checked by CI.')
     st+=section('7 Schedule','Teacher baseline: Sprint 1 October 19-23, Sprint 2 October 26-30, testing November 2-6. Current recovery begins November 15. These historical dates are not rewritten as achieved dates. Execute unit tests, full regression with coverage, scans, browser smoke, report review and freeze review in dependency order. A failure suspends the affected acceptance and triggers a targeted fix and rerun.')
     st+=section('8 Deliverables','Four named reports live in docs/reports: unit-test-report.md and XML, system-validation-report.md and XML, code-coverage-report.md, and branch-coverage-report.md. Also retain coverage JSON/XML/HTML, test logs, security/static scans, browser screenshots and catalog CSV. Videos are in docs/videos. Scripts/quality.py regenerates the reports; CI uploads fresh artifacts for its exact revision.')
     st+=section('9 Responsibilities','Sathik verifies accounts, sessions, budgets, dashboard and release integration. Sahana verifies end-to-end transaction creation, validation, edits, deletion and filters. Arya verifies complete filtered CSV reporting, quality evidence and security acceptance. Every person reads the whole architecture and reviews changes outside their primary area. GitHub issues assign current responsibility; Git history determines authorship.')
@@ -261,7 +261,7 @@ COMMON_GUIDE = {
 ('Different levels answer different questions','Unit tests isolate rules such as money conversion or month bounds. Integration tests exercise Flask routes with a real temporary SQLite database. System checks follow account-to-report behavior through the application. Security tests use hostile input and a second user. Performance checks seed 5000 rows and measure 100 loads per page; concurrency uses 20 independent users. These dimensions overlap, so do not add their counts as if every category were disjoint.'),
 ('Read an assertion','A test creates known inputs, performs an action and asserts an observable result. A response status alone is weak evidence: tests also inspect persisted rows, totals, owner separation and CSV content. Fixtures create a fresh database so earlier cases do not contaminate later ones. The scenario suite has eight independent cases for each functional requirement, 136 in total. Its test-only bcrypt cost is reduced for speed; the existing security and concurrency suites retain production cost.'),
 ('Interpret the reports','scripts/quality.py produces unit JUnit XML, a complete-suite system report, coverage JSON/XML/HTML and source/security scans. The system report includes the whole regression suite, including unit cases; its total is not an additional independent set. Statement coverage measures executed executable lines. Branch coverage measures executed branch exits. The combined percentage weights both; quoting it as pure branch coverage is incorrect. Read the missing-line and missing-branch details before claiming thoroughness.'),
-('What skipped tests mean','The two deployed HTTPS checks skip when SEB_DEPLOYED_URL is absent. Skipped means not executed, not passed. Browser screenshots and recordings validate their displayed flows but do not establish all current Chrome, Firefox and Edge combinations. Five-first-time-user acceptance needs actual participants. Local Flask-client response timings exclude network latency and public-host load.'),
+('What skipped tests mean','The two deployed HTTPS checks skip when SEB_DEPLOYED_URL is absent. Skipped means not executed, not passed. The separate stable Chrome, Edge and Firefox matrix passed 90 checkpoints at desktop and 360px and is recorded under docs/reports/browser-acceptance. Five-first-time-user acceptance still needs actual participants. Local Flask-client response timings exclude network latency and public-host load.'),
 ('Practice the command','Create an isolated environment, install requirements-dev.txt and run python scripts/quality.py. Inspect unit-test-report.md, system-validation-report.md, code-coverage-report.md and branch-coverage-report.md. Find one failing assertion or uncovered exit and explain how an input would reach it. CI artifacts are authoritative for the exact pushed revision; locally committed reports also record their base revision and dirty-tree flag.')]),
 8: ('Requirements design and SDLC traceability',[
 ('Know the document chain','The SRS says what must happen and how to verify it. The SAD says how components, data and interfaces deliver that behavior. The Test Plan defines the approach, fixtures, cases, exit conditions and evidence. The RTM connects requirement to design, source and case. A GitHub issue connects that requirement to an owner, estimate, sprint and PR. A test report then records what actually executed. Show this chain for a single requirement during the viva.'),
@@ -366,7 +366,7 @@ ROLE_GUIDE={
 ('Interpret rather than decorate','A green count is not proof of all requirements. A skip means unavailable execution, not pass. Coverage measures whether code ran, not whether assertions are meaningful. Statement and branch denominators differ. Combined coverage should not be quoted as pure statement or branch coverage. The HTML and JSON show misses; explain which input could exercise one instead of promising 100 percent without evidence.'),
 ('Nonfunctional tests','Performance inserts 5000 transactions and measures 100 dashboard and 100 list requests, requiring at least 90 below three seconds. It also checks correct totals and 50 visible records. Concurrency uses 20 independent clients, 260 successful actions and owner-isolated persisted results. Reliability restarts an application on the same SQLite file and forces a failure after flush but before commit. These are controlled local checks, not a public network benchmark.'),
 ('Security evidence','Password tests inspect salted hashes and boundaries. Ownership tests use two accounts and malicious record IDs. SQL/XSS cases exercise inert handling, and CSRF tests reject missing tokens. Persistent lockout tests check restart, expiry and reset. New regressions reject category booleans/fractions/overflow and oversized filter amounts. Static tools complement these cases; no clean scan can prove absence of every vulnerability.'),
-('Manual boundaries','Five first-time users must actually attempt the entry/error task. Installed browser smoke is not evidence of every latest Chrome/Firefox/Edge combination. Public TLS needs a real HTTPS host, valid certificate and redirect. Keep those GitHub items open until the required evidence exists. During the viva, distinguish implementation complete, locally verified and fully accepted.')]),
+('Manual boundaries','Five first-time users must actually attempt the entry/error task. The stable Chrome/Edge/Firefox matrix passed 90 desktop/360px checkpoints and closes issue 26. Public TLS still needs a real HTTPS host, valid certificate and redirect. Keep issues 25 and 27 open until the required evidence exists. During the viva, distinguish implementation complete, locally verified and fully accepted.')]),
 12:('Arya viva questions and final rehearsal',[
 ('Why share the list query with export','It keeps ownership, filters and ordering consistent. Export disables pagination to return all matches rather than copying only the visible page.'),
 ('Why not count CSV lines','A quoted note may contain a newline. Parse using csv.reader and count records; verify headers and field values independently.'),
@@ -380,15 +380,35 @@ ROLE_GUIDE={
 
 
 def build_guides():
+    from guide_repository_pages import page as repository_page, code_block
+    evidence=json.loads((DOCS/'repository-evidence.json').read_text())
+    context={'p':p,'table':table,'S':S,'DOCS':DOCS,'evidence':evidence}
     for person,role in ROLE_GUIDE.items():
         story=[]
         for number in range(1,13):
             if number>1:story.append(PageBreak())
+            special=repository_page(person,number,context)
+            if special is not None:
+                story.extend(special)
+                continue
             heading,items=role.get(number,COMMON_GUIDE.get(number))
-            story.append(p(f'{person} SmartExpense Viva Guide' if number==1 else f'{number:02} {heading}','GuideTitle'))
-            if number==1:story.append(p('01 '+heading,'GuideH'))
+            story.append(p(f'{number:02} {heading}','GuideTitle'))
             for name,text in items:
                 story.append(p(name,'GuideH'));story.append(p(text,'CodeText' if name=='Useful commands' else 'Body'))
+            if number in (4,5):story.extend(code_block(person,number,context))
+            if number==7:
+                story.append(p('Your exact executable checks','GuideH'))
+                details={'Sathik':'tests/test_core.py: test_logout_revokes_replayed_cookie, test_budget_persistence_upsert_and_totals, test_alert_thresholds and test_year_rollover_trend. Run python -m pytest tests/test_core.py -q.',
+                  'Sahana':'tests/test_transactions.py checks CRUD and filters; tests/test_regressions.py checks malformed category IDs and extreme amount filters. Run python -m pytest tests/test_transactions.py tests/test_regressions.py -q.',
+                  'Arya':'tests/test_csv_export.py; test_nonfunctional.py; test_security.py. Reusable account/write/CSRF fixtures are in tests/support.py. Run python -m pytest tests/test_csv_export.py tests/test_nonfunctional.py tests/test_security.py -q.'}
+                story.append(p(details[person]))
+            if number==9 and (DOCS/'milestones.json').exists():
+                story.append(p('Actual milestone snapshot','GuideH'))
+                ms=json.loads((DOCS/'milestones.json').read_text())
+                story.append(table(['Milestone','Closed and open','Planned due','State'],[[m['title'],f"{m['closed_issues']} closed / {m['open_issues']} open",m['due_on'][:10],m['state']] for m in ms],[135,145,110,113]))
+            if number==11:
+                story.append(p('Where the remaining checks are recorded','GuideH'))
+                story.append(p('docs/acceptance-remaining.md explains issues 25-27; docs/usability-participants.csv has five unobserved participant rows to complete honestly. Browser results live in docs/reports/browser-acceptance. Deployed checks are tests/test_security.py tests with deployed in their names. Do not close a requirement without its actual evidence.'))
         pdf(f'viva/{person}_Viva_Guide.pdf',story)
 
 
@@ -406,7 +426,7 @@ def build_report():
         m=METRICS;t=m['coverage'];st.append(table(['Measure','Actual result'],[
          ['Unit tests',f"{m['unit']['passed']} passed"],['Complete regression suite',f"{m['suite']['passed']} passed; {m['suite']['failed']} failed; {m['suite']['skipped']} skipped"],
          ['Statement coverage',f"{100*t['covered_lines']/t['num_statements']:.2f}%"],['Branch coverage',f"{100*t['covered_branches']/t['num_branches']:.2f}%"],['Combined coverage',f"{t['percent_covered']:.2f}%"]],[200,303]))
-    st+=section('7 Security validation and limitations','Automated evidence checks salts, password bounds, persistent lockout, replay rejection, owner authorization, CSRF, injection/XSS handling, CSV formulas, headers and safe rollback errors. pyflakes and Bandit complement executable tests. No full penetration-test certification is claimed. SQLite is not encrypted by this app. Public HTTPS and the specified human/browser acceptance conditions remain explicit open checks.')
+    st+=section('7 Security validation and limitations','Automated evidence checks salts, password bounds, persistent lockout, replay rejection, owner authorization, CSRF, injection/XSS handling, CSV formulas, headers and safe rollback errors. pyflakes and Bandit complement executable tests. No full penetration-test certification is claimed. SQLite is not encrypted by this app. The 90-check stable-browser matrix is verified. Public HTTPS and five-real-user acceptance remain explicit open checks.')
     st+=section('8 Maintenance and recovery','maintenance.md specifies safe SQLite backups, restore validation, dependency updates, code rollback, logging hygiene and severity-based defect handling. init-db is nondestructive table creation, not a general column migration system. CI builds a non-root container with Gunicorn and persistent storage requirements. Actual public hosting still needs a host, domain, certificate and secure proxy configuration.')
     st+=section('9 Final demonstration and outcome','A fifteen-minute presentation should cover the problem and SRS, architecture/data/sequences, working use cases, backlog/PR/review evidence, tests/coverage, deviations and maintenance. The one-minute and two-minute retrospective videos in videos demonstrate the repaired working product. Final acceptance is conditional until evaluation-checklist.md has the required external evidence and genuine review/sign-off. A release candidate must not be misrepresented as complete human acceptance.')
     st+=section('10 LLM use and references','LLMs are permitted by the supplied project guidelines. The repair uses AI to inspect documents, fix boundary behavior, develop tests, reconcile requirements and prepare guides. The team must understand the submitted code and verify the generated work. ai-use.md records the request and method without inventing earlier prompts. References: teacher guidelines, deliverables Parts 1-3, student FAQs and evaluator checklist in source-reference; current source, tests and reports in this repository.')
@@ -418,6 +438,11 @@ def build_report():
 
 
 def main():
+    import sys
+    if '--guides-only' in sys.argv:
+        build_guides()
+        print('Updated the three repository-specific viva guides.')
+        return
     for name,drawing in DIAGRAMS.items():renderSVG.drawToFile(drawing,str(DOCS/'diagrams'/(name+'.svg')))
     build_srs();build_sad();build_test_plan();build_plan();build_report();build_guides()
     print('Built five submission PDFs and three personalized viva guides.')

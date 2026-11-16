@@ -1,6 +1,6 @@
 # Evaluation evidence and acceptance gaps
 
-Current reconciliation: November 2026. Teacher materials in source-reference are source requirements, not evidence that the work was completed on their original dates. No Jira work was performed for this repair. GitHub is the project tracker.
+Current reconciliation: November 2026. Follow-up corrects milestone counters/deadlines, adds verified member/source guide pages and completes stable-browser acceptance. Teacher materials in source-reference are source requirements, not evidence that the work was completed on their original dates. No Jira work was performed for this repair. GitHub is the project tracker.
 
 | Teacher criterion | Current evidence | State |
 |---|---|---|
@@ -39,7 +39,7 @@ Current reconciliation: November 2026. Teacher materials in source-reference are
 ## Acceptance that cannot be replaced by generated evidence
 
 1. **Five first-time users** must perform TC-UX-01 and record actual click counts and error correction. GitHub issue #25 remains open. A browser script is not five people.
-2. **Current Chrome, Firefox and Edge** plus a 360px viewport need the full action matrix and actual versions. Recorded headless Chromium smoke is partial evidence. Issue #26 remains open.
+2. **Current stable Chrome, Edge and Firefox** completed fifteen full-flow checkpoints at each of 1280px and 360px: 90 total, with actual versions and screenshots in reports/browser-acceptance. Issue #26 is closed.
 3. **Valid public HTTPS** needs a chosen host/domain, certificate, HTTP redirect and successful deployed tests. Issue #27 remains open; two tests skip without SEB_DEPLOYED_URL.
 4. **GitHub Projects permission** must be available to create/link the required Project board. All 27 issue records already have assignees, points and sprint milestones. Run setup_project.py after the repository owner grants project scope.
 5. **Real member actions and reviews** remain real-person evidence: original PRs are retained; current AI-assisted repairs are not relabelled as three different people. Each member should review their area and raise any new PR from their own account. The owner cannot independently approve their own PR.

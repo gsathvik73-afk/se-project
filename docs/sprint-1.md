@@ -6,4 +6,4 @@ Sprint 1 foundation covers accounts, sessions, categories, budgets and dashboard
 
 Original PRs remain in GitHub: Arya #3, Sahana #4, foundation #1/#2 and integration #32. Current focused recovery PRs record the actual AI-assisted repairs. Retrospective 60-second and 120-second working-product recordings are in videos. Their README describes the recording date and limits.
 
-The three manual/deployed acceptance issues remain open until their evidence exists. See evaluation-checklist.md. No Jira action is required for the current handoff.
+Browser compatibility issue 26 is complete after the 90-check stable-browser matrix. The five-real-user and public HTTPS acceptance issues 25 and 27 remain open until their evidence exists. See evaluation-checklist.md. No Jira action is required for the current handoff.

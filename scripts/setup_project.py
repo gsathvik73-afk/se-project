@@ -31,11 +31,13 @@ def main():
     fields=gh('project','field-list',number,'--owner',OWNER,'--format','json')['fields'];byname={f['name']:f for f in fields}
     options={o['name']:o['id'] for o in byname['Sprint']['options']}
     states={o['name']:o['id'] for o in byname['Status']['options']}
+    actual_issues=gh('api',f'repos/{REPO}/issues?state=all&per_page=100')
+    issue_states={issue['html_url']:issue['state'] for issue in actual_issues if 'pull_request' not in issue}
     for r in json.loads((ROOT/'docs/requirements.json').read_text()):
         item=gh('project','item-add',number,'--owner',OWNER,'--url',r['github_issue'],'--format','json')
         gh('project','item-edit','--id',item['id'],'--project-id',pid,'--field-id',byname['Story Points']['id'],'--number',str(r['story_points']))
         gh('project','item-edit','--id',item['id'],'--project-id',pid,'--field-id',byname['Sprint']['id'],'--single-select-option-id',options[r['sprint']])
-        state='Todo' if 'Pending' in r['acceptance_status'] else 'Done'
+        state='Done' if issue_states[r['github_issue']]=='closed' else 'Todo'
         gh('project','item-edit','--id',item['id'],'--project-id',pid,'--field-id',byname['Status']['id'],'--single-select-option-id',states[state])
     (ROOT/'docs/github-project.json').write_text(json.dumps(project,indent=2)+'\n')
     print(project['url'])

@@ -19,3 +19,13 @@ For new work, each member uses their own authenticated account, branch and PR. T
 5. After the owner resolves findings and CI is green, freeze the actual reviewed revision. Keep manual/hosting acceptance items open until observed.
 
 Read the corresponding twelve-page PDF in viva before rehearsing. Every member should also trace one requirement outside their own area.
+
+## Original member-specific records used by the guides
+
+These details are taken from GitHub's original PR commit/file records, retained in repository-evidence.json.
+
+- **Sathik:** foundation commit `94a175d` introduces accounts, budgets and dashboard. `f6e177f` adds owner-scoped filtered CSV. `4bbbd3e` adds persistent login lockout; `6eebc15` reduces SQLite lock contention during password checks. PRs #41/#42 are later AI-assisted recovery under the owner account.
+- **Arya, PR #3:** `0dc89d7` adds detailed CSV/nonfunctional/security cases; `ae19df4` adds automated checks. Files: `tests/support.py`, `tests/test_csv_export.py`, `tests/test_nonfunctional.py`, `tests/test_security.py` and the original test-case DOCX (superseded in the current tree by the revised PDF/CSV). Do not describe current CSV feature ownership as authorship of Sathik's earlier export code.
+- **Sahana, PR #4:** `b9f6600` implements transaction management; `a10a986` limits lists to 50 records. The same PR includes later owner-authored fixes (`b0fcdcd`, `893c9da`) and an integration merge. The guide distinguishes those authors rather than crediting every file/commit in the PR to Sahana.
+
+Each guide's page 1 explains these records, page 2 maps repository files, pages 4-5 include actual source excerpts and line links, page 7 names executable tests, page 9 shows actual milestones, and page 10 explains how to inspect issues, PRs, commits, checks and tags. The guides use immutable source links based on the recorded source revision, not unverified line numbers guessed from memory.

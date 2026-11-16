@@ -12,3 +12,6 @@ Run `python scripts/quality.py` after installing requirements-dev.txt. It create
 The XML includes per-case names, outcomes and times. Coverage HTML may be generated locally; CI uploads the complete reports directory as its quality-reports artifact. The committed summary records local provenance, and CI artifacts are tied to the pushed revision. security-review.md explains the one reviewed scanner false positive.
 
 Browser screenshots and synthetic recording metadata are in browser. They are partial browser acceptance evidence, not results from five real participants or an untested public TLS target.
+
+
+The follow-up browser-acceptance directory contains the full 90-check stable Chrome/Edge/Firefox matrix, recorded actual versions and desktop/360px screenshots. Browser acceptance is separate from pytest counts and closes issue 26; five-real-user observations remain required.

@@ -27,17 +27,17 @@ The last full local run passed **297 tests, with 2 deployed-HTTPS skips**. It in
 - [Project plan with WBS, effort and schedule](docs/Team14_Project_Plan.pdf), [combined project report and synopsis](docs/Project_Report.pdf).
 - [Requirements and owners](docs/requirements.json), [traceability](docs/traceability.csv), [136 executed case records](docs/test-cases.csv), [API contract](docs/api-contract.md).
 - [One-minute and two-minute retrospective videos](docs/videos/README.md), [demo rehearsal](docs/demo-rehearsal.md), [design changes](docs/deviations.md), [maintenance](docs/maintenance.md), [LLM use](docs/ai-use.md).
-- **Twelve-page viva guides:** [Sathik](docs/viva/Sathik_Viva_Guide.pdf), [Arya](docs/viva/Arya_Viva_Guide.pdf), [Sahana](docs/viva/Sahana_Viva_Guide.pdf).
+- **Twelve-page guides with verified member PRs/commits, repository maps, real source excerpts and exact locations:** [Sathik](docs/viva/Sathik_Viva_Guide.pdf), [Arya](docs/viva/Arya_Viva_Guide.pdf), [Sahana](docs/viva/Sahana_Viva_Guide.pdf).
 
 ## GitHub and contributions
 
-[GitHub backlog](https://github.com/gsathvik73-afk/se-project/issues) has all 27 requirement issues assigned to the three verified collaborators, with story-point labels and Sprint 1/2 milestones. [Contribution responsibilities and genuine PR evidence](docs/contributions.md) distinguish current ownership from actual authorship. Original member commits and PRs are preserved. November recovery work is AI-assisted under the repository-owner account, with real dates and focused commits.
+[GitHub backlog](https://github.com/gsathvik73-afk/se-project/issues) has all 27 requirement issues assigned to the three verified collaborators, with story-point labels and Sprint 1/2 milestones. [Verified member contributions, original PR/commit records and repository walkthroughs](docs/contributions.md) distinguish current ownership from actual authorship. Sprint 1 is **closed: 10/10**, with planned due date October 23. Sprint 2 is **15 closed / 2 open (88%)**, with planned due date October 30. [Verified milestone snapshot](docs/milestones.json) includes progress, dates and goals. Original member commits and PRs are preserved. November recovery work is AI-assisted under the repository-owner account, with real dates and focused commits.
 
 Sathik owns accounts, budgets and dashboard responsibility; Sahana owns the transaction lifecycle; Arya owns reporting/export and quality/security responsibility. New member changes and reviews must be made from their own accounts. No Jira work is needed for this handoff.
 
 ## Acceptance still required
 
-The [evaluation checklist](docs/evaluation-checklist.md) maps every teacher criterion to evidence and remaining work. Five first-time users, a complete current Chrome/Firefox/Edge matrix and valid public HTTPS still need their required evidence. Issues #25-27 stay open. The GitHub token lacks Projects scope; [board setup](docs/github-project-status.md) is prepared, and the issue backlog already works. Genuine member PR/review actions cannot be replaced by generated authorship. New videos are explicitly retrospective, not claimed as October recordings.
+The [evaluation checklist](docs/evaluation-checklist.md) maps every teacher criterion to evidence and remaining work. The stable Chrome/Edge/Firefox matrix passed **90 desktop/360px UI checkpoints**, with versioned screenshots and results in [browser acceptance](docs/reports/browser-acceptance/README.md); issue #26 is closed. Five first-time users and valid public HTTPS still need their evidence; issues #25 and #27 stay open. The GitHub token lacks Projects scope; [board setup](docs/github-project-status.md) is prepared, and the issue backlog already works. Genuine member PR/review actions cannot be replaced by generated authorship. New videos are explicitly retrospective, not claimed as October recordings.
 
 ## Configuration and deployment
 
