@@ -44,6 +44,7 @@ def main():
                     options.set_preference('browser.download.folderList',2);options.set_preference('browser.download.dir',str(downloads))
                     options.set_preference('browser.helperApps.neverAsk.saveToDisk','text/csv,application/csv,application/octet-stream')
                     options.set_preference('pdfjs.disabled',True)
+                    options.enable_bidi=True
                     factory=webdriver.Firefox
                 else:
                     options=webdriver.ChromeOptions() if name=='chrome' else webdriver.EdgeOptions()
@@ -58,9 +59,11 @@ def main():
                     if name in ('chrome','edge'):
                         driver.execute_cdp_cmd('Emulation.setDeviceMetricsOverride',{'width':width,'height':900,'deviceScaleFactor':1,'mobile':width==360})
                     else:
-                        for _ in range(2):
-                            delta=driver.execute_script('return window.outerWidth-window.innerWidth')
-                            driver.set_window_size(width+delta,1000)
+                        # Firefox's outer browser window has a minimum width.
+                        # BiDi sets the actual content viewport independently.
+                        driver.browsing_context.set_viewport(
+                            context=driver.current_window_handle,
+                            viewport={'width':width,'height':900},device_pixel_ratio=1)
                     # Mobile about:blank has a 980px layout viewport until an
                     # application page supplies its responsive viewport meta tag.
                     driver.get(base+'/login')
