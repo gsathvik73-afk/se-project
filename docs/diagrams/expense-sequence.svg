@@ -29,13 +29,13 @@
 			<polygon points="320 175, 314 178, 314 172" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
 			<text x="199.424" y="180.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,360) scale(1,-1)">Session and owner check</text>
 			<path d="M 320,152 L 170,152 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
-			<polygon points="170 152, 176 155, 176 149" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<polygon points="170 152, 176 149, 176 155" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
 			<text x="199.416" y="157.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,314) scale(1,-1)">Validate amount and date</text>
 			<path d="M 170,129 L 455,129 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
 			<polygon points="455 129, 449 132, 449 126" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
 			<text x="271.604" y="134.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,268) scale(1,-1)">INSERT then COMMIT</text>
 			<path d="M 170,106 L 45,106 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
-			<polygon points="45 106, 51 109, 51 103" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<polygon points="45 106, 51 103, 51 109" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
 			<text x="68.368" y="111.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,222) scale(1,-1)">201 saved transaction</text>
 			<path d="M 45,83 L 170,83 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
 			<polygon points="170 83, 164 86, 164 80" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
@@ -44,7 +44,7 @@
 			<polygon points="455 60, 449 63, 449 57" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
 			<text x="267.592" y="65.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,130) scale(1,-1)">Aggregate owner records</text>
 			<path d="M 170,37 L 45,37 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
-			<polygon points="45 37, 51 40, 51 34" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<polygon points="45 37, 51 34, 51 40" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
 			<text x="71.47999999999999" y="42.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,84) scale(1,-1)">200 totals and alerts</text>
 		</g>
 	</g>

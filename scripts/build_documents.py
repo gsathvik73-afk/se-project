@@ -22,7 +22,7 @@ S=getSampleStyleSheet()
 S.add(ParagraphStyle(name='Body',fontName='Helvetica',fontSize=10.2,leading=14.2,spaceAfter=8))
 S.add(ParagraphStyle(name='SmallBody',fontName='Helvetica',fontSize=8.2,leading=11.2,spaceAfter=5))
 S.add(ParagraphStyle(name='GuideTitle',fontName='Helvetica-Bold',fontSize=21,leading=25,spaceAfter=16,textColor=colors.HexColor('#152b46')))
-S.add(ParagraphStyle(name='GuideH',fontName='Helvetica-Bold',fontSize=12.5,leading=17,spaceBefore=10,spaceAfter=7,textColor=colors.HexColor('#152b46')))
+S.add(ParagraphStyle(name='GuideH',keepWithNext=True,fontName='Helvetica-Bold',fontSize=12.5,leading=17,spaceBefore=10,spaceAfter=7,textColor=colors.HexColor('#152b46')))
 S.add(ParagraphStyle(name='CodeText',fontName='Courier',fontSize=8.7,leading=12,spaceAfter=8))
 REQ=json.loads((DOCS/'requirements.json').read_text())
 METRICS=json.loads((DOCS/'reports/summary.json').read_text()) if (DOCS/'reports/summary.json').exists() else None
@@ -64,8 +64,9 @@ def title(subject,subtitle):
 
 def arrow(d,x1,y1,x2,y2,label=None):
     d.add(Line(x1,y1,x2,y2,strokeColor=colors.HexColor('#304962'),strokeWidth=1))
-    direction=1 if x2>=x1 else -1
-    d.add(Polygon([x2,y2,x2-6*direction,y2+3,x2-6*direction,y2-3],fillColor=colors.HexColor('#304962'),strokeColor=None))
+    length=((x2-x1)**2+(y2-y1)**2)**0.5
+    ux,uy=(x2-x1)/length,(y2-y1)/length
+    d.add(Polygon([x2,y2,x2-6*ux-3*uy,y2-6*uy+3*ux,x2-6*ux+3*uy,y2-6*uy-3*ux],fillColor=colors.HexColor('#304962'),strokeColor=None))
     if label:d.add(String((x1+x2)/2,(y1+y2)/2+5,label,fontName='Helvetica',fontSize=8,textAnchor='middle'))
 
 

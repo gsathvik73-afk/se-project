@@ -29,13 +29,13 @@
 			<polygon points="455 175, 449 178, 449 172" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
 			<text x="274.924" y="180.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,360) scale(1,-1)">Read user and guard</text>
 			<path d="M 455,152 L 320,152 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
-			<polygon points="320 152, 326 155, 326 149" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<polygon points="320 152, 326 149, 326 155" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
 			<text x="350.596" y="157.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,314) scale(1,-1)">Hash and lock check</text>
 			<path d="M 320,129 L 455,129 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
 			<polygon points="455 129, 449 132, 449 126" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
 			<text x="349.256" y="134.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,268) scale(1,-1)">Save opaque session</text>
 			<path d="M 170,106 L 45,106 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
-			<polygon points="45 106, 51 109, 51 103" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<polygon points="45 106, 51 103, 51 109" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
 			<text x="65.256" y="111.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,222) scale(1,-1)">200 user and sid cookie</text>
 		</g>
 	</g>
