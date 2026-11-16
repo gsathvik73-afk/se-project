@@ -103,8 +103,8 @@ def main():
                     for value in ['10000.00','250.00','9750.00','50.00']:assert value in body,(value,body)
                     assert driver.execute_script('return [...document.querySelectorAll("canvas")].length')==2
                     record('dashboard-correct-totals-charts')
-                    visit('/transactions');driver.find_elements(By.LINK_TEXT,'Edit')[0].click();field('[name=amount]','300');field('[name=note]','=1+1');button('Save changes');wait.until(EC.url_contains('/transactions'));assert '300.00' in driver.find_element(By.CSS_SELECTOR,'tbody').text;record('edit-persists')
-                    driver.find_elements(By.LINK_TEXT,'Delete')[0].click();record('delete-confirmation');driver.find_element(By.LINK_TEXT,'Cancel').click();assert len(driver.find_elements(By.CSS_SELECTOR,'tbody tr'))==2;record('delete-cancel-preserves')
+                    visit('/transactions');driver.find_elements(By.LINK_TEXT,'Edit')[0].click();field('[name=amount]','300');field('[name=note]','=1+1');button('Save changes');wait.until(EC.url_to_be(base+'/transactions'));assert '300.00' in driver.find_element(By.CSS_SELECTOR,'tbody').text;record('edit-persists')
+                    driver.find_elements(By.LINK_TEXT,'Delete')[0].click();record('delete-confirmation');driver.find_element(By.LINK_TEXT,'Cancel').click();wait.until(EC.url_to_be(base+'/transactions'));assert len(driver.find_elements(By.CSS_SELECTOR,'tbody tr'))==2;record('delete-cancel-preserves')
                     visit('/transactions?start=2026-10-01&end=2026-10-31&min_amount=250&max_amount=300&sort=amount_asc');assert len(driver.find_elements(By.CSS_SELECTOR,'tbody tr'))==1;record('filters-and-sort')
                     driver.find_element(By.LINK_TEXT,'Export filtered CSV').click()
                     def completed_csv(_):
@@ -113,7 +113,7 @@ def main():
                     with csvpath.open(newline='') as f:rows=list(csv.reader(f))
                     assert len(rows)==2 and rows[1][3]=='300.00' and rows[1][-1]=="'=1+1",rows
                     record('csv-download-filter-and-formula-safety')
-                    visit('/transactions');driver.find_elements(By.LINK_TEXT,'Delete')[0].click();button('Confirm delete');wait.until(EC.url_contains('/transactions'));assert len(driver.find_elements(By.CSS_SELECTOR,'tbody tr'))==1;record('delete-confirm-removes')
+                    visit('/transactions');driver.find_elements(By.LINK_TEXT,'Delete')[0].click();button('Confirm delete');wait.until(EC.url_to_be(base+'/transactions'));assert len(driver.find_elements(By.CSS_SELECTOR,'tbody tr'))==1;record('delete-confirm-removes')
                     visit('/dashboard?month=2026-10');assert '0.00' in driver.find_element(By.TAG_NAME,'body').text;record('dashboard-after-delete')
                     button('Log out');wait.until(EC.url_contains('/login'));visit('/dashboard');wait.until(EC.url_contains('/login'));record('logout-protects-dashboard')
                 except Exception as exc:
