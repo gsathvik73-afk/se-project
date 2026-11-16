@@ -26,3 +26,39 @@ Money in JSON is a decimal string. Budgets are unique by owner/month/category in
 Unexpected save failures roll back, return 500 with a retry message and request reference, and omit technical details from the response. Failure logs contain the request reference, endpoint and exception type rather than passwords, SQL parameters, tokens or financial notes. Authenticated responses are not cached. Browser script/style resources are local and subject to CSP.
 
 `init-db` creates new tables, including persistent login guards, and seeds defaults without deleting existing data. `COOKIE_SECURE=1` enables Secure cookies for a future HTTPS deployment. HTTP redirect, certificate and deployed TLS remain hosting acceptance checks.
+
+## Exact examples for the current implementation
+
+These examples use a synthetic logged-in user. Obtain a fresh CSRF token from GET /login and send it with the same cookie session in X-CSRFToken for every write. Public numeric IDs shown below are examples, not trusted owner inputs.
+
+```json
+POST /login
+{"email":"demo@example.test","password":"DemoPass123!"}
+
+200
+{"user":{"id":1,"name":"Demo Student"}}
+```
+
+Success sets an opaque sid cookie. The app does not return a `message` field here. After five failures, an attempt during lockout receives `429 {"error":"LOGIN_LOCKED"}` and Retry-After.
+
+```json
+POST /transactions
+{"type":"expense","amount":"250.00","date":"2026-10-08","category_id":1,"payment_mode":"UPI","note":"Lunch"}
+
+201
+{"transaction":{"id":1,"type":"expense","amount":"250.00","date":"2026-10-08","category_id":1,"payment_mode":"UPI","source":null,"note":"Lunch"}}
+```
+
+Creation returns the saved transaction. GET /api/dashboard?month=2026-10 performs the subsequent aggregation; totals and budget alerts are not included in this creation response.
+
+```json
+PUT /budgets
+{"month":"2026-10","limit":"5000.00","category_id":null}
+
+200
+{"budget":{"id":1,"month":"2026-10","category_id":null,"limit":"5000.00"}}
+```
+
+Invalid amounts return `422 {"error":"VALIDATION_ERROR","fields":{"amount":"Enter a positive amount with at most two decimal places."}}`. Unavailable record/category requests asking for JSON return `404 {"error":"NOT_FOUND"}`. JSON CSRF failures return `400 {"error":"BAD_REQUEST"}`. Unexpected save errors return `500 {"error":"SAVE_FAILED","message":"Your data was not saved. Please retry.","request_id":"..."}`.
+
+Filter amounts are bounded by the same maximum stored amount to avoid database conversion overflow. Category identifiers must be positive integer representations within SQLite's range; booleans and fractional IDs are unavailable. Dashboard months before June 0001 are rejected because six preceding buckets cannot be represented.

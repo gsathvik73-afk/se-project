@@ -1,0 +1,33 @@
+[
+  {
+    "sprint": 1,
+    "duration": 60,
+    "progress": [
+      "dashboard",
+      "categories",
+      "budget",
+      "totals"
+    ],
+    "recorded_at": "2026-11-15T18:12:22.094Z",
+    "retrospective": true,
+    "browser": "Isolated headless Chromium or configured Chrome channel",
+    "public_tls_tested": false
+  },
+  {
+    "sprint": 2,
+    "duration": 120,
+    "progress": [
+      "dashboard",
+      "transactions",
+      "edit",
+      "confirm",
+      "export",
+      "alerts",
+      "mobile"
+    ],
+    "recorded_at": "2026-11-15T18:13:24.385Z",
+    "retrospective": true,
+    "browser": "Isolated headless Chromium or configured Chrome channel",
+    "public_tls_tested": false
+  }
+]

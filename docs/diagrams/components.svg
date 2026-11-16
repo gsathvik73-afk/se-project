@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="500" height="220" preserveAspectRatio="xMinYMin meet" viewBox="0 0 500 220" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="500" height="220"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-220)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="0" y="145" width="130" height="65" style="stroke: rgb(28%,41%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(94%,96%,98%); fill-rule: evenodd;"/>
+			<text x="43.8815" y="192" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,384) scale(1,-1)">Browser UI</text>
+			<text x="20.630000000000003" y="175" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,350) scale(1,-1)">Jinja HTML and Canvas</text>
+			<rect x="180" y="120" width="155" height="100" style="stroke: rgb(28%,41%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(94%,96%,98%); fill-rule: evenodd;"/>
+			<text x="216.4735" y="202" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,404) scale(1,-1)">&lt;&lt;component&gt;&gt; Flask</text>
+			<text x="225.001" y="185" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,370) scale(1,-1)">Auth and sessions</text>
+			<text x="214.2595" y="168" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,336) scale(1,-1)">Transactions and export</text>
+			<text x="215.506" y="151" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,302) scale(1,-1)">Budgets and dashboard</text>
+			<rect x="385" y="130" width="112" height="85" style="stroke: rgb(28%,41%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(94%,96%,98%); fill-rule: evenodd;"/>
+			<text x="401.229" y="197" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,394) scale(1,-1)">&lt;&lt;component&gt;&gt; Data</text>
+			<text x="404.6265" y="180" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,360) scale(1,-1)">SQLAlchemy ORM</text>
+			<text x="416.376" y="163" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,326) scale(1,-1)">SQLite tables</text>
+			<rect x="180" y="8" width="155" height="60" style="stroke: rgb(28%,41%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(94%,96%,98%); fill-rule: evenodd;"/>
+			<text x="207.226" y="50" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,100) scale(1,-1)">&lt;&lt;component&gt;&gt; Validation</text>
+			<text x="221.761" y="33" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,66) scale(1,-1)">pytest and coverage</text>
+			<text x="219.133" y="16" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,32) scale(1,-1)">CI and security scans</text>
+			<path d="M 130,175 L 180,175 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="180 175, 174 178, 174 172" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<text x="130.552" y="180.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,360) scale(1,-1)">HTTP / JSON</text>
+			<path d="M 335,175 L 385,175 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="385 175, 379 178, 379 172" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<text x="351.996" y="180.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,360) scale(1,-1)">SQL</text>
+			<path d="M 255,68 L 255,120 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="255 120, 249 123, 249 117" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<text x="242.332" y="99.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,198) scale(1,-1)">verifies</text>
+		</g>
+	</g>
+</svg>
