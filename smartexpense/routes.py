@@ -67,8 +67,15 @@ def categories():
     return db.session.scalars(db.select(Category).where(or_(Category.user_id.is_(None), Category.user_id == g.user.id)).order_by(Category.name)).all()
 
 def visible_category(value):
+    # Reject booleans, fractions and values outside SQLite's signed integer range.
+    # int(True) and int(1.9) would otherwise silently select category 1.
+    if isinstance(value, bool) or not re.fullmatch(r'[1-9][0-9]{0,18}', str(value)):
+        abort(404)
     try:
-        cat = db.session.get(Category, int(value))
+        category_id = int(value)
+        if category_id > 9223372036854775807:
+            abort(404)
+        cat = db.session.get(Category, category_id)
     except (TypeError, ValueError):
         abort(404)
     if not cat or cat.user_id not in (None, g.user.id):
@@ -79,6 +86,8 @@ def parse_month(value):
     if not isinstance(value, str) or not re.fullmatch(r'\d{4}-\d{2}', value):
         raise ValueError('Choose a month in YYYY-MM format.')
     first = date.fromisoformat(value + '-01')
+    if first < date(1, 6, 1):
+        raise ValueError('Choose June 0001 or a later month for the six-month trend.')
     return first, date(first.year, first.month, monthrange(first.year, first.month)[1])
 
 def money(value):
@@ -129,7 +138,8 @@ def register():
     fields={}
     if not name or len(name)>100: fields['name']='Enter a name of 1 to 100 characters.'
     if len(email)>254 or not re.fullmatch(r'[^\s@]+@[^\s@]+\.[^\s@]+',email): fields['email']='Enter a valid email address.'
-    if not isinstance(password,str) or len(password)<8 or len(password.encode('utf-8'))>72: fields['password']='Use at least 8 characters and no more than 72 UTF-8 bytes.'
+    if not isinstance(password,str) or len(password)<8 or len(password.encode('utf-8'))>72:
+        fields['password']='Use at least 8 characters and no more than 72 UTF-8 bytes.'  # nosec B105
     if fields: return error(fields,'auth.html',mode='register')
     user=User(name=name,email=email,password_hash=bcrypt.hashpw(password.encode(),bcrypt.gensalt()))
     db.session.add(user)
@@ -347,7 +357,7 @@ def transaction_rows(args, limit=50):
     if minimum:
         try:
             value = Decimal(minimum)
-            if not value.is_finite() or value < 0:
+            if not value.is_finite() or value < 0 or value > Decimal('9999999999.99'):
                 raise ValueError()
             stmt = stmt.where(Transaction.amount >= value)
         except (InvalidOperation, ValueError):
@@ -356,7 +366,7 @@ def transaction_rows(args, limit=50):
     if maximum:
         try:
             value = Decimal(maximum)
-            if not value.is_finite() or value < 0:
+            if not value.is_finite() or value < 0 or value > Decimal('9999999999.99'):
                 raise ValueError()
             stmt = stmt.where(Transaction.amount <= value)
         except (InvalidOperation, ValueError):

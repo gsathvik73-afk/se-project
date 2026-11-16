@@ -3,6 +3,7 @@ from pathlib import Path
 from flask import Flask, g, jsonify, render_template, request
 from secrets import token_hex
 from flask_wtf.csrf import CSRFProtect
+from werkzeug.exceptions import HTTPException
 from .models import db, Category, DEFAULT_CATEGORIES
 
 class SmartExpenseFlask(Flask):
@@ -57,6 +58,15 @@ def create_app(config=None):
             return jsonify(error='SAVE_FAILED', message=message, request_id=g.request_id), 500
         return render_template('message.html', title='Please try again',
                                errors={'save': message, 'reference': g.request_id}), 500
+
+    @app.errorhandler(HTTPException)
+    def request_error(error):
+        # Keep API errors in the same representation as successful API responses.
+        if request.is_json or request.path.startswith('/api/') or request.accept_mimetypes.best == 'application/json':
+            names = {400: 'BAD_REQUEST', 403: 'FORBIDDEN', 404: 'NOT_FOUND',
+                     405: 'METHOD_NOT_ALLOWED', 413: 'REQUEST_TOO_LARGE', 422: 'VALIDATION_ERROR'}
+            return jsonify(error=names.get(error.code, 'REQUEST_FAILED')), error.code
+        return error
 
     @app.cli.command('init-db')
     def init_db():

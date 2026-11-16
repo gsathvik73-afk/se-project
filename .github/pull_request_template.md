@@ -1,8 +1,20 @@
-Describe the problem and resulting behaviour.
+## Problem and resulting behavior
 
-Jira ticket:
-Requirements (SEB-*):
-Test cases (TC-*):
+## GitHub issue and SRS requirements
 
-Validation and evidence:
-Integration dependencies or remaining checks:
+Closes #
+Requirements: SEB-
+Test cases: TC-
+
+## Validation
+
+Command and result:
+Evidence in docs/reports:
+
+## Review
+
+- [ ] Assigned member opened this PR from their own account.
+- [ ] Reviewer checked the diff, ownership controls and boundary cases.
+- [ ] CI passed for this exact revision.
+- [ ] SRS, SAD, test cases and deviations reflect this change.
+- [ ] Authorship and test results describe actual work performed.

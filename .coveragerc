@@ -1,0 +1,10 @@
+[run]
+branch = True
+source = smartexpense
+relative_files = True
+[report]
+show_missing = True
+precision = 2
+fail_under = 80
+[html]
+directory = docs/reports/coverage-html
