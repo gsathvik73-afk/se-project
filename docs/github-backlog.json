@@ -310,7 +310,8 @@
     "labels": [
       "enhancement",
       "sprint-2",
-      "points:3"
+      "points:3",
+      "acceptance:participants"
     ],
     "state": "open"
   },
@@ -327,7 +328,7 @@
       "sprint-2",
       "points:5"
     ],
-    "state": "open"
+    "state": "closed"
   },
   {
     "requirement": "SEB-SR-001",
@@ -340,7 +341,8 @@
     "labels": [
       "enhancement",
       "sprint-2",
-      "points:5"
+      "points:5",
+      "acceptance:https-host"
     ],
     "state": "open"
   },

@@ -1,0 +1,210 @@
+{
+  "requirement": "SEB-NF-005",
+  "test_case": "TC-PORT-01",
+  "browser": "chrome",
+  "requested_release": "stable",
+  "checked_at": "2026-11-16T03:10:12.356837+00:00",
+  "commit": "c2c827ec1b603a5c627943fb23c7663c6a78fd64",
+  "versions": [
+    {
+      "width": 1280,
+      "capabilities": {
+        "browserName": "chrome",
+        "browserVersion": "157.0.8103.78",
+        "platformName": "linux"
+      }
+    },
+    {
+      "width": 360,
+      "capabilities": {
+        "browserName": "chrome",
+        "browserVersion": "157.0.8103.78",
+        "platformName": "linux"
+      }
+    }
+  ],
+  "checks": [
+    {
+      "viewport_width": 1280,
+      "case": "registration-layout",
+      "result": "PASS",
+      "actual_inner_width": 1280
+    },
+    {
+      "viewport_width": 1280,
+      "case": "login-layout",
+      "result": "PASS",
+      "actual_inner_width": 1280
+    },
+    {
+      "viewport_width": 1280,
+      "case": "login-dashboard",
+      "result": "PASS",
+      "actual_inner_width": 1280
+    },
+    {
+      "viewport_width": 1280,
+      "case": "category-create-rename",
+      "result": "PASS",
+      "actual_inner_width": 1280
+    },
+    {
+      "viewport_width": 1280,
+      "case": "income-expense-create",
+      "result": "PASS",
+      "actual_inner_width": 1280
+    },
+    {
+      "viewport_width": 1280,
+      "case": "budget-save",
+      "result": "PASS",
+      "actual_inner_width": 1280
+    },
+    {
+      "viewport_width": 1280,
+      "case": "dashboard-correct-totals-charts",
+      "result": "PASS",
+      "actual_inner_width": 1280
+    },
+    {
+      "viewport_width": 1280,
+      "case": "edit-persists",
+      "result": "PASS",
+      "actual_inner_width": 1280
+    },
+    {
+      "viewport_width": 1280,
+      "case": "delete-confirmation",
+      "result": "PASS",
+      "actual_inner_width": 1280
+    },
+    {
+      "viewport_width": 1280,
+      "case": "delete-cancel-preserves",
+      "result": "PASS",
+      "actual_inner_width": 1280
+    },
+    {
+      "viewport_width": 1280,
+      "case": "filters-and-sort",
+      "result": "PASS",
+      "actual_inner_width": 1280
+    },
+    {
+      "viewport_width": 1280,
+      "case": "csv-download-filter-and-formula-safety",
+      "result": "PASS",
+      "actual_inner_width": 1280
+    },
+    {
+      "viewport_width": 1280,
+      "case": "delete-confirm-removes",
+      "result": "PASS",
+      "actual_inner_width": 1280
+    },
+    {
+      "viewport_width": 1280,
+      "case": "dashboard-after-delete",
+      "result": "PASS",
+      "actual_inner_width": 1280
+    },
+    {
+      "viewport_width": 1280,
+      "case": "logout-protects-dashboard",
+      "result": "PASS",
+      "actual_inner_width": 1280
+    },
+    {
+      "viewport_width": 360,
+      "case": "registration-layout",
+      "result": "PASS",
+      "actual_inner_width": 360
+    },
+    {
+      "viewport_width": 360,
+      "case": "login-layout",
+      "result": "PASS",
+      "actual_inner_width": 360
+    },
+    {
+      "viewport_width": 360,
+      "case": "login-dashboard",
+      "result": "PASS",
+      "actual_inner_width": 360
+    },
+    {
+      "viewport_width": 360,
+      "case": "category-create-rename",
+      "result": "PASS",
+      "actual_inner_width": 360
+    },
+    {
+      "viewport_width": 360,
+      "case": "income-expense-create",
+      "result": "PASS",
+      "actual_inner_width": 360
+    },
+    {
+      "viewport_width": 360,
+      "case": "budget-save",
+      "result": "PASS",
+      "actual_inner_width": 360
+    },
+    {
+      "viewport_width": 360,
+      "case": "dashboard-correct-totals-charts",
+      "result": "PASS",
+      "actual_inner_width": 360
+    },
+    {
+      "viewport_width": 360,
+      "case": "edit-persists",
+      "result": "PASS",
+      "actual_inner_width": 360
+    },
+    {
+      "viewport_width": 360,
+      "case": "delete-confirmation",
+      "result": "PASS",
+      "actual_inner_width": 360
+    },
+    {
+      "viewport_width": 360,
+      "case": "delete-cancel-preserves",
+      "result": "PASS",
+      "actual_inner_width": 360
+    },
+    {
+      "viewport_width": 360,
+      "case": "filters-and-sort",
+      "result": "PASS",
+      "actual_inner_width": 360
+    },
+    {
+      "viewport_width": 360,
+      "case": "csv-download-filter-and-formula-safety",
+      "result": "PASS",
+      "actual_inner_width": 360
+    },
+    {
+      "viewport_width": 360,
+      "case": "delete-confirm-removes",
+      "result": "PASS",
+      "actual_inner_width": 360
+    },
+    {
+      "viewport_width": 360,
+      "case": "dashboard-after-delete",
+      "result": "PASS",
+      "actual_inner_width": 360
+    },
+    {
+      "viewport_width": 360,
+      "case": "logout-protects-dashboard",
+      "result": "PASS",
+      "actual_inner_width": 360
+    }
+  ],
+  "errors": [],
+  "status": "PASS"
+}

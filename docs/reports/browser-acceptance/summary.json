@@ -1,0 +1,80 @@
+{
+  "requirement": "SEB-NF-005",
+  "status": "PASS",
+  "ci_run": "https://github.com/gsathvik73-afk/se-project/actions/runs/43796420904",
+  "total_passed": 90,
+  "browsers": [
+    {
+      "browser": "firefox",
+      "requested_release": "stable",
+      "checked_at": "2026-11-16T03:09:52.514078+00:00",
+      "commit": "c2c827ec1b603a5c627943fb23c7663c6a78fd64",
+      "versions": [
+        {
+          "width": 1280,
+          "capabilities": {
+            "browserName": "firefox",
+            "browserVersion": "160.0",
+            "platformName": "linux"
+          }
+        },
+        {
+          "width": 360,
+          "capabilities": {
+            "browserName": "firefox",
+            "browserVersion": "160.0",
+            "platformName": "linux"
+          }
+        }
+      ]
+    },
+    {
+      "browser": "edge",
+      "requested_release": "stable",
+      "checked_at": "2026-11-16T03:10:04.065470+00:00",
+      "commit": "c2c827ec1b603a5c627943fb23c7663c6a78fd64",
+      "versions": [
+        {
+          "width": 1280,
+          "capabilities": {
+            "browserName": "MicrosoftEdge",
+            "browserVersion": "157.0.4341.60",
+            "platformName": "linux"
+          }
+        },
+        {
+          "width": 360,
+          "capabilities": {
+            "browserName": "MicrosoftEdge",
+            "browserVersion": "157.0.4341.60",
+            "platformName": "linux"
+          }
+        }
+      ]
+    },
+    {
+      "browser": "chrome",
+      "requested_release": "stable",
+      "checked_at": "2026-11-16T03:10:12.356837+00:00",
+      "commit": "c2c827ec1b603a5c627943fb23c7663c6a78fd64",
+      "versions": [
+        {
+          "width": 1280,
+          "capabilities": {
+            "browserName": "chrome",
+            "browserVersion": "157.0.8103.78",
+            "platformName": "linux"
+          }
+        },
+        {
+          "width": 360,
+          "capabilities": {
+            "browserName": "chrome",
+            "browserVersion": "157.0.8103.78",
+            "platformName": "linux"
+          }
+        }
+      ]
+    }
+  ]
+}

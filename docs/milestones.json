@@ -1,0 +1,22 @@
+[
+  {
+    "number": 1,
+    "title": "Sprint 1",
+    "html_url": "https://github.com/gsathvik73-afk/se-project/milestone/1",
+    "state": "closed",
+    "due_on": "2026-10-23T00:00:00Z",
+    "open_issues": 0,
+    "closed_issues": 10,
+    "description": "Goal: accounts, categories, budgets and dashboard. 10 requirement issues; 30 planned story points. Teacher baseline deadline; November reconciliation does not claim historical on-time completion. See docs/project-plan.md, docs/requirements.json and docs/evaluation-checklist.md."
+  },
+  {
+    "number": 2,
+    "title": "Sprint 2",
+    "html_url": "https://github.com/gsathvik73-afk/se-project/milestone/2",
+    "state": "open",
+    "due_on": "2026-10-30T00:00:00Z",
+    "open_issues": 2,
+    "closed_issues": 15,
+    "description": "Goal: transactions, reporting and quality/security acceptance. 17 requirement issues; 67 planned story points. Teacher baseline deadline; November reconciliation does not claim historical on-time completion. See docs/project-plan.md, docs/requirements.json and docs/evaluation-checklist.md."
+  }
+]

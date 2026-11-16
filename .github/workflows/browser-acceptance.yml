@@ -1,0 +1,35 @@
+name: Browser acceptance
+on:
+  pull_request:
+  push:
+    branches: [main, fix/milestones-and-member-guides]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browsers:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, edge, firefox]
+    env:
+      SE_FORCE_BROWSER_DOWNLOAD: 'true'
+      SE_SKIP_BROWSER_IN_PATH: 'true'
+      SE_AVOID_STATS: 'true'
+      SE_TIMEOUT: '300'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: pip install -r requirements-browser.txt
+      - run: python scripts/browser_acceptance.py --browser ${{ matrix.browser }}
+        env:
+          SE_CACHE_PATH: ${{ runner.temp }}/selenium
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-${{ matrix.browser }}
+          path: docs/reports/browser-acceptance/${{ matrix.browser }}/

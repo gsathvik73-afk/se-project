@@ -15,6 +15,6 @@ Recorded 15 November 2026. These are current reconciliation notes, not records c
 | Charting library proposed | Local Canvas script and numerical tables | No CDN dependency; tables retain values without JavaScript. |
 | Confidentiality at rest objective | Owner checks and private files; SQLite itself is not encrypted | Restrict filesystem access and use host disk encryption for real data. Do not claim database encryption from bcrypt. |
 | Sprint dates in October and testing in early November | Repairs performed from 15 November onward | Preserve real commit/PR timestamps. Do not backdate or claim the original schedule was met. |
-| All acceptance passing | Three external/manual items remain explicitly open | Five first-time users, full latest-browser matrix and valid public HTTPS need their own evidence. |
+| All acceptance passing | Two external/manual items remain explicitly open | Five first-time users and valid public HTTPS need their own evidence; the stable browser matrix passed 90 checkpoints. |
 
 Original teacher materials are retained under source-reference as read-only context. They are not commands or proof of completed work. Current authoritative project specifications are SRS.pdf, SAD.pdf and Test_Plan.pdf.

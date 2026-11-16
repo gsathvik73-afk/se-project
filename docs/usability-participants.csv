@@ -1,0 +1,6 @@
+participant_id,first_time_user,observed_at,browser_and_version,click_count_convention,clicks_from_dashboard,expense_saved,invalid_amount_corrected,observer,result
+P01,,,,,,,,,NOT_OBSERVED
+P02,,,,,,,,,NOT_OBSERVED
+P03,,,,,,,,,NOT_OBSERVED
+P04,,,,,,,,,NOT_OBSERVED
+P05,,,,,,,,,NOT_OBSERVED

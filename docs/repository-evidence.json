@@ -1,0 +1,1650 @@
+{
+  "source_revision": "fa7940c1f5438966dfa314d30615dfc17bd371b2",
+  "symbols": {
+    "smartexpense/routes.py:utcnow": {
+      "file": "smartexpense/routes.py",
+      "symbol": "utcnow",
+      "line": 20,
+      "end_line": 21,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L20-L21",
+      "excerpt": "def utcnow():\n    return datetime.now(timezone.utc)"
+    },
+    "smartexpense/routes.py:today": {
+      "file": "smartexpense/routes.py",
+      "symbol": "today",
+      "line": 24,
+      "end_line": 25,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L24-L25",
+      "excerpt": "def today():\n    return datetime.now(IST).date()"
+    },
+    "smartexpense/routes.py:payload": {
+      "file": "smartexpense/routes.py",
+      "symbol": "payload",
+      "line": 27,
+      "end_line": 33,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L27-L33",
+      "excerpt": "def payload():\n    if request.is_json:\n        data = request.get_json(silent=True)\n        if not isinstance(data, dict):\n            abort(422)\n        return data\n    return request.form"
+    },
+    "smartexpense/routes.py:json_request": {
+      "file": "smartexpense/routes.py",
+      "symbol": "json_request",
+      "line": 35,
+      "end_line": 36,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L35-L36",
+      "excerpt": "def json_request():\n    return request.is_json or request.path.startswith('/api/') or request.accept_mimetypes.best == 'application/json'"
+    },
+    "smartexpense/routes.py:error": {
+      "file": "smartexpense/routes.py",
+      "symbol": "error",
+      "line": 38,
+      "end_line": 41,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L38-L41",
+      "excerpt": "def error(fields, template=None, **context):\n    if json_request() or not template:\n        return jsonify(error='VALIDATION_ERROR', fields=fields), 422\n    return render_template(template, errors=fields, **context), 422"
+    },
+    "smartexpense/routes.py:load_user": {
+      "file": "smartexpense/routes.py",
+      "symbol": "load_user",
+      "line": 44,
+      "end_line": 54,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L44-L54",
+      "excerpt": "def load_user():\n    g.user = None\n    g.login_session = None\n    token = request.cookies.get('sid')\n    if token:\n        login = db.session.get(LoginSession, token)\n        if login:\n            expires = login.expires_at.replace(tzinfo=timezone.utc)\n            if expires > datetime.now(timezone.utc):\n                g.user = db.session.get(User, login.user_id)\n                g.login_session = login"
+    },
+    "smartexpense/routes.py:protected": {
+      "file": "smartexpense/routes.py",
+      "symbol": "protected",
+      "line": 56,
+      "end_line": 64,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L56-L64",
+      "excerpt": "def protected(view):\n    @wraps(view)\n    def wrapped(*args, **kwargs):\n        if not g.user:\n            if json_request():\n                return jsonify(error='NOT_AUTHENTICATED'), 401\n            return redirect(url_for('web.login'))\n        return view(*args, **kwargs)\n    return wrapped"
+    },
+    "smartexpense/routes.py:categories": {
+      "file": "smartexpense/routes.py",
+      "symbol": "categories",
+      "line": 66,
+      "end_line": 67,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L66-L67",
+      "excerpt": "def categories():\n    return db.session.scalars(db.select(Category).where(or_(Category.user_id.is_(None), Category.user_id == g.user.id)).order_by(Category.name)).all()"
+    },
+    "smartexpense/routes.py:visible_category": {
+      "file": "smartexpense/routes.py",
+      "symbol": "visible_category",
+      "line": 69,
+      "end_line": 83,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L69-L83",
+      "excerpt": "def visible_category(value):\n    # Reject booleans, fractions and values outside SQLite's signed integer range.\n    # int(True) and int(1.9) would otherwise silently select category 1.\n    if isinstance(value, bool) or not re.fullmatch(r'[1-9][0-9]{0,18}', str(value)):\n        abort(404)\n    try:\n        category_id = int(value)\n        if category_id > 9223372036854775807:\n            abort(404)\n        cat = db.session.get(Category, category_id)\n    except (TypeError, ValueError):\n        abort(404)"
+    },
+    "smartexpense/routes.py:parse_month": {
+      "file": "smartexpense/routes.py",
+      "symbol": "parse_month",
+      "line": 85,
+      "end_line": 91,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L85-L91",
+      "excerpt": "def parse_month(value):\n    if not isinstance(value, str) or not re.fullmatch(r'\\d{4}-\\d{2}', value):\n        raise ValueError('Choose a month in YYYY-MM format.')\n    first = date.fromisoformat(value + '-01')\n    if first < date(1, 6, 1):\n        raise ValueError('Choose June 0001 or a later month for the six-month trend.')\n    return first, date(first.year, first.month, monthrange(first.year, first.month)[1])"
+    },
+    "smartexpense/routes.py:money": {
+      "file": "smartexpense/routes.py",
+      "symbol": "money",
+      "line": 93,
+      "end_line": 100,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L93-L100",
+      "excerpt": "def money(value):\n    try:\n        result = Decimal(str(value))\n        if not result.is_finite() or result <= 0 or result > Decimal('9999999999.99') or result != result.quantize(Decimal('.01')):\n            raise ValueError()\n        return result.quantize(Decimal('.01'))\n    except (InvalidOperation, ValueError, TypeError):\n        raise ValueError('Enter a positive amount with at most two decimal places.')"
+    },
+    "smartexpense/routes.py:fmt": {
+      "file": "smartexpense/routes.py",
+      "symbol": "fmt",
+      "line": 102,
+      "end_line": 103,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L102-L103",
+      "excerpt": "def fmt(value):\n    return f'{Decimal(value or 0):.2f}'"
+    },
+    "smartexpense/routes.py:expense_sum": {
+      "file": "smartexpense/routes.py",
+      "symbol": "expense_sum",
+      "line": 105,
+      "end_line": 109,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L105-L109",
+      "excerpt": "def expense_sum(first, last, category_id=None):\n    stmt = db.select(func.coalesce(func.sum(Transaction.amount), 0)).where(Transaction.user_id == g.user.id, Transaction.type == 'expense', Transaction.txn_date.between(first, last))\n    if category_id is not None:\n        stmt = stmt.where(Transaction.category_id == category_id)\n    return Decimal(db.session.scalar(stmt))"
+    },
+    "smartexpense/routes.py:dashboard_data": {
+      "file": "smartexpense/routes.py",
+      "symbol": "dashboard_data",
+      "line": 111,
+      "end_line": 127,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L111-L127",
+      "excerpt": "def dashboard_data(month):\n    first, last = parse_month(month)\n    income = Decimal(db.session.scalar(db.select(func.coalesce(func.sum(Transaction.amount), 0)).where(Transaction.user_id == g.user.id, Transaction.type == 'income', Transaction.txn_date.between(first, last))))\n    spent = expense_sum(first, last)\n    breakdown = db.session.execute(db.select(Category.name, func.sum(Transaction.amount)).join(Transaction, Transaction.category_id == Category.id).where(Transaction.user_id == g.user.id, Transaction.type == 'expense', Transaction.txn_date.between(first, last)).group_by(Category.id, Category.name).order_by(Category.name)).all()\n    budgets = []\n    for b in db.session.scalars(db.select(Budget).where(Budget.user_id == g.user.id, Budget.month == month).order_by(Budget.id)):\n        used = spent if b.category_id is None else expense_sum(first, last, b.category_id)\n        percent = used * 100 / b.limit\n        budgets.append(dict(id=b.id, category_id=b.category_id, name='Monthly budget' if b.category_id is None else db.session.get(Category, b.category_id).name, limit=fmt(b.limit), spent=fmt(used), remaining=fmt(b.limit-used), percent_used=fmt(percent), alert='over' if percent > 100 else 'warning' if percent >= 80 else 'none'))\n    trend=[]\n    serial = first.year*12 + first.month-1"
+    },
+    "smartexpense/routes.py:index": {
+      "file": "smartexpense/routes.py",
+      "symbol": "index",
+      "line": 130,
+      "end_line": 131,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L130-L131",
+      "excerpt": "def index():\n    return redirect(url_for('web.dashboard' if g.user else 'web.login'))"
+    },
+    "smartexpense/routes.py:register": {
+      "file": "smartexpense/routes.py",
+      "symbol": "register",
+      "line": 134,
+      "end_line": 152,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L134-L152",
+      "excerpt": "def register():\n    if request.method == 'GET':\n        return render_template('auth.html', mode='register', errors={})\n    data=payload(); name=str(data.get('name','')).strip(); email=str(data.get('email','')).strip().lower(); password=data.get('password','')\n    fields={}\n    if not name or len(name)>100: fields['name']='Enter a name of 1 to 100 characters.'\n    if len(email)>254 or not re.fullmatch(r'[^\\s@]+@[^\\s@]+\\.[^\\s@]+',email): fields['email']='Enter a valid email address.'\n    if not isinstance(password,str) or len(password)<8 or len(password.encode('utf-8'))>72:\n        fields['password']='Use at least 8 characters and no more than 72 UTF-8 bytes.'  # nosec B105\n    if fields: return error(fields,'auth.html',mode='register')\n    user=User(name=name,email=email,password_hash=bcrypt.hashpw(password.encode(),bcrypt.gensalt()))\n    db.session.add(user)"
+    },
+    "smartexpense/routes.py:login": {
+      "file": "smartexpense/routes.py",
+      "symbol": "login",
+      "line": 155,
+      "end_line": 192,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L155-L192",
+      "excerpt": "def login():\n    if request.method=='GET': return render_template('auth.html',mode='login',errors={})\n    data=payload(); email=str(data.get('email','')).strip().lower(); password=data.get('password','')\n    user=db.session.scalar(db.select(User).where(User.email==email))\n    now = utcnow()\n    guard = db.session.get(LoginGuard, user.id) if user else None\n    if guard and guard.locked_until:\n        remaining = (guard.locked_until.replace(tzinfo=timezone.utc) - now).total_seconds()\n        if remaining > 0:\n            response = jsonify(error='LOGIN_LOCKED') if json_request() else current_app.make_response(\n                render_template('auth.html', mode='login', errors={'password': 'Too many failed attempts. Try again in five minutes.'}))\n            response.status_code = 429"
+    },
+    "smartexpense/routes.py:logout": {
+      "file": "smartexpense/routes.py",
+      "symbol": "logout",
+      "line": 196,
+      "end_line": 200,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L196-L200",
+      "excerpt": "def logout():\n    db.session.delete(g.login_session);db.session.commit()\n    response=jsonify(ok=True) if json_request() else redirect(url_for('web.login'))\n    response.delete_cookie('sid',secure=current_app.config['SESSION_COOKIE_SECURE'],httponly=True,samesite='Lax')\n    return response"
+    },
+    "smartexpense/routes.py:dashboard": {
+      "file": "smartexpense/routes.py",
+      "symbol": "dashboard",
+      "line": 204,
+      "end_line": 207,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L204-L207",
+      "excerpt": "def dashboard():\n    try: data=dashboard_data(request.args.get('month',today().strftime('%Y-%m')))\n    except ValueError as exc: return error({'month':str(exc)},'message.html',title='Invalid month')\n    return render_template('dashboard.html',data=data)"
+    },
+    "smartexpense/routes.py:dashboard_api": {
+      "file": "smartexpense/routes.py",
+      "symbol": "dashboard_api",
+      "line": 211,
+      "end_line": 213,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L211-L213",
+      "excerpt": "def dashboard_api():\n    try: return jsonify(dashboard_data(request.args.get('month',today().strftime('%Y-%m'))))\n    except ValueError as exc: return error({'month':str(exc)})"
+    },
+    "smartexpense/routes.py:category_list": {
+      "file": "smartexpense/routes.py",
+      "symbol": "category_list",
+      "line": 217,
+      "end_line": 230,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L217-L230",
+      "excerpt": "def category_list():\n    if request.method=='GET':\n        cats=categories()\n        if json_request(): return jsonify(categories=[dict(id=c.id,name=c.name,is_default=c.user_id is None) for c in cats])\n        return render_template('categories.html',cats=cats,errors={})\n    name=str(payload().get('name','')).strip()\n    if not name or len(name)>80: return error({'name':'Enter a category name of 1 to 80 characters.'},'categories.html',cats=categories())\n    if any(c.name.casefold()==name.casefold() for c in categories()): return error({'name':'Choose a category name that is not already listed.'},'categories.html',cats=categories())\n    cat=Category(user_id=g.user.id,name=name);db.session.add(cat)\n    try: db.session.commit()\n    except IntegrityError:\n        db.session.rollback();return error({'name':'This category already exists.'},'categories.html',cats=categories())"
+    },
+    "smartexpense/routes.py:rename_category": {
+      "file": "smartexpense/routes.py",
+      "symbol": "rename_category",
+      "line": 234,
+      "end_line": 245,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L234-L245",
+      "excerpt": "def rename_category(category_id):\n    cat=visible_category(category_id)\n    if cat.user_id is None: abort(403)\n    name=str(payload().get('name','')).strip()\n    if not name or len(name)>80 or any(c.id!=cat.id and c.name.casefold()==name.casefold() for c in categories()):\n        return error({'name':'Use a unique category name of 1 to 80 characters.'},'categories.html',cats=categories())\n    cat.name=name\n    try: db.session.commit()\n    except IntegrityError:\n        db.session.rollback();return error({'name':'This category already exists.'},'categories.html',cats=categories())\n    if json_request(): return jsonify(category={'id':cat.id,'name':cat.name})\n    return redirect(url_for('web.category_list'))"
+    },
+    "smartexpense/routes.py:budget_list": {
+      "file": "smartexpense/routes.py",
+      "symbol": "budget_list",
+      "line": 249,
+      "end_line": 274,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L249-L274",
+      "excerpt": "def budget_list():\n    if request.method=='GET':\n        month=request.args.get('month',today().strftime('%Y-%m'))\n        try: data=dashboard_data(month)\n        except ValueError as exc: return error({'month':str(exc)},'message.html',title='Invalid month')\n        if json_request(): return jsonify(month=month,budgets=data['budgets'])\n        return render_template('budgets.html',data=data,cats=categories(),errors={})\n    data=payload();fields={};month=data.get('month','')\n    try: parse_month(month)\n    except (ValueError,TypeError): fields['month']='Choose a valid month.'\n    try: limit=money(data.get('limit'))\n    except ValueError as exc: fields['limit']=str(exc)"
+    },
+    "smartexpense/routes.py:transaction_helpers": {
+      "file": "smartexpense/routes.py",
+      "symbol": "transaction_helpers",
+      "line": 277,
+      "end_line": 282,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L277-L282",
+      "excerpt": "def transaction_helpers():\n    def page_url(page):\n        args = request.args.to_dict()\n        args['page'] = page\n        return url_for('web.transaction_list', **args)\n    return dict(today_date=today().isoformat(), transaction_page_url=page_url)"
+    },
+    "smartexpense/routes.py:transaction_record": {
+      "file": "smartexpense/routes.py",
+      "symbol": "transaction_record",
+      "line": 285,
+      "end_line": 295,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L285-L295",
+      "excerpt": "def transaction_record(txn):\n    return {\n        'id': txn.id,\n        'type': txn.type,\n        'amount': fmt(txn.amount),\n        'date': txn.txn_date.isoformat(),\n        'category_id': txn.category_id,\n        'payment_mode': txn.payment_mode,\n        'source': txn.source,\n        'note': txn.note,\n    }"
+    },
+    "smartexpense/routes.py:owned_transaction": {
+      "file": "smartexpense/routes.py",
+      "symbol": "owned_transaction",
+      "line": 298,
+      "end_line": 307,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L298-L307",
+      "excerpt": "def owned_transaction(transaction_id):\n    txn = db.session.scalar(\n        db.select(Transaction).where(\n            Transaction.id == transaction_id,\n            Transaction.user_id == g.user.id,\n        )\n    )\n    if txn is None:\n        abort(404)\n    return txn"
+    },
+    "smartexpense/routes.py:transaction_rows": {
+      "file": "smartexpense/routes.py",
+      "symbol": "transaction_rows",
+      "line": 310,
+      "end_line": 409,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L310-L409",
+      "excerpt": "def transaction_rows(args, limit=50):\n    stmt = db.select(Transaction).where(Transaction.user_id == g.user.id)\n    errors = {}\n\n    start = args.get('start', args.get('from', '')).strip()\n    end = args.get('end', args.get('to', '')).strip()\n    category = args.get('category_id', '').strip()\n    minimum = args.get('min_amount', args.get('min', '')).strip()\n    maximum = args.get('max_amount', args.get('max', '')).strip()\n    sort = args.get('sort', 'date')\n    direction = args.get('direction', 'desc')\n    if sort in ('date_asc', 'date_desc', 'amount_asc', 'amount_desc', 'type_asc', 'type_desc'):"
+    },
+    "smartexpense/routes.py:validate_transaction": {
+      "file": "smartexpense/routes.py",
+      "symbol": "validate_transaction",
+      "line": 412,
+      "end_line": 471,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L412-L471",
+      "excerpt": "def validate_transaction(data, txn=None):\n    fields = {}\n\n    txn_type = str(data.get('type', txn.type if txn else 'expense')).strip().lower()\n    if txn_type not in ('expense', 'income'):\n        fields['type'] = 'Choose expense or income.'\n\n    try:\n        amount = money(data.get('amount', txn.amount if txn else ''))\n    except ValueError as exc:\n        fields['amount'] = str(exc)\n        amount = None"
+    },
+    "smartexpense/routes.py:transaction_list": {
+      "file": "smartexpense/routes.py",
+      "symbol": "transaction_list",
+      "line": 476,
+      "end_line": 525,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L476-L525",
+      "excerpt": "def transaction_list():\n    if request.method == 'POST':\n        data = payload()\n        fields, values = validate_transaction(data)\n\n        if fields:\n            rows, total, filters, _ = transaction_rows(request.args)\n            return error(\n                fields,\n                'transactions.html',\n                rows=rows,\n                total=fmt(total),"
+    },
+    "smartexpense/routes.py:transaction_edit": {
+      "file": "smartexpense/routes.py",
+      "symbol": "transaction_edit",
+      "line": 531,
+      "end_line": 566,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L531-L566",
+      "excerpt": "def transaction_edit(transaction_id):\n    txn = owned_transaction(transaction_id)\n\n    if request.method == 'GET':\n        return render_template(\n            'transaction_form.html',\n            txn=txn,\n            cats=categories(),\n            errors={},\n            form_data=transaction_record(txn),\n        )\n"
+    },
+    "smartexpense/routes.py:transaction_delete": {
+      "file": "smartexpense/routes.py",
+      "symbol": "transaction_delete",
+      "line": 572,
+      "end_line": 583,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L572-L583",
+      "excerpt": "def transaction_delete(transaction_id):\n    txn = owned_transaction(transaction_id)\n    if request.method == 'GET' or (request.method == 'POST' and not request.is_json and request.form.get('confirm') != 'yes'):\n        return render_template('transaction_delete.html', txn=txn)\n    db.session.delete(txn)\n    db.session.commit()\n\n    if json_request():\n        return jsonify(ok=True)\n\n    flash('Transaction deleted successfully.')\n    return redirect(url_for('web.transaction_list'))"
+    },
+    "smartexpense/routes.py:transaction_detail": {
+      "file": "smartexpense/routes.py",
+      "symbol": "transaction_detail",
+      "line": 588,
+      "end_line": 590,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L588-L590",
+      "excerpt": "def transaction_detail(transaction_id):\n    txn = owned_transaction(transaction_id)\n    return jsonify(transaction=transaction_record(txn))"
+    },
+    "smartexpense/routes.py:transaction_export": {
+      "file": "smartexpense/routes.py",
+      "symbol": "transaction_export",
+      "line": 595,
+      "end_line": 614,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/routes.py#L595-L614",
+      "excerpt": "def transaction_export():\n    rows, _, _, fields = transaction_rows(request.args, limit=None)\n    if fields:\n        return error(fields, 'message.html', title='Invalid export filters')\n    names = {c.id: c.name for c in categories()}\n    output = StringIO(newline='')\n    writer = csv.writer(output)\n    writer.writerow(['date', 'type', 'category', 'amount', 'payment_mode', 'source', 'note'])\n\n    def safe_cell(value):\n        text = str(value or '')\n        if text.lstrip().startswith(('=', '+', '-', '@')) or text.startswith(('\\t', '\\r', '\\n')):"
+    },
+    "smartexpense/models.py:User": {
+      "file": "smartexpense/models.py",
+      "symbol": "User",
+      "line": 7,
+      "end_line": 11,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/models.py#L7-L11",
+      "excerpt": "class User(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    name = db.Column(db.String(100), nullable=False)\n    email = db.Column(db.String(254), unique=True, nullable=False)\n    password_hash = db.Column(db.LargeBinary, nullable=False)"
+    },
+    "smartexpense/models.py:LoginSession": {
+      "file": "smartexpense/models.py",
+      "symbol": "LoginSession",
+      "line": 13,
+      "end_line": 16,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/models.py#L13-L16",
+      "excerpt": "class LoginSession(db.Model):\n    token = db.Column(db.String(64), primary_key=True)\n    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)\n    expires_at = db.Column(db.DateTime(timezone=True), nullable=False)"
+    },
+    "smartexpense/models.py:LoginGuard": {
+      "file": "smartexpense/models.py",
+      "symbol": "LoginGuard",
+      "line": 18,
+      "end_line": 22,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/models.py#L18-L22",
+      "excerpt": "class LoginGuard(db.Model):\n    # Separate table so init-db upgrades existing local databases without replacing users.\n    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)\n    failures = db.Column(db.Integer, nullable=False, default=0)\n    locked_until = db.Column(db.DateTime(timezone=True))"
+    },
+    "smartexpense/models.py:Category": {
+      "file": "smartexpense/models.py",
+      "symbol": "Category",
+      "line": 24,
+      "end_line": 28,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/models.py#L24-L28",
+      "excerpt": "class Category(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)\n    name = db.Column(db.String(80), nullable=False)\n    __table_args__ = (db.UniqueConstraint('user_id', 'name'),)"
+    },
+    "smartexpense/models.py:Transaction": {
+      "file": "smartexpense/models.py",
+      "symbol": "Transaction",
+      "line": 30,
+      "end_line": 48,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/models.py#L30-L48",
+      "excerpt": "class Transaction(db.Model):\n    \"\"\"Shared contract for the teammate's SEB-F-005\u2013010 implementation.\"\"\"\n    id = db.Column(db.Integer, primary_key=True)\n    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)\n    type = db.Column(db.String(7), nullable=False)\n    amount = db.Column(db.Numeric(12, 2), nullable=False)\n    txn_date = db.Column(db.Date, nullable=False)\n    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))\n    payment_mode = db.Column(db.String(30))\n    source = db.Column(db.String(100))\n    note = db.Column(db.Text)\n    __table_args__ = ("
+    },
+    "smartexpense/models.py:Budget": {
+      "file": "smartexpense/models.py",
+      "symbol": "Budget",
+      "line": 50,
+      "end_line": 56,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/models.py#L50-L56",
+      "excerpt": "class Budget(db.Model):\n    id = db.Column(db.Integer, primary_key=True)\n    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)\n    month = db.Column(db.String(7), nullable=False)\n    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))\n    limit = db.Column(db.Numeric(12, 2), nullable=False)\n    __table_args__ = (db.CheckConstraint('\"limit\" > 0'),)"
+    },
+    "smartexpense/__init__.py:SmartExpenseFlask": {
+      "file": "smartexpense/__init__.py",
+      "symbol": "SmartExpenseFlask",
+      "line": 9,
+      "end_line": 13,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/__init__.py#L9-L13",
+      "excerpt": "class SmartExpenseFlask(Flask):\n    def log_exception(self, exc_info):\n        # Exception strings can contain SQL parameters; log only the failure type.\n        self.logger.error('request=%s endpoint=%s failure=%s',\n                          getattr(g, 'request_id', 'unavailable'), request.endpoint, exc_info[0].__name__)"
+    },
+    "smartexpense/__init__.py:create_app": {
+      "file": "smartexpense/__init__.py",
+      "symbol": "create_app",
+      "line": 18,
+      "end_line": 80,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/smartexpense/__init__.py#L18-L80",
+      "excerpt": "def create_app(config=None):\n    app = SmartExpenseFlask(__name__, instance_relative_config=True)\n    Path(app.instance_path).mkdir(parents=True, exist_ok=True)\n    app.config.from_mapping(\n        SECRET_KEY=os.environ.get('SECRET_KEY'),\n        SQLALCHEMY_DATABASE_URI=os.environ.get('DATABASE_URL', 'sqlite:///smartexpense.db'),\n        SQLALCHEMY_TRACK_MODIFICATIONS=False,\n        SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Lax',\n        SESSION_COOKIE_SECURE=os.environ.get('COOKIE_SECURE', '0') == '1',\n        MAX_CONTENT_LENGTH=64*1024,\n    )\n    if config:"
+    },
+    "scripts/quality.py:run": {
+      "file": "scripts/quality.py",
+      "symbol": "run",
+      "line": 15,
+      "end_line": 25,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/scripts/quality.py#L15-L25",
+      "excerpt": "def run(*args, output=None, accepted=(0,)):\n    result = subprocess.run([sys.executable, *args], cwd=ROOT, text=True,\n                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)\n    if output:\n        # Diagnostic logs must not corrupt machine-readable JSON reports.\n        (OUT / output).write_text(result.stdout if output.endswith('.json') else result.stdout + result.stderr)\n    print(result.stdout, end='')\n    print(result.stderr, end='', file=sys.stderr)\n    if result.returncode not in accepted:\n        raise SystemExit(result.returncode)\n    return result.returncode"
+    },
+    "scripts/quality.py:report_xml": {
+      "file": "scripts/quality.py",
+      "symbol": "report_xml",
+      "line": 28,
+      "end_line": 41,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/scripts/quality.py#L28-L41",
+      "excerpt": "def report_xml(path, title):\n    root = ET.parse(path).getroot()\n    cases = root.findall('.//testcase')\n    failures = sum(c.find('failure') is not None or c.find('error') is not None for c in cases)\n    skipped = sum(c.find('skipped') is not None for c in cases)\n    rows = [f'# {title}', '', f'Executed at {datetime.now(timezone.utc).isoformat()}.', '',\n            f'{len(cases)-skipped-failures} passed; {failures} failed; {skipped} skipped.', '',\n            'Full case identifiers, durations and captured output are in the adjacent JUnit XML.', '',\n            '| Test | Result | Seconds |', '|---|---|---:|']\n    for c in cases:\n        state = 'SKIP' if c.find('skipped') is not None else 'FAIL' if c.find('failure') is not None or c.find('error') is not None else 'PASS'\n        rows.append(f\"| {c.get('classname')}.{c.get('name')} | {state} | {c.get('time')} |\")"
+    },
+    "scripts/quality.py:main": {
+      "file": "scripts/quality.py",
+      "symbol": "main",
+      "line": 44,
+      "end_line": 72,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/scripts/quality.py#L44-L72",
+      "excerpt": "def main():\n    OUT.mkdir(parents=True, exist_ok=True)\n    run('-m', 'pytest', '-q', '-m', 'unit', '--junitxml=docs/reports/unit-test-report.xml', output='unit-test-log.txt')\n    unit = report_xml(OUT/'unit-test-report.xml', 'Unit Test Report')\n    run('-m', 'coverage', 'erase')\n    run('-m', 'coverage', 'run', '-m', 'pytest', '-q', '-s', '--junitxml=docs/reports/system-validation-report.xml', output='system-test-log.txt')\n    system = report_xml(OUT/'system-validation-report.xml', 'System Validation Report')\n    run('-m', 'coverage', 'json', '-o', 'docs/reports/coverage.json')\n    run('-m', 'coverage', 'xml', '-o', 'docs/reports/coverage.xml')\n    run('-m', 'coverage', 'html')\n    run('-m', 'coverage', 'report', '-m', output='coverage-summary.txt')\n    data = json.loads((OUT/'coverage.json').read_text())"
+    },
+    "scripts/browser_acceptance.py:main": {
+      "file": "scripts/browser_acceptance.py",
+      "symbol": "main",
+      "line": 28,
+      "end_line": 120,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/fa7940c1f5438966dfa314d30615dfc17bd371b2/scripts/browser_acceptance.py#L28-L120",
+      "excerpt": "def main():\n    parser=argparse.ArgumentParser();parser.add_argument('--browser',choices=['chrome','edge','firefox'],required=True);args=parser.parse_args()\n    name=args.browser\n    out=ROOT/'docs/reports/browser-acceptance'/name;out.mkdir(parents=True,exist_ok=True)\n    checks=[];errors=[];versions=[]\n    with tempfile.TemporaryDirectory(prefix='smartexpense-browser-') as folder:\n        app=create_app({'SECRET_KEY':os.urandom(32).hex(),'SQLALCHEMY_DATABASE_URI':'sqlite:///'+folder+'/test.db'})\n        with app.app_context():\n            result=app.test_cli_runner().invoke(args=['init-db']);assert result.exit_code==0,result.output\n        server=make_server('127.0.0.1',0,app,threaded=True);thread=Thread(target=server.serve_forever,daemon=True);thread.start()\n        base=f'http://127.0.0.1:{server.server_port}'\n        try:"
+    },
+    "tests/test_security.py:test_sec01_session_cookie_flags": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec01_session_cookie_flags",
+      "line": 24,
+      "end_line": 30,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L24-L30",
+      "excerpt": "def test_sec01_session_cookie_flags(tmp_path):\n    app = make_app(tmp_path, SESSION_COOKIE_SECURE=True)\n    c = app.test_client()\n    write(c, '/register', {'name': 'A', 'email': 'a@example.com', 'password': PASSWORD})\n    cookies = write(c, '/login', {'email': 'a@example.com', 'password': PASSWORD}).headers.getlist('Set-Cookie')\n    sid = next(x for x in cookies if x.startswith('sid='))\n    assert 'HttpOnly' in sid and 'Secure' in sid and 'SameSite=Lax' in sid"
+    },
+    "tests/test_security.py:test_sec01_no_external_resources": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec01_no_external_resources",
+      "line": 33,
+      "end_line": 38,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L33-L38",
+      "excerpt": "def test_sec01_no_external_resources(client):\n    \"\"\"No page loads scripts, styles or images from another origin (no mixed content).\"\"\"\n    account(client)\n    for path in ('/login', '/register', '/dashboard', '/transactions', '/budgets', '/categories'):\n        page = client.get(path).text\n        assert not re.search(r'(?:src|href)=\"https?://', page), path"
+    },
+    "tests/test_security.py:test_sec01_security_headers": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec01_security_headers",
+      "line": 41,
+      "end_line": 44,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L41-L44",
+      "excerpt": "def test_sec01_security_headers(client):\n    headers = client.get('/login').headers\n    assert 'Strict-Transport-Security' in headers\n    assert 'Content-Security-Policy' in headers"
+    },
+    "tests/test_security.py:test_sec01_deployed_http_redirects_to_https": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec01_deployed_http_redirects_to_https",
+      "line": 49,
+      "end_line": 55,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L49-L55",
+      "excerpt": "def test_sec01_deployed_http_redirects_to_https():\n    host = urlparse(DEPLOYED).hostname\n    conn = http.client.HTTPConnection(host, timeout=10)\n    conn.request('GET', '/login')\n    resp = conn.getresponse()\n    assert resp.status in (301, 302, 307, 308)\n    assert resp.getheader('Location', '').startswith('https://')"
+    },
+    "tests/test_security.py:test_sec01_deployed_tls12_ok_and_valid_certificate": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec01_deployed_tls12_ok_and_valid_certificate",
+      "line": 60,
+      "end_line": 65,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L60-L65",
+      "excerpt": "def test_sec01_deployed_tls12_ok_and_valid_certificate():\n    host = urlparse(DEPLOYED).hostname\n    ctx = ssl.create_default_context()          # verifies certificate and host name\n    ctx.minimum_version = ssl.TLSVersion.TLSv1_2\n    with ctx.wrap_socket(__import__('socket').create_connection((host, 443), timeout=10), server_hostname=host) as s:\n        assert s.version() in ('TLSv1.2', 'TLSv1.3')"
+    },
+    "tests/test_security.py:test_sec02_hashes_are_salted_and_passwords_never_stored": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec02_hashes_are_salted_and_passwords_never_stored",
+      "line": 69,
+      "end_line": 82,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L69-L82",
+      "excerpt": "def test_sec02_hashes_are_salted_and_passwords_never_stored(app, tmp_path, caplog):\n    caplog.set_level('DEBUG')\n    a, b = app.test_client(), app.test_client()\n    account(a, 'a@example.com', 'A')\n    account(b, 'b@example.com', 'B')                      # same password as A\n    write(a, '/login', {'email': 'a@example.com', 'password': 'wrong-password'})   # a failed login too\n    with app.app_context():\n        hashes = [u.password_hash for u in db.session.scalars(db.select(User).order_by(User.id))]\n    assert len(hashes) == 2 and hashes[0] != hashes[1]\n    assert all(h.startswith(b'$2b$') and len(h) == 60 for h in hashes)     # bcrypt, per-user salt\n    assert all(PASSWORD.encode() not in h for h in hashes)\n    assert PASSWORD.encode() not in (tmp_path / 'test.db').read_bytes()   # not anywhere in the database file"
+    },
+    "tests/test_security.py:test_sec02_responses_never_contain_hash": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec02_responses_never_contain_hash",
+      "line": 85,
+      "end_line": 88,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L85-L88",
+      "excerpt": "def test_sec02_responses_never_contain_hash(client):\n    account(client)\n    for path in ('/dashboard', '/transactions', '/categories', '/budgets'):\n        assert '$2b$' not in client.get(path).text"
+    },
+    "tests/test_security.py:test_sec02_correct_password_accepted_wrong_rejected": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec02_correct_password_accepted_wrong_rejected",
+      "line": 91,
+      "end_line": 95,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L91-L95",
+      "excerpt": "def test_sec02_correct_password_accepted_wrong_rejected(client):\n    account(client)\n    other = client.application.test_client()\n    assert write(other, '/login', {'email': 'a@example.com', 'password': 'not-it-at-all'}).status_code == 401\n    assert write(other, '/login', {'email': 'a@example.com', 'password': PASSWORD}).status_code == 200"
+    },
+    "tests/test_security.py:two_users": {
+      "file": "tests/test_security.py",
+      "symbol": "two_users",
+      "line": 100,
+      "end_line": 107,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L100-L107",
+      "excerpt": "def two_users(app):\n    a, b = app.test_client(), app.test_client()\n    account(a, 'a@example.com', 'A')\n    account(b, 'b@example.com', 'B')\n    b_cat = write(b, '/categories', {'name': 'B private'}).json['category']['id']\n    b_txn = add_transaction(app, 'b@example.com', note='B secret note', category_id=b_cat)\n    write(b, '/budgets', {'month': '2026-10', 'limit': '777', 'category_id': b_cat}, 'put')\n    return app, a, b, b_cat, b_txn"
+    },
+    "tests/test_security.py:test_sec03_foreign_transaction_is_404_and_looks_like_missing": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec03_foreign_transaction_is_404_and_looks_like_missing",
+      "line": 110,
+      "end_line": 116,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L110-L116",
+      "excerpt": "def test_sec03_foreign_transaction_is_404_and_looks_like_missing(two_users):\n    _, a, _, _, b_txn = two_users\n    foreign = a.get(f'/transactions/{b_txn}')\n    missing = a.get('/transactions/999999')\n    assert foreign.status_code == missing.status_code == 404\n    assert foreign.data == missing.data                      # IDs cannot be probed\n    assert 'B secret note' not in a.get('/transactions').text"
+    },
+    "tests/test_security.py:test_sec03_foreign_category_cannot_be_renamed": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec03_foreign_category_cannot_be_renamed",
+      "line": 119,
+      "end_line": 123,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L119-L123",
+      "excerpt": "def test_sec03_foreign_category_cannot_be_renamed(two_users):\n    app, a, b, b_cat, _ = two_users\n    assert write(a, f'/categories/{b_cat}', {'name': 'Stolen'}, 'put').status_code == 404\n    names = [c['name'] for c in b.get('/categories', headers={'Accept': 'application/json'}).json['categories']]\n    assert 'B private' in names and 'Stolen' not in names"
+    },
+    "tests/test_security.py:test_sec03_default_category_cannot_be_renamed": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec03_default_category_cannot_be_renamed",
+      "line": 126,
+      "end_line": 130,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L126-L130",
+      "excerpt": "def test_sec03_default_category_cannot_be_renamed(two_users):\n    app, a, *_ = two_users\n    assert write(a, f\"/categories/{category_id(app, 'Food')}\", {'name': 'Changed'}, 'put').status_code in (403, 404)\n    with app.app_context():\n        assert db.session.scalar(db.select(Category).where(Category.name == 'Food')) is not None"
+    },
+    "tests/test_security.py:test_sec03_foreign_category_cannot_be_used_for_a_budget": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec03_foreign_category_cannot_be_used_for_a_budget",
+      "line": 133,
+      "end_line": 138,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L133-L138",
+      "excerpt": "def test_sec03_foreign_category_cannot_be_used_for_a_budget(two_users):\n    app, a, _, b_cat, _ = two_users\n    assert write(a, '/budgets', {'month': '2026-10', 'limit': '5000', 'category_id': b_cat}, 'put').status_code == 404\n    with app.app_context():\n        assert db.session.scalar(db.select(db.func.count()).select_from(Budget).where(Budget.user_id == user_id(app, 'a@example.com'))) == 0\n    assert a.get('/api/dashboard?month=2026-10').json['budgets'] == []     # B's 777 budget is not visible to A"
+    },
+    "tests/test_security.py:test_sec03_anonymous_gets_no_data": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec03_anonymous_gets_no_data",
+      "line": 141,
+      "end_line": 146,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L141-L146",
+      "excerpt": "def test_sec03_anonymous_gets_no_data(app, two_users):\n    _, _, _, _, b_txn = two_users\n    anon = app.test_client()\n    resp = anon.get(f'/transactions/{b_txn}', headers={'Accept': 'application/json'})\n    assert resp.status_code == 401 and b'B secret note' not in resp.data\n    assert anon.get('/transactions').status_code == 302"
+    },
+    "tests/test_security.py:test_sec03_foreign_transaction_cannot_be_changed": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec03_foreign_transaction_cannot_be_changed",
+      "line": 150,
+      "end_line": 155,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L150-L155",
+      "excerpt": "def test_sec03_foreign_transaction_cannot_be_changed(two_users, method, body):\n    app, a, _, _, b_txn = two_users\n    resp = write(a, f'/transactions/{b_txn}', body, method) if body else a.delete(f'/transactions/{b_txn}', headers={'X-CSRFToken': csrf(a)})\n    assert resp.status_code == 404\n    with app.app_context():\n        assert db.session.get(Transaction, b_txn).amount == 100"
+    },
+    "tests/test_security.py:test_sec03_foreign_category_cannot_be_used_on_new_expense": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec03_foreign_category_cannot_be_used_on_new_expense",
+      "line": 158,
+      "end_line": 161,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L158-L161",
+      "excerpt": "def test_sec03_foreign_category_cannot_be_used_on_new_expense(two_users):\n    _, a, _, b_cat, _ = two_users\n    body = {'type': 'expense', 'amount': '10.00', 'date': '2026-10-08', 'category_id': b_cat, 'payment_mode': 'UPI'}\n    assert write(a, '/transactions', body).status_code == 404"
+    },
+    "tests/test_security.py:test_sec04_sql_injection_cannot_bypass_login": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec04_sql_injection_cannot_bypass_login",
+      "line": 169,
+      "end_line": 175,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L169-L175",
+      "excerpt": "def test_sec04_sql_injection_cannot_bypass_login(client, email):\n    account(client, 'victim@example.com', 'Victim')\n    attacker = client.application.test_client()\n    resp = write(attacker, '/login', {'email': email, 'password': \"' OR '1'='1\"})\n    assert resp.status_code == 401\n    assert attacker.get_cookie('sid') is None\n    assert attacker.get('/dashboard').status_code == 302"
+    },
+    "tests/test_security.py:test_sec04_sql_text_is_stored_as_plain_text_and_tables_survive": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec04_sql_text_is_stored_as_plain_text_and_tables_survive",
+      "line": 178,
+      "end_line": 185,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L178-L185",
+      "excerpt": "def test_sec04_sql_text_is_stored_as_plain_text_and_tables_survive(client, app):\n    account(client)\n    evil = \"Robert'); DROP TABLE category;--\"\n    assert write(client, '/categories', {'name': evil}).status_code == 201\n    cats = client.get('/categories', headers={'Accept': 'application/json'}).json['categories']\n    assert evil in [c['name'] for c in cats] and len(cats) == 9\n    with app.app_context():\n        assert db.session.scalar(db.select(db.func.count()).select_from(Category)) == 9"
+    },
+    "tests/test_security.py:test_sec04_sql_in_ids_and_filters_is_rejected": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec04_sql_in_ids_and_filters_is_rejected",
+      "line": 188,
+      "end_line": 197,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L188-L197",
+      "excerpt": "def test_sec04_sql_in_ids_and_filters_is_rejected(client, app):\n    account(client)\n    other = app.test_client()\n    account(other, 'b@example.com', 'B')\n    add_transaction(app, 'b@example.com', note='B only')\n    assert write(client, '/budgets', {'month': '2026-10', 'limit': '10', 'category_id': '1 OR 1=1'}, 'put').status_code == 404\n    assert client.get('/api/dashboard', query_string={'month': \"2026-10' OR '1'='1\"}).status_code == 422\n    assert client.get('/transactions/1 OR 1=1').status_code == 404\n    with app.app_context():\n        assert db.session.scalar(db.select(db.func.count()).select_from(Budget)) == 0"
+    },
+    "tests/test_security.py:test_sec04_stored_xss_is_escaped_everywhere": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec04_stored_xss_is_escaped_everywhere",
+      "line": 204,
+      "end_line": 212,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L204-L212",
+      "excerpt": "def test_sec04_stored_xss_is_escaped_everywhere(client, app, payload):\n    account(client)\n    cat = write(client, '/categories', {'name': payload}).json['category']['id']\n    write(client, '/budgets', {'month': '2026-10', 'limit': '1000', 'category_id': cat}, 'put')\n    add_transaction(app, 'a@example.com', note=payload, category_id=cat)\n    for path in ('/categories', '/budgets?month=2026-10', '/dashboard?month=2026-10', '/transactions'):\n        page = client.get(path).text\n        assert payload not in page, path\n        assert '&lt;' in page, path"
+    },
+    "tests/test_security.py:test_sec04_source_has_no_string_built_sql_or_unsafe_output": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec04_source_has_no_string_built_sql_or_unsafe_output",
+      "line": 215,
+      "end_line": 221,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L215-L221",
+      "excerpt": "def test_sec04_source_has_no_string_built_sql_or_unsafe_output():\n    py = '\\n'.join(p.read_text(encoding='utf-8') for p in SRC.glob('*.py'))\n    assert not re.search(r'execute\\(\\s*f[\\'\"]', py)\n    assert not re.search(r'execute\\([^)]*(%|\\+|\\.format)', py)\n    assert 'Markup(' not in py\n    for template in (SRC / 'templates').glob('*.html'):\n        assert '|safe' not in template.read_text(encoding='utf-8'), template.name"
+    },
+    "tests/test_security.py:test_sec05_password_minimum_length_boundary": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec05_password_minimum_length_boundary",
+      "line": 225,
+      "end_line": 228,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L225-L228",
+      "excerpt": "def test_sec05_password_minimum_length_boundary(client):\n    short = write(client, '/register', {'name': 'A', 'email': 'a@example.com', 'password': 'Abcd123'})   # 7\n    assert short.status_code == 422 and 'at least 8' in short.json['fields']['password']\n    assert write(client, '/register', {'name': 'A', 'email': 'a@example.com', 'password': 'Abcd1234'}).status_code == 201   # 8"
+    },
+    "tests/test_security.py:test_sec05_failure_counter_resets_after_success": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec05_failure_counter_resets_after_success",
+      "line": 231,
+      "end_line": 236,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L231-L236",
+      "excerpt": "def test_sec05_failure_counter_resets_after_success(client):\n    account(client)\n    c = client.application.test_client()\n    for _ in range(4):\n        assert write(c, '/login', {'email': 'a@example.com', 'password': 'wrong-password'}).status_code == 401\n    assert write(c, '/login', {'email': 'a@example.com', 'password': PASSWORD}).status_code == 200"
+    },
+    "tests/test_security.py:test_sec05_unknown_email_and_wrong_password_look_the_same": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec05_unknown_email_and_wrong_password_look_the_same",
+      "line": 239,
+      "end_line": 244,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L239-L244",
+      "excerpt": "def test_sec05_unknown_email_and_wrong_password_look_the_same(client):\n    account(client)\n    c = client.application.test_client()\n    wrong = write(c, '/login', {'email': 'a@example.com', 'password': 'wrong-password'})\n    unknown = write(c, '/login', {'email': 'nobody@example.com', 'password': 'wrong-password'})\n    assert wrong.status_code == unknown.status_code == 401 and wrong.json == unknown.json"
+    },
+    "tests/test_security.py:test_sec05_login_locked_after_five_failures": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec05_login_locked_after_five_failures",
+      "line": 247,
+      "end_line": 253,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L247-L253",
+      "excerpt": "def test_sec05_login_locked_after_five_failures(client):\n    account(client)\n    c = client.application.test_client()\n    for _ in range(5):\n        assert write(c, '/login', {'email': 'a@example.com', 'password': 'wrong-password'}).status_code == 401\n    locked = write(c, '/login', {'email': 'a@example.com', 'password': PASSWORD})   # correct password, still blocked\n    assert locked.status_code == 429 and 'Retry-After' in locked.headers"
+    },
+    "tests/test_security.py:test_sec05_lockout_survives_restart_and_expires": {
+      "file": "tests/test_security.py",
+      "symbol": "test_sec05_lockout_survives_restart_and_expires",
+      "line": 257,
+      "end_line": 275,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_security.py#L257-L275",
+      "excerpt": "def test_sec05_lockout_survives_restart_and_expires(tmp_path, monkeypatch):\n    from datetime import timedelta\n    from smartexpense import routes\n    from smartexpense.models import LoginGuard\n    first = make_app(tmp_path)\n    c = first.test_client()\n    account(c)\n    for _ in range(5):\n        assert write(c, '/login', {'email': 'a@example.com', 'password': 'wrong'}).status_code == 401\n    restarted = make_app(tmp_path)\n    c2 = restarted.test_client()\n    locked = write(c2, '/login', {'email': 'a@example.com', 'password': PASSWORD})"
+    },
+    "tests/test_core.py:app": {
+      "file": "tests/test_core.py",
+      "symbol": "app",
+      "line": 9,
+      "end_line": 13,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L9-L13",
+      "excerpt": "def app(tmp_path):\n    app=create_app({'TESTING':True,'SECRET_KEY':'test-only-secret','SQLALCHEMY_DATABASE_URI':f'sqlite:///{tmp_path}/test.db'})\n    with app.app_context():\n        app.test_cli_runner().invoke(args=['init-db'])\n    yield app"
+    },
+    "tests/test_core.py:client": {
+      "file": "tests/test_core.py",
+      "symbol": "client",
+      "line": 16,
+      "end_line": 17,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L16-L17",
+      "excerpt": "def client(app):\n    return app.test_client()"
+    },
+    "tests/test_core.py:csrf": {
+      "file": "tests/test_core.py",
+      "symbol": "csrf",
+      "line": 19,
+      "end_line": 21,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L19-L21",
+      "excerpt": "def csrf(client):\n    page=client.get('/login').text\n    return re.search(r'name=\"csrf_token\" value=\"([^\"]+)\"',page)[1]"
+    },
+    "tests/test_core.py:write": {
+      "file": "tests/test_core.py",
+      "symbol": "write",
+      "line": 23,
+      "end_line": 24,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L23-L24",
+      "excerpt": "def write(client,path,body,method='post'):\n    return getattr(client,method)(path,json=body,headers={'X-CSRFToken':csrf(client)})"
+    },
+    "tests/test_core.py:account": {
+      "file": "tests/test_core.py",
+      "symbol": "account",
+      "line": 26,
+      "end_line": 28,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L26-L28",
+      "excerpt": "def account(client,email='a@example.com',name='A'):\n    assert write(client,'/register',{'name':name,'email':email,'password':'password123'}).status_code==201\n    assert write(client,'/login',{'email':email,'password':'password123'}).status_code==200"
+    },
+    "tests/test_core.py:seed": {
+      "file": "tests/test_core.py",
+      "symbol": "seed",
+      "line": 30,
+      "end_line": 38,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L30-L38",
+      "excerpt": "def seed(app):\n    with app.app_context():\n        a=db.session.scalar(db.select(User).where(User.email=='a@example.com'))\n        cats={c.name:c.id for c in db.session.scalars(db.select(Category))}\n        for name,amount in [('Food','500'),('Travel','300'),('Rent','1000')]:\n            db.session.add(Transaction(user_id=a.id,type='expense',amount=Decimal(amount),txn_date=date(2026,10,8),category_id=cats[name],payment_mode='UPI'))\n        db.session.add(Transaction(user_id=a.id,type='income',amount=Decimal('10000'),txn_date=date(2026,10,8),source='Salary'))\n        db.session.commit()\n        return cats"
+    },
+    "tests/test_core.py:test_registration_duplicate_and_login": {
+      "file": "tests/test_core.py",
+      "symbol": "test_registration_duplicate_and_login",
+      "line": 40,
+      "end_line": 44,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L40-L44",
+      "excerpt": "def test_registration_duplicate_and_login(client):\n    account(client)\n    assert write(client,'/register',{'name':'Other','email':'A@EXAMPLE.COM','password':'password123'}).status_code==422\n    assert write(client,'/login',{'email':'a@example.com','password':'wrong'}).status_code==401\n    assert client.get('/dashboard').status_code==200"
+    },
+    "tests/test_core.py:test_registration_validation": {
+      "file": "tests/test_core.py",
+      "symbol": "test_registration_validation",
+      "line": 47,
+      "end_line": 48,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L47-L48",
+      "excerpt": "def test_registration_validation(client,body):\n    assert write(client,'/register',body).status_code==422"
+    },
+    "tests/test_core.py:test_logout_revokes_replayed_cookie": {
+      "file": "tests/test_core.py",
+      "symbol": "test_logout_revokes_replayed_cookie",
+      "line": 50,
+      "end_line": 55,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L50-L55",
+      "excerpt": "def test_logout_revokes_replayed_cookie(client):\n    account(client);cookie=client.get_cookie('sid').value\n    assert write(client,'/logout',{}).status_code==200\n    client.set_cookie('sid',cookie)\n    assert client.get('/api/dashboard').status_code==401\n    assert client.get('/dashboard').status_code==302"
+    },
+    "tests/test_core.py:test_csrf_required": {
+      "file": "tests/test_core.py",
+      "symbol": "test_csrf_required",
+      "line": 57,
+      "end_line": 58,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L57-L58",
+      "excerpt": "def test_csrf_required(client):\n    assert client.post('/register',json={'name':'A','email':'a@example.com','password':'password123'}).status_code==400"
+    },
+    "tests/test_core.py:test_categories_add_rename_and_defaults": {
+      "file": "tests/test_core.py",
+      "symbol": "test_categories_add_rename_and_defaults",
+      "line": 60,
+      "end_line": 69,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L60-L69",
+      "excerpt": "def test_categories_add_rename_and_defaults(client,app):\n    account(client)\n    defaults=client.get('/categories',headers={'Accept':'application/json'}).json['categories']\n    assert len(defaults)==8 and all(c['is_default'] for c in defaults)\n    added=write(client,'/categories',{'name':'Books'}).json['category']\n    assert write(client,f\"/categories/{added['id']}\",{'name':'Study'},'put').status_code==200\n    assert 'Study' in client.get('/categories').text\n    assert write(client,'/categories',{'name':'food'}).status_code==422\n    with app.app_context(): food=db.session.scalar(db.select(Category).where(Category.name=='Food')).id\n    assert write(client,f'/categories/{food}',{'name':'Changed'},'put').status_code==403"
+    },
+    "tests/test_core.py:test_foreign_category_budget_and_transaction_isolation": {
+      "file": "tests/test_core.py",
+      "symbol": "test_foreign_category_budget_and_transaction_isolation",
+      "line": 71,
+      "end_line": 83,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L71-L83",
+      "excerpt": "def test_foreign_category_budget_and_transaction_isolation(client,app):\n    account(client);seed(app)\n    b=app.test_client();account(b,'b@example.com','B')\n    foreign_cat=write(b,'/categories',{'name':'Private'}).json['category']['id']\n    assert write(client,f'/categories/{foreign_cat}',{'name':'Stolen'},'put').status_code==404\n    assert write(client,'/budgets',{'month':'2026-10','limit':'5000','category_id':foreign_cat},'put').status_code==404\n    with app.app_context():\n        owner=db.session.scalar(db.select(User).where(User.email=='b@example.com'))\n        txn=Transaction(user_id=owner.id,type='income',amount=99999,txn_date=date(2026,10,8),source='B private');db.session.add(txn);db.session.commit();tid=txn.id\n    assert client.get(f'/transactions/{tid}').status_code==404\n    assert 'B private' not in client.get('/transactions').text\n    assert client.get('/api/dashboard?month=2026-10').json['income']=='10000.00'"
+    },
+    "tests/test_core.py:test_budget_persistence_upsert_and_totals": {
+      "file": "tests/test_core.py",
+      "symbol": "test_budget_persistence_upsert_and_totals",
+      "line": 85,
+      "end_line": 95,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L85-L95",
+      "excerpt": "def test_budget_persistence_upsert_and_totals(client,app):\n    account(client);cats=seed(app)\n    for category,limit in [(None,'5000'),(cats['Food'],'1000')]:\n        assert write(client,'/budgets',{'month':'2026-10','limit':limit,'category_id':category},'put').status_code==200\n    data=client.get('/api/dashboard?month=2026-10').json\n    assert (data['income'],data['expense'],data['balance'])==('10000.00','1800.00','8200.00')\n    assert [(b['spent'],b['remaining'],b['percent_used']) for b in data['budgets']]==[('1800.00','3200.00','36.00'),('500.00','500.00','50.00')]\n    write(client,'/budgets',{'month':'2026-10','limit':'6000'},'put')\n    with app.app_context(): assert db.session.scalar(db.select(db.func.count()).select_from(Budget))==2\n    new=app.test_client();write(new,'/login',{'email':'a@example.com','password':'password123'})\n    assert new.get('/api/dashboard?month=2026-10').json['budgets'][0]['limit']=='6000.00'"
+    },
+    "tests/test_core.py:test_alert_thresholds": {
+      "file": "tests/test_core.py",
+      "symbol": "test_alert_thresholds",
+      "line": 98,
+      "end_line": 100,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L98-L100",
+      "excerpt": "def test_alert_thresholds(client,app,limit,expected):\n    account(client);seed(app);write(client,'/budgets',{'month':'2026-10','limit':limit},'put')\n    assert client.get('/api/dashboard?month=2026-10').json['budgets'][0]['alert']==expected"
+    },
+    "tests/test_core.py:test_chart_breakdown_six_months_and_empty_state": {
+      "file": "tests/test_core.py",
+      "symbol": "test_chart_breakdown_six_months_and_empty_state",
+      "line": 103,
+      "end_line": 114,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L103-L114",
+      "excerpt": "def test_chart_breakdown_six_months_and_empty_state(client,app):\n    account(client);seed(app)\n    with app.app_context():\n        user=db.session.scalar(db.select(User));food=db.session.scalar(db.select(Category).where(Category.name=='Food'))\n        db.session.add(Transaction(user_id=user.id,type='expense',amount=100,txn_date=date(2026,5,1),category_id=food.id,payment_mode='Cash'));db.session.commit()\n    data=client.get('/api/dashboard?month=2026-10').json\n    assert data['categories']==[{'name':'Food','total':'500.00'},{'name':'Rent','total':'1000.00'},{'name':'Travel','total':'300.00'}]\n    assert [t['month'] for t in data['trend']]==['2026-05','2026-06','2026-07','2026-08','2026-09','2026-10']\n    assert [t['expense'] for t in data['trend']]==['100.00','0.00','0.00','0.00','0.00','1800.00']\n    empty=client.get('/api/dashboard?month=2026-11').json\n    assert empty['income']==empty['expense']==empty['balance']=='0.00'\n    assert client.get('/dashboard?month=2026-10').status_code==200"
+    },
+    "tests/test_core.py:test_invalid_budgets_not_saved": {
+      "file": "tests/test_core.py",
+      "symbol": "test_invalid_budgets_not_saved",
+      "line": 117,
+      "end_line": 120,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L117-L120",
+      "excerpt": "def test_invalid_budgets_not_saved(client,app,limit):\n    account(client)\n    assert write(client,'/budgets',{'month':'2026-10','limit':limit},'put').status_code==422\n    with app.app_context(): assert db.session.scalar(db.select(db.func.count()).select_from(Budget))==0"
+    },
+    "tests/test_core.py:test_invalid_month": {
+      "file": "tests/test_core.py",
+      "symbol": "test_invalid_month",
+      "line": 123,
+      "end_line": 124,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L123-L124",
+      "excerpt": "def test_invalid_month(client,month):\n    account(client);assert client.get('/api/dashboard',query_string={'month':month}).status_code==422"
+    },
+    "tests/test_core.py:test_year_rollover_trend": {
+      "file": "tests/test_core.py",
+      "symbol": "test_year_rollover_trend",
+      "line": 126,
+      "end_line": 128,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L126-L128",
+      "excerpt": "def test_year_rollover_trend(client):\n    account(client)\n    assert [t['month'] for t in client.get('/api/dashboard?month=2026-01').json['trend']]==['2025-08','2025-09','2025-10','2025-11','2025-12','2026-01']"
+    },
+    "tests/test_core.py:test_user_text_escaped": {
+      "file": "tests/test_core.py",
+      "symbol": "test_user_text_escaped",
+      "line": 130,
+      "end_line": 134,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L130-L134",
+      "excerpt": "def test_user_text_escaped(client):\n    account(client,name='<script>alert(1)</script>')\n    page=client.get('/dashboard').text\n    assert '<script>alert(1)</script>' not in page\n    assert '&lt;script&gt;' in page"
+    },
+    "tests/test_core.py:test_anonymous_pages_redirect": {
+      "file": "tests/test_core.py",
+      "symbol": "test_anonymous_pages_redirect",
+      "line": 137,
+      "end_line": 138,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L137-L138",
+      "excerpt": "def test_anonymous_pages_redirect(client,path):\n    assert client.get(path).status_code==302"
+    },
+    "tests/test_core.py:test_invalid_json_payload": {
+      "file": "tests/test_core.py",
+      "symbol": "test_invalid_json_payload",
+      "line": 141,
+      "end_line": 142,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L141-L142",
+      "excerpt": "def test_invalid_json_payload(client):\n    assert client.post('/register',json=['invalid'],headers={'X-CSRFToken':csrf(client)}).status_code==422"
+    },
+    "tests/test_core.py:test_budget_and_category_html_forms": {
+      "file": "tests/test_core.py",
+      "symbol": "test_budget_and_category_html_forms",
+      "line": 144,
+      "end_line": 149,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_core.py#L144-L149",
+      "excerpt": "def test_budget_and_category_html_forms(client):\n    account(client)\n    assert client.post('/categories',data={'csrf_token':csrf(client),'name':'Books'}).status_code==302\n    assert 'Books' in client.get('/categories').text\n    assert client.post('/budgets',data={'csrf_token':csrf(client),'month':'2026-10','limit':'5000','category_id':''}).status_code==302\n    assert '5000.00' in client.get('/budgets?month=2026-10').text"
+    },
+    "tests/test_csv_export.py:parse": {
+      "file": "tests/test_csv_export.py",
+      "symbol": "parse",
+      "line": 16,
+      "end_line": 17,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_csv_export.py#L16-L17",
+      "excerpt": "def parse(resp):\n    return list(csv.reader(io.StringIO(resp.data.decode('utf-8'))))"
+    },
+    "tests/test_csv_export.py:data": {
+      "file": "tests/test_csv_export.py",
+      "symbol": "data",
+      "line": 21,
+      "end_line": 34,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_csv_export.py#L21-L34",
+      "excerpt": "def data(app, client):\n    account(client)\n    other = app.test_client()\n    account(other, 'b@example.com', 'B')\n    food, travel = category_id(app, 'Food'), category_id(app, 'Travel')\n    add_transaction(app, 'a@example.com', amount=Decimal('500'), txn_date=date(2026, 10, 8), category_id=food, note='Lunch')\n    add_transaction(app, 'a@example.com', amount=Decimal('250'), txn_date=date(2026, 10, 9), category_id=food, note='Dinner, with \"friends\"')\n    add_transaction(app, 'a@example.com', amount=Decimal('50'), txn_date=date(2026, 10, 10), category_id=food, note='Tea')       # below min\n    add_transaction(app, 'a@example.com', amount=Decimal('300'), txn_date=date(2026, 10, 11), category_id=travel, note='Bus')    # other category\n    add_transaction(app, 'a@example.com', amount=Decimal('400'), txn_date=date(2026, 9, 5), category_id=food, note='Old')        # other month\n    add_transaction(app, 'a@example.com', amount=Decimal('120'), txn_date=date(2026, 10, 12), category_id=food, note='=SUM(1+1)')\n    add_transaction(app, 'a@example.com', amount=Decimal('130'), txn_date=date(2026, 10, 13), category_id=food, note='caf\\u00e9 \\u20b9')"
+    },
+    "tests/test_csv_export.py:filtered": {
+      "file": "tests/test_csv_export.py",
+      "symbol": "filtered",
+      "line": 40,
+      "end_line": 41,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_csv_export.py#L40-L41",
+      "excerpt": "def filtered(client, app_):\n    return client.get(URL, query_string={**FILTER, 'category_id': category_id(app_, 'Food')})"
+    },
+    "tests/test_csv_export.py:test_rpt01_download_headers": {
+      "file": "tests/test_csv_export.py",
+      "symbol": "test_rpt01_download_headers",
+      "line": 44,
+      "end_line": 48,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_csv_export.py#L44-L48",
+      "excerpt": "def test_rpt01_download_headers(data, app):\n    resp = filtered(data, app)\n    assert resp.status_code == 200\n    assert resp.headers['Content-Type'].lower().startswith('text/csv') and 'utf-8' in resp.headers['Content-Type'].lower()\n    assert 'attachment' in resp.headers['Content-Disposition']"
+    },
+    "tests/test_csv_export.py:test_rpt01_header_row_and_rows_match_the_filter": {
+      "file": "tests/test_csv_export.py",
+      "symbol": "test_rpt01_header_row_and_rows_match_the_filter",
+      "line": 51,
+      "end_line": 57,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_csv_export.py#L51-L57",
+      "excerpt": "def test_rpt01_header_row_and_rows_match_the_filter(data, app):\n    rows = parse(filtered(data, app))\n    assert rows[0] == HEADER\n    notes = [r[6] for r in rows[1:]]\n    assert sorted(notes) == sorted(['Lunch', 'Dinner, with \"friends\"', \"'=SUM(1+1)\", 'caf\\u00e9 \\u20b9'])\n    assert sum(Decimal(r[3]) for r in rows[1:]) == Decimal('1000.00')\n    assert [Decimal(r[3]) for r in rows[1:]] == sorted((Decimal(r[3]) for r in rows[1:]), reverse=True)   # sorted as asked"
+    },
+    "tests/test_csv_export.py:test_rpt01_other_users_rows_never_exported": {
+      "file": "tests/test_csv_export.py",
+      "symbol": "test_rpt01_other_users_rows_never_exported",
+      "line": 60,
+      "end_line": 63,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_csv_export.py#L60-L63",
+      "excerpt": "def test_rpt01_other_users_rows_never_exported(data, app):\n    resp = data.get(URL)\n    assert resp.status_code == 200\n    assert 'B private' not in resp.data.decode('utf-8')"
+    },
+    "tests/test_csv_export.py:test_rpt01_formula_cells_are_neutralised": {
+      "file": "tests/test_csv_export.py",
+      "symbol": "test_rpt01_formula_cells_are_neutralised",
+      "line": 66,
+      "end_line": 68,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_csv_export.py#L66-L68",
+      "excerpt": "def test_rpt01_formula_cells_are_neutralised(data, app):\n    notes = [r[6] for r in parse(data.get(URL, query_string={'from': '2026-10-01', 'to': '2026-10-31'}))[1:]]\n    assert \"'=SUM(1+1)\" in notes and '=SUM(1+1)' not in notes"
+    },
+    "tests/test_csv_export.py:test_rpt01_no_matches_gives_header_only": {
+      "file": "tests/test_csv_export.py",
+      "symbol": "test_rpt01_no_matches_gives_header_only",
+      "line": 71,
+      "end_line": 73,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_csv_export.py#L71-L73",
+      "excerpt": "def test_rpt01_no_matches_gives_header_only(data):\n    rows = parse(data.get(URL, query_string={'from': '2030-01-01', 'to': '2030-01-31'}))\n    assert rows == [HEADER]"
+    },
+    "tests/test_csv_export.py:test_rpt01_from_after_to_is_rejected": {
+      "file": "tests/test_csv_export.py",
+      "symbol": "test_rpt01_from_after_to_is_rejected",
+      "line": 76,
+      "end_line": 77,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_csv_export.py#L76-L77",
+      "excerpt": "def test_rpt01_from_after_to_is_rejected(data):\n    assert data.get(URL, query_string={'from': '2026-10-31', 'to': '2026-10-01'}).status_code == 422"
+    },
+    "tests/test_csv_export.py:test_rpt01_anonymous_cannot_export": {
+      "file": "tests/test_csv_export.py",
+      "symbol": "test_rpt01_anonymous_cannot_export",
+      "line": 80,
+      "end_line": 81,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_csv_export.py#L80-L81",
+      "excerpt": "def test_rpt01_anonymous_cannot_export(app):\n    assert app.test_client().get(URL, headers={'Accept': 'application/json'}).status_code in (401, 302)"
+    },
+    "tests/test_csv_export.py:test_rpt01_export_includes_matches_beyond_first_page": {
+      "file": "tests/test_csv_export.py",
+      "symbol": "test_rpt01_export_includes_matches_beyond_first_page",
+      "line": 84,
+      "end_line": 90,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_csv_export.py#L84-L90",
+      "excerpt": "def test_rpt01_export_includes_matches_beyond_first_page(app, client):\n    account(client)\n    for i in range(55):\n        add_transaction(app, 'a@example.com', note=f'row {i}')\n    assert len(parse(client.get(URL))) == 56\n    assert len(parse(client.get(URL + '?page=2'))) == 56\n    assert 'Export filtered CSV' in client.get('/transactions').text"
+    },
+    "tests/test_transactions.py:expense": {
+      "file": "tests/test_transactions.py",
+      "symbol": "expense",
+      "line": 12,
+      "end_line": 14,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_transactions.py#L12-L14",
+      "excerpt": "def expense(app, **changes):\n    return dict(type='expense', amount='250.00', date=today().isoformat(),\n                category_id=category_id(app, 'Food'), payment_mode='UPI', **changes)"
+    },
+    "tests/test_transactions.py:test_expense_income_edits_deletion_recalculate_dashboard": {
+      "file": "tests/test_transactions.py",
+      "symbol": "test_expense_income_edits_deletion_recalculate_dashboard",
+      "line": 17,
+      "end_line": 34,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_transactions.py#L17-L34",
+      "excerpt": "def test_expense_income_edits_deletion_recalculate_dashboard(app, client):\n    account(client)\n    month = today().strftime('%Y-%m')\n    write(client, '/budgets', {'month': month, 'limit': '200'}, 'put')\n    txn = write(client, '/transactions', expense(app)).json['transaction']\n    income = write(client, '/transactions', {'type': 'income', 'amount': '2000',\n                                          'date': today().isoformat(), 'source': 'Freelance'})\n    assert income.status_code == 201\n    data = client.get('/api/dashboard', query_string={'month': month}).json\n    assert (data['income'], data['expense'], data['balance']) == ('2000.00', '250.00', '1750.00')\n    assert data['budgets'][0]['alert'] == 'over'\n    assert write(client, '/transactions', expense(app)).status_code == 201  # alerts permit writes"
+    },
+    "tests/test_transactions.py:test_invalid_amount_never_saves": {
+      "file": "tests/test_transactions.py",
+      "symbol": "test_invalid_amount_never_saves",
+      "line": 38,
+      "end_line": 44,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_transactions.py#L38-L44",
+      "excerpt": "def test_invalid_amount_never_saves(app, client, amount):\n    account(client)\n    body = expense(app); body['amount'] = amount\n    response = write(client, '/transactions', body)\n    assert response.status_code == 422 and 'amount' in response.json['fields']\n    with app.app_context():\n        assert db.session.scalar(db.select(db.func.count()).select_from(Transaction)) == 0"
+    },
+    "tests/test_transactions.py:test_dates_required_fields_custom_category_and_html_retry": {
+      "file": "tests/test_transactions.py",
+      "symbol": "test_dates_required_fields_custom_category_and_html_retry",
+      "line": 47,
+      "end_line": 65,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_transactions.py#L47-L65",
+      "excerpt": "def test_dates_required_fields_custom_category_and_html_retry(app, client):\n    account(client)\n    body = expense(app)\n    body['date'] = (today() + timedelta(days=1)).isoformat()\n    assert write(client, '/transactions', body).status_code == 422\n    body['date'] = 'bad'\n    assert write(client, '/transactions', body).status_code == 422\n    body = expense(app); body['category_id'] = None\n    assert write(client, '/transactions', body).status_code == 422\n    body['category_id'] = write(client, '/categories', {'name': 'Books'}).json['category']['id']\n    body['amount'] = '0.01'\n    assert write(client, '/transactions', body).status_code == 201"
+    },
+    "tests/test_transactions.py:test_invalid_filters_rejected": {
+      "file": "tests/test_transactions.py",
+      "symbol": "test_invalid_filters_rejected",
+      "line": 71,
+      "end_line": 73,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_transactions.py#L71-L73",
+      "excerpt": "def test_invalid_filters_rejected(app, client, filters):\n    account(client)\n    assert client.get('/transactions', query_string=filters, headers={'Accept': 'application/json'}).status_code == 422"
+    },
+    "tests/test_transactions.py:test_filters_sort_pagination_and_total": {
+      "file": "tests/test_transactions.py",
+      "symbol": "test_filters_sort_pagination_and_total",
+      "line": 76,
+      "end_line": 92,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_transactions.py#L76-L92",
+      "excerpt": "def test_filters_sort_pagination_and_total(app, client):\n    account(client)\n    body = expense(app)\n    for i in range(51):\n        body['amount'] = str(i + 1)\n        assert write(client, '/transactions', body).status_code == 201\n    headers = {'Accept': 'application/json'}\n    page = client.get('/transactions?sort=amount_asc', headers=headers).json\n    assert len(page['transactions']) == 50 and page['has_next'] and page['total'] == '1326.00'\n    page2 = client.get('/transactions?sort=amount_asc&page=2', headers=headers).json\n    assert len(page2['transactions']) == 1 and page2['transactions'][0]['amount'] == '51.00'\n    assert not page2['has_next']"
+    },
+    "tests/test_transactions.py:test_html_delete_requires_confirmation_and_cancel_keeps_record": {
+      "file": "tests/test_transactions.py",
+      "symbol": "test_html_delete_requires_confirmation_and_cancel_keeps_record",
+      "line": 95,
+      "end_line": 106,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_transactions.py#L95-L106",
+      "excerpt": "def test_html_delete_requires_confirmation_and_cancel_keeps_record(app, client):\n    account(client)\n    txn = write(client, '/transactions', expense(app)).json['transaction']\n    path = f\"/transactions/{txn['id']}/delete\"\n    confirm = client.get(path)\n    assert confirm.status_code == 200 and 'Confirm delete' in confirm.text and 'Cancel' in confirm.text\n    assert client.get('/transactions').status_code == 200\n    assert client.get(f\"/transactions/{txn['id']}\").status_code == 200\n    assert client.post(path, data={'csrf_token': csrf(client)}).status_code == 200\n    assert client.get(f\"/transactions/{txn['id']}\").status_code == 200\n    assert client.post(path, data={'csrf_token': csrf(client), 'confirm': 'yes'}).status_code == 302\n    assert client.get(f\"/transactions/{txn['id']}\").status_code == 404"
+    },
+    "tests/test_unit.py:test_money_accepts_exact_positive_decimal": {
+      "file": "tests/test_unit.py",
+      "symbol": "test_money_accepts_exact_positive_decimal",
+      "line": 15,
+      "end_line": 16,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_unit.py#L15-L16",
+      "excerpt": "def test_money_accepts_exact_positive_decimal(raw, expected):\n    assert money(raw) == Decimal(expected)"
+    },
+    "tests/test_unit.py:test_money_rejects_invalid_amounts": {
+      "file": "tests/test_unit.py",
+      "symbol": "test_money_rejects_invalid_amounts",
+      "line": 22,
+      "end_line": 24,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_unit.py#L22-L24",
+      "excerpt": "def test_money_rejects_invalid_amounts(raw):\n    with pytest.raises(ValueError):\n        money(raw)"
+    },
+    "tests/test_unit.py:test_month_bounds_include_leap_year": {
+      "file": "tests/test_unit.py",
+      "symbol": "test_month_bounds_include_leap_year",
+      "line": 30,
+      "end_line": 33,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_unit.py#L30-L33",
+      "excerpt": "def test_month_bounds_include_leap_year(month, last):\n    first, end = parse_month(month)\n    assert first.day == 1 and end.day == last\n    assert first.year == end.year and first.month == end.month"
+    },
+    "tests/test_unit.py:test_month_rejects_invalid_or_unrepresentable_trend": {
+      "file": "tests/test_unit.py",
+      "symbol": "test_month_rejects_invalid_or_unrepresentable_trend",
+      "line": 39,
+      "end_line": 41,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_unit.py#L39-L41",
+      "excerpt": "def test_month_rejects_invalid_or_unrepresentable_trend(month):\n    with pytest.raises(ValueError):\n        parse_month(month)"
+    },
+    "tests/test_unit.py:test_format_money_preserves_sign_and_two_decimal_places": {
+      "file": "tests/test_unit.py",
+      "symbol": "test_format_money_preserves_sign_and_two_decimal_places",
+      "line": 47,
+      "end_line": 48,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_unit.py#L47-L48",
+      "excerpt": "def test_format_money_preserves_sign_and_two_decimal_places(raw, expected):\n    assert fmt(raw) == expected"
+    },
+    "tests/test_nonfunctional.py:test_perf01_pages_load_within_3_seconds_with_5000_transactions": {
+      "file": "tests/test_nonfunctional.py",
+      "symbol": "test_perf01_pages_load_within_3_seconds_with_5000_transactions",
+      "line": 25,
+      "end_line": 49,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_nonfunctional.py#L25-L49",
+      "excerpt": "def test_perf01_pages_load_within_3_seconds_with_5000_transactions(app, client):\n    account(client)\n    uid, food = user_id(app, 'a@example.com'), category_id(app, 'Food')\n    rows = [dict(user_id=uid, type='expense', amount=Decimal('10.00'), txn_date=date(2026, 10, 1 + i % 28),\n                 category_id=food, payment_mode='UPI', note=f'seed {i}') for i in range(5000)]\n    with app.app_context():\n        db.session.execute(db.insert(Transaction), rows)\n        db.session.commit()\n        assert db.session.scalar(db.select(db.func.count()).select_from(Transaction)) == 5000\n\n    for path in ('/dashboard?month=2026-10', '/transactions'):\n        client.get(path)                                           # warm-up, not counted"
+    },
+    "tests/test_nonfunctional.py:test_perf02_twenty_concurrent_users_no_errors_no_mixed_data": {
+      "file": "tests/test_nonfunctional.py",
+      "symbol": "test_perf02_twenty_concurrent_users_no_errors_no_mixed_data",
+      "line": 53,
+      "end_line": 91,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_nonfunctional.py#L53-L91",
+      "excerpt": "def test_perf02_twenty_concurrent_users_no_errors_no_mixed_data(app):\n    users, rounds = 20, 3\n    gate = Barrier(users)\n    statuses, failures = [], []\n\n    def session(n):\n        try:\n            c = app.test_client()\n            email = f'u{n:02d}@example.com'\n            assert write(c, '/register', {'name': f'U{n:02d}', 'email': email, 'password': PASSWORD}).status_code == 201\n            gate.wait(timeout=60)                                   # all 20 log in together\n            statuses.append(write(c, '/login', {'email': email, 'password': PASSWORD}).status_code)"
+    },
+    "tests/test_nonfunctional.py:test_rel01_saved_data_survives_a_server_restart": {
+      "file": "tests/test_nonfunctional.py",
+      "symbol": "test_rel01_saved_data_survives_a_server_restart",
+      "line": 95,
+      "end_line": 110,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_nonfunctional.py#L95-L110",
+      "excerpt": "def test_rel01_saved_data_survives_a_server_restart(tmp_path):\n    first = make_app(tmp_path)\n    c = first.test_client()\n    account(c)\n    cat = write(c, '/categories', {'name': 'Books'}).json['category']['id']\n    write(c, '/budgets', {'month': '2026-10', 'limit': '5000'}, 'put')\n    add_transaction(first, 'a@example.com', amount=Decimal('250'), note='Lunch')\n    del first, c\n\n    restarted = make_app(tmp_path)                                  # new app object on the same database file\n    c2 = restarted.test_client()\n    assert write(c2, '/login', {'email': 'a@example.com', 'password': PASSWORD}).status_code == 200"
+    },
+    "tests/test_nonfunctional.py:test_rel01_failed_save_leaves_no_partial_record_and_can_be_retried": {
+      "file": "tests/test_nonfunctional.py",
+      "symbol": "test_rel01_failed_save_leaves_no_partial_record_and_can_be_retried",
+      "line": 113,
+      "end_line": 133,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_nonfunctional.py#L113-L133",
+      "excerpt": "def test_rel01_failed_save_leaves_no_partial_record_and_can_be_retried(tmp_path, monkeypatch):\n    app = make_app(tmp_path, PROPAGATE_EXCEPTIONS=False)            # return the 500 page instead of raising\n    c = app.test_client()\n    account(c)\n\n    def fail_after_insert():\n        db.session.flush()                                          # row is written inside the transaction ...\n        raise RuntimeError('forced failure before commit')          # ... but never committed\n\n    with monkeypatch.context() as m:\n        m.setattr(db.session, 'commit', fail_after_insert)\n        resp = write(c, '/budgets', {'month': '2026-10', 'limit': '5000'}, 'put')"
+    },
+    "tests/test_nonfunctional.py:test_rel01_failed_save_shows_friendly_message": {
+      "file": "tests/test_nonfunctional.py",
+      "symbol": "test_rel01_failed_save_shows_friendly_message",
+      "line": 136,
+      "end_line": 142,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_nonfunctional.py#L136-L142",
+      "excerpt": "def test_rel01_failed_save_shows_friendly_message(tmp_path, monkeypatch):\n    app = make_app(tmp_path, PROPAGATE_EXCEPTIONS=False)\n    c = app.test_client()\n    account(c)\n    monkeypatch.setattr(db.session, 'commit', lambda: (_ for _ in ()).throw(RuntimeError('boom')))\n    resp = write(c, '/budgets', {'month': '2026-10', 'limit': '5000'}, 'put')\n    assert 'Your data was not saved' in resp.text"
+    },
+    "tests/test_nonfunctional.py:test_ux01_validation_errors_are_next_to_the_field_and_say_how_to_fix_it": {
+      "file": "tests/test_nonfunctional.py",
+      "symbol": "test_ux01_validation_errors_are_next_to_the_field_and_say_how_to_fix_it",
+      "line": 146,
+      "end_line": 150,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_nonfunctional.py#L146-L150",
+      "excerpt": "def test_ux01_validation_errors_are_next_to_the_field_and_say_how_to_fix_it(client):\n    page = client.post('/register', data={'csrf_token': csrf(client), 'name': 'A', 'email': 'a@example.com', 'password': 'short'})\n    assert page.status_code == 422\n    assert re.search(r'<input name=\"password\"[^>]*>\\s*</label>\\s*<p class=\"error\">Use at least 8 characters', page.text)\n    assert 'value=\"a@example.com\"' in page.text                     # what the user typed is kept"
+    },
+    "tests/test_nonfunctional.py:test_ux01_budget_errors_name_the_field_and_the_fix": {
+      "file": "tests/test_nonfunctional.py",
+      "symbol": "test_ux01_budget_errors_name_the_field_and_the_fix",
+      "line": 153,
+      "end_line": 157,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_nonfunctional.py#L153-L157",
+      "excerpt": "def test_ux01_budget_errors_name_the_field_and_the_fix(client):\n    account(client)\n    resp = write(client, '/budgets', {'month': '2026-10', 'limit': 'abc'}, 'put')\n    assert resp.status_code == 422\n    assert 'positive amount' in resp.json['fields']['limit']"
+    },
+    "tests/test_nonfunctional.py:test_ux01_dashboard_links_to_add_expense": {
+      "file": "tests/test_nonfunctional.py",
+      "symbol": "test_ux01_dashboard_links_to_add_expense",
+      "line": 160,
+      "end_line": 163,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_nonfunctional.py#L160-L163",
+      "excerpt": "def test_ux01_dashboard_links_to_add_expense(client):\n    account(client)\n    page = client.get('/dashboard').text\n    assert re.search(r'Add Expense', page, re.I)"
+    },
+    "tests/test_nonfunctional.py:test_port01_every_page_is_responsive": {
+      "file": "tests/test_nonfunctional.py",
+      "symbol": "test_port01_every_page_is_responsive",
+      "line": 171,
+      "end_line": 176,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_nonfunctional.py#L171-L176",
+      "excerpt": "def test_port01_every_page_is_responsive(client, path):\n    account(client)\n    page = client.get(path).text\n    assert '<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">' in page\n    if path != '/dashboard':                                                  # dashboard has its own wrapper check below\n        assert not re.search(r'<table', page) or 'class=\"table-wrap\"' in page  # wide tables scroll inside a wrapper"
+    },
+    "tests/test_nonfunctional.py:test_port01_dashboard_table_scrolls_inside_a_wrapper": {
+      "file": "tests/test_nonfunctional.py",
+      "symbol": "test_port01_dashboard_table_scrolls_inside_a_wrapper",
+      "line": 179,
+      "end_line": 181,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_nonfunctional.py#L179-L181",
+      "excerpt": "def test_port01_dashboard_table_scrolls_inside_a_wrapper(client):\n    account(client)\n    assert 'class=\"table-wrap\"' in client.get('/dashboard').text"
+    },
+    "tests/test_nonfunctional.py:test_port01_stylesheet_has_mobile_layout_for_360px": {
+      "file": "tests/test_nonfunctional.py",
+      "symbol": "test_port01_stylesheet_has_mobile_layout_for_360px",
+      "line": 184,
+      "end_line": 190,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_nonfunctional.py#L184-L190",
+      "excerpt": "def test_port01_stylesheet_has_mobile_layout_for_360px():\n    css = (STATIC / 'style.css').read_text(encoding='utf-8')\n    assert re.search(r'@media\\(max-width:\\s*7\\d\\dpx\\)', css)\n    assert '.table-wrap{overflow:auto}' in css\n    mobile = css.split('@media(max-width:700px){', 1)[1]\n    assert '.cards,.charts{grid-template-columns:1fr}' in mobile        # cards and charts stack in one column\n    assert 'main{padding:0 14px}' in mobile"
+    },
+    "tests/test_nonfunctional.py:test_port01_charts_use_a_local_script_that_works_in_all_browsers": {
+      "file": "tests/test_nonfunctional.py",
+      "symbol": "test_port01_charts_use_a_local_script_that_works_in_all_browsers",
+      "line": 193,
+      "end_line": 198,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_nonfunctional.py#L193-L198",
+      "excerpt": "def test_port01_charts_use_a_local_script_that_works_in_all_browsers(client):\n    account(client)\n    page = client.get('/dashboard').text\n    assert 'charts.js' in page and not re.search(r'<script[^>]+src=\"https?://', page)\n    js = (STATIC / 'charts.js').read_text(encoding='utf-8')\n    assert 'canvas' in js.lower()"
+    },
+    "tests/test_requirement_scenarios.py:environment": {
+      "file": "tests/test_requirement_scenarios.py",
+      "symbol": "environment",
+      "line": 38,
+      "end_line": 53,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_requirement_scenarios.py#L38-L53",
+      "excerpt": "def environment(tmp_path, monkeypatch):\n    original=bcrypt.gensalt\n    monkeypatch.setattr(bcrypt,'gensalt',lambda:original(rounds=4))\n    app=make_app(tmp_path)\n    c=app.test_client()\n    write(c,'/register',{'name':'A','email':'a@example.com','password':'password123'})\n    write(c,'/login',{'email':'a@example.com','password':'password123'})\n    with app.app_context():\n        user=db.session.scalar(db.select(User));uid=user.id\n        cats={c.name:c.id for c in db.session.scalars(db.select(Category))}\n        for name,amount in [('Food','500'),('Travel','300'),('Rent','1000')]:\n            db.session.add(Transaction(user_id=uid,type='expense',amount=Decimal(amount),txn_date=date(2026,10,8),category_id=cats[name],payment_mode='UPI',note=name))"
+    },
+    "tests/test_requirement_scenarios.py:expense": {
+      "file": "tests/test_requirement_scenarios.py",
+      "symbol": "expense",
+      "line": 56,
+      "end_line": 59,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_requirement_scenarios.py#L56-L59",
+      "excerpt": "def expense(c,cats,**extra):\n    body={'type':'expense','amount':'250','date':'2026-10-08','category_id':cats['Food'],'payment_mode':'UPI'}\n    body.update(extra)\n    return write(c,'/transactions',body)"
+    },
+    "tests/test_requirement_scenarios.py:dashboard": {
+      "file": "tests/test_requirement_scenarios.py",
+      "symbol": "dashboard",
+      "line": 62,
+      "end_line": 63,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_requirement_scenarios.py#L62-L63",
+      "excerpt": "def dashboard(c,month='2026-10'):\n    return c.get('/api/dashboard?month='+month).json"
+    },
+    "tests/test_requirement_scenarios.py:foreign": {
+      "file": "tests/test_requirement_scenarios.py",
+      "symbol": "foreign",
+      "line": 66,
+      "end_line": 72,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_requirement_scenarios.py#L66-L72",
+      "excerpt": "def foreign(app,c):\n    b=app.test_client()\n    write(b,'/register',{'name':'B','email':'b@example.com','password':'password123'})\n    write(b,'/login',{'email':'b@example.com','password':'password123'})\n    cat=write(b,'/categories',{'name':'Private B'}).json['category']['id']\n    tx=write(b,'/transactions',{'type':'income','amount':'999','date':'2026-10-08','source':'B','note':'FOREIGNSECRET'}).json['transaction']['id']\n    return b,cat,tx"
+    },
+    "tests/test_requirement_scenarios.py:test_functional_scenario": {
+      "file": "tests/test_requirement_scenarios.py",
+      "symbol": "test_functional_scenario",
+      "line": 76,
+      "end_line": 239,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_requirement_scenarios.py#L76-L239",
+      "excerpt": "def test_functional_scenario(environment,r,i,label,record_property):\n    record_property('requirement',f'SEB-F-{r:03}')\n    record_property('case_id',f'IT-F{r:03}-{i+1:02}')\n    app,c,cats,tid=environment\n    if r==1:\n        fresh=app.test_client();body={'name':'New','email':'new@example.com','password':'password123'}\n        edits=[{}, {'email':'A@EXAMPLE.COM'}, {'name':''}, {'email':'bad'}, {'password':'1234567'}, {'password':'12345678'}, {'name':'a'*101}, {'password':'\ud83d\ude00'*30}]\n        body.update(edits[i]);resp=write(fresh,'/register',body)\n        assert resp.status_code==([201,422,422,422,422,201,422,422][i])\n    elif r==2:\n        body={'email':'a@example.com','password':'password123'}\n        if i==1:body['password']='wrong'"
+    },
+    "tests/test_regressions.py:test_category_ids_cannot_be_coerced_or_overflow": {
+      "file": "tests/test_regressions.py",
+      "symbol": "test_category_ids_cannot_be_coerced_or_overflow",
+      "line": 8,
+      "end_line": 14,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_regressions.py#L8-L14",
+      "excerpt": "def test_category_ids_cannot_be_coerced_or_overflow(client, category):\n    account(client)\n    response = write(client, '/transactions', {'type': 'expense', 'amount': '1',\n        'date': '2026-10-08', 'category_id': category, 'payment_mode': 'UPI'})\n    assert response.status_code == 404\n    assert response.json == {'error': 'NOT_FOUND'}\n    assert client.get('/api/dashboard?month=2026-10').json['expense'] == '0.00'"
+    },
+    "tests/test_regressions.py:test_six_month_trend_cannot_underflow_calendar": {
+      "file": "tests/test_regressions.py",
+      "symbol": "test_six_month_trend_cannot_underflow_calendar",
+      "line": 19,
+      "end_line": 21,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_regressions.py#L19-L21",
+      "excerpt": "def test_six_month_trend_cannot_underflow_calendar(client, path):\n    account(client)\n    assert client.get(path+'?month=0001-01').status_code == 422"
+    },
+    "tests/test_regressions.py:test_filter_amounts_cannot_overflow_database": {
+      "file": "tests/test_regressions.py",
+      "symbol": "test_filter_amounts_cannot_overflow_database",
+      "line": 27,
+      "end_line": 31,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_regressions.py#L27-L31",
+      "excerpt": "def test_filter_amounts_cannot_overflow_database(client, key, value):\n    account(client)\n    response = client.get('/transactions', query_string={key: value}, headers={'Accept': 'application/json'})\n    assert response.status_code == 422\n    assert key in response.json['fields']"
+    },
+    "tests/test_regressions.py:test_json_http_errors_never_leak_html_or_internal_details": {
+      "file": "tests/test_regressions.py",
+      "symbol": "test_json_http_errors_never_leak_html_or_internal_details",
+      "line": 36,
+      "end_line": 39,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/test_regressions.py#L36-L39",
+      "excerpt": "def test_json_http_errors_never_leak_html_or_internal_details(client, path, code):\n    response = client.post(path, json={})\n    assert response.status_code == code\n    assert response.is_json and 'error' in response.json"
+    },
+    "tests/support.py:make_app": {
+      "file": "tests/support.py",
+      "symbol": "make_app",
+      "line": 14,
+      "end_line": 24,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/support.py#L14-L24",
+      "excerpt": "def make_app(tmp_path, **config):\n    cfg = {\n        'TESTING': True,\n        'SECRET_KEY': 'test-only-secret',\n        'SQLALCHEMY_DATABASE_URI': f'sqlite:///{tmp_path}/test.db',\n    }\n    cfg.update(config)\n    app = create_app(cfg)\n    with app.app_context():\n        app.test_cli_runner().invoke(args=['init-db'])\n    return app"
+    },
+    "tests/support.py:app": {
+      "file": "tests/support.py",
+      "symbol": "app",
+      "line": 28,
+      "end_line": 29,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/support.py#L28-L29",
+      "excerpt": "def app(tmp_path):\n    return make_app(tmp_path)"
+    },
+    "tests/support.py:client": {
+      "file": "tests/support.py",
+      "symbol": "client",
+      "line": 33,
+      "end_line": 34,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/support.py#L33-L34",
+      "excerpt": "def client(app):\n    return app.test_client()"
+    },
+    "tests/support.py:csrf": {
+      "file": "tests/support.py",
+      "symbol": "csrf",
+      "line": 37,
+      "end_line": 39,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/support.py#L37-L39",
+      "excerpt": "def csrf(client):\n    page = client.get('/login').text\n    return re.search(r'name=\"csrf_token\" value=\"([^\"]+)\"', page)[1]"
+    },
+    "tests/support.py:write": {
+      "file": "tests/support.py",
+      "symbol": "write",
+      "line": 42,
+      "end_line": 43,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/support.py#L42-L43",
+      "excerpt": "def write(client, path, body, method='post'):\n    return getattr(client, method)(path, json=body, headers={'X-CSRFToken': csrf(client)})"
+    },
+    "tests/support.py:account": {
+      "file": "tests/support.py",
+      "symbol": "account",
+      "line": 46,
+      "end_line": 48,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/support.py#L46-L48",
+      "excerpt": "def account(client, email='a@example.com', name='A', password=PASSWORD):\n    assert write(client, '/register', {'name': name, 'email': email, 'password': password}).status_code == 201\n    assert write(client, '/login', {'email': email, 'password': password}).status_code == 200"
+    },
+    "tests/support.py:user_id": {
+      "file": "tests/support.py",
+      "symbol": "user_id",
+      "line": 51,
+      "end_line": 53,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/support.py#L51-L53",
+      "excerpt": "def user_id(app, email):\n    with app.app_context():\n        return db.session.scalar(db.select(User).where(User.email == email)).id"
+    },
+    "tests/support.py:category_id": {
+      "file": "tests/support.py",
+      "symbol": "category_id",
+      "line": 56,
+      "end_line": 58,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/support.py#L56-L58",
+      "excerpt": "def category_id(app, name):\n    with app.app_context():\n        return db.session.scalar(db.select(Category).where(Category.name == name, Category.user_id.is_(None))).id"
+    },
+    "tests/support.py:add_transaction": {
+      "file": "tests/support.py",
+      "symbol": "add_transaction",
+      "line": 61,
+      "end_line": 76,
+      "url": "https://github.com/gsathvik73-afk/se-project/blob/abf3c9a40703eb702a16deaddb1c9af111e653f0/tests/support.py#L61-L76",
+      "excerpt": "def add_transaction(app, email, **fields):\n    \"\"\"Insert a transaction straight into the database (the add-transaction route is another teammate's work).\"\"\"\n    uid = user_id(app, email)\n    fields.setdefault('type', 'expense')\n    fields.setdefault('amount', Decimal('100'))\n    fields.setdefault('txn_date', date(2026, 10, 8))\n    if fields['type'] == 'expense':\n        fields.setdefault('category_id', category_id(app, 'Food'))\n        fields.setdefault('payment_mode', 'UPI')\n    else:\n        fields.setdefault('source', 'Salary')\n    with app.app_context():"
+    }
+  },
+  "members": {
+    "Sathik": {
+      "github_login": "gsathvik73-afk",
+      "pull_requests": [
+        {
+          "number": 1,
+          "title": "Add the initial SmartExpense application",
+          "author_login": "gsathvik73-afk",
+          "url": "https://github.com/gsathvik73-afk/se-project/pull/1",
+          "merged_at": "2026-10-08T14:14:43Z",
+          "merge_commit": "1801a1486b366297f88e9a44a30e6eceda3a22c9",
+          "commits": [
+            {
+              "sha": "016ab37279de6e694c828092cfea220f1d4938f3",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "SEB-1 Implement remaining Sprint 1 core features and team setup",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/016ab37279de6e694c828092cfea220f1d4938f3"
+            },
+            {
+              "sha": "bb48883fa7af2d269ae602646dac2673485bd46c",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "SEB-1 Clarify current Jira Free-plan access limits",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/bb48883fa7af2d269ae602646dac2673485bd46c"
+            },
+            {
+              "sha": "e8ba05230de634485652120e140f92d2e30bd983",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "SEB-1 Integrate Sprint 1 transactions, security and demo checks",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/e8ba05230de634485652120e140f92d2e30bd983"
+            }
+          ],
+          "changed_files": [
+            ".github/pull_request_template.md",
+            ".github/workflows/tests.yml",
+            ".gitignore",
+            "README.md",
+            "app.py",
+            "bootstrap.py",
+            "docs/SAD_Team14_SmartExpense_Simple.pdf",
+            "docs/SRS_Team14_SmartExpense.pdf",
+            "docs/Test_Plan_Team14_SmartExpense.pdf",
+            "docs/api-contract.md",
+            "docs/demo-guide.md",
+            "docs/jira-setup.json",
+            "docs/load-results.json",
+            "docs/requirements.json",
+            "docs/sprint-1.md",
+            "docs/traceability.csv",
+            "docs/verification.md",
+            "public/static/charts.js",
+            "public/static/style.css",
+            "requirements-lock.txt",
+            "requirements.txt",
+            "scripts/load_check.py",
+            "smartexpense/__init__.py",
+            "smartexpense/database.py",
+            "smartexpense/models.py",
+            "smartexpense/routes.py",
+            "smartexpense/templates/auth.html",
+            "smartexpense/templates/base.html",
+            "smartexpense/templates/budgets.html",
+            "smartexpense/templates/categories.html",
+            "smartexpense/templates/confirm_delete.html",
+            "smartexpense/templates/dashboard.html",
+            "smartexpense/templates/message.html",
+            "smartexpense/templates/transaction_form.html",
+            "smartexpense/templates/transactions.html",
+            "tests/test_core.py",
+            "tests/test_transactions.py",
+            "vercel.json"
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Restore the account, budget and dashboard foundation",
+          "author_login": "gsathvik73-afk",
+          "url": "https://github.com/gsathvik73-afk/se-project/pull/2",
+          "merged_at": "2026-10-08T14:31:10Z",
+          "merge_commit": "e28167f040a788ffc11bbb3bfd841e027bb5a4ad",
+          "commits": [
+            {
+              "sha": "7279090676413ee77a3601dee77c17a76e4665c4",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "SEB-1 Restore Sathvik scope and hand off teammate role bundles",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/7279090676413ee77a3601dee77c17a76e4665c4"
+            }
+          ],
+          "changed_files": [
+            ".gitignore",
+            "README.md",
+            "app.py",
+            "bootstrap.py",
+            "docs/api-contract.md",
+            "docs/demo-guide.md",
+            "docs/jira-setup.json",
+            "docs/load-results.json",
+            "docs/sprint-1.md",
+            "docs/traceability.csv",
+            "docs/verification.md",
+            "requirements-lock.txt",
+            "requirements.txt",
+            "scripts/load_check.py",
+            "smartexpense/__init__.py",
+            "smartexpense/database.py",
+            "smartexpense/models.py",
+            "smartexpense/routes.py",
+            "smartexpense/static/charts.js",
+            "smartexpense/static/style.css",
+            "smartexpense/templates/confirm_delete.html",
+            "smartexpense/templates/dashboard.html",
+            "smartexpense/templates/transaction_form.html",
+            "smartexpense/templates/transactions.html",
+            "tests/test_transactions.py",
+            "vercel.json"
+          ]
+        },
+        {
+          "number": 32,
+          "title": "Integrate CSV export, login security and local startup",
+          "author_login": "gsathvik73-afk",
+          "url": "https://github.com/gsathvik73-afk/se-project/pull/32",
+          "merged_at": "2026-10-29T18:31:24Z",
+          "merge_commit": "e5b0908d07b04d640807f656da984fcf0642a7ea",
+          "commits": [
+            {
+              "sha": "9c0edecece0acfa30dbae8b8de1369888aa3ee1d",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "SEB-18 Add owner-scoped filtered CSV export",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/9c0edecece0acfa30dbae8b8de1369888aa3ee1d"
+            },
+            {
+              "sha": "a9b68dc7d12a59bd81c25fe16c6a9bf8d83810e6",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "SEB-28 Persist five-failure login lockout and verify expiry",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/a9b68dc7d12a59bd81c25fe16c6a9bf8d83810e6"
+            },
+            {
+              "sha": "553e2a55a9f1a7fccccc3c0e39ece44f7788fdf0",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "SEB-20 Avoid holding SQLite write locks during password checks",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/553e2a55a9f1a7fccccc3c0e39ece44f7788fdf0"
+            },
+            {
+              "sha": "f625b57418380f3963077a8d5ec59ff91dd7b9db",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "SEB-21 SEB-22 Add safe errors, confirmation and responsive entry flow",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/f625b57418380f3963077a8d5ec59ff91dd7b9db"
+            },
+            {
+              "sha": "b5b2765c64ff566f1b8d86345d7f6e0f8d0736a7",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "SEB-1 Add a single-command local startup",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/b5b2765c64ff566f1b8d86345d7f6e0f8d0736a7"
+            },
+            {
+              "sha": "21fb50b2ec6aa311496fc6db1d29525b115484f6",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "Merge remote-tracking branch 'origin/main' into sprint-1/complete-integration",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/21fb50b2ec6aa311496fc6db1d29525b115484f6"
+            },
+            {
+              "sha": "75def2e025b60346fd316789b3cf1ed71b04c9c1",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "SEB-22 Make the dashboard expense action easy to tap",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/75def2e025b60346fd316789b3cf1ed71b04c9c1"
+            },
+            {
+              "sha": "0b1982917a32d4193ffc6d83c798d0e1d9062f39",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "SEB-1 Record integrated Sprint 1 evidence and GitHub tracking",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/0b1982917a32d4193ffc6d83c798d0e1d9062f39"
+            }
+          ],
+          "changed_files": [
+            "README.md",
+            "docs/api-contract.md",
+            "docs/github-issues.json",
+            "docs/jira-setup.json",
+            "docs/qa-results.json",
+            "docs/requirements.json",
+            "docs/sprint-1.md",
+            "docs/traceability.csv",
+            "docs/verification.md",
+            "run.py",
+            "run.sh",
+            "smartexpense/__init__.py",
+            "smartexpense/models.py",
+            "smartexpense/routes.py",
+            "smartexpense/static/style.css",
+            "smartexpense/templates/dashboard.html",
+            "smartexpense/templates/transaction_delete.html",
+            "smartexpense/templates/transaction_form.html",
+            "smartexpense/templates/transactions.html",
+            "tests/test_csv_export.py",
+            "tests/test_nonfunctional.py",
+            "tests/test_security.py",
+            "tests/test_transactions.py"
+          ]
+        },
+        {
+          "number": 41,
+          "title": "Repair validation boundaries and add complete quality evidence pipeline",
+          "author_login": "gsathvik73-afk",
+          "url": "https://github.com/gsathvik73-afk/se-project/pull/41",
+          "merged_at": "2026-11-16T02:37:40Z",
+          "merge_commit": "6f62dab6b4b1cd9ed96989e54ded777b15c1635a",
+          "commits": [
+            {
+              "sha": "67028f6ade2deba5cd8cceeacd2ea68832d46623",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "Fix boundary validation and add reproducible quality and container checks",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/67028f6ade2deba5cd8cceeacd2ea68832d46623"
+            },
+            {
+              "sha": "63b6fc443276410b96b61456259ed660d782a794",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "Document the validation-message scan false positive and pin tooling dependencies",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/63b6fc443276410b96b61456259ed660d782a794"
+            },
+            {
+              "sha": "3620b070e4b984d480fb0193866deaccda38186e",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "Keep scanner diagnostics separate from JSON evidence",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/3620b070e4b984d480fb0193866deaccda38186e"
+            }
+          ],
+          "changed_files": [
+            ".coveragerc",
+            ".dockerignore",
+            ".github/pull_request_template.md",
+            ".github/workflows/tests.yml",
+            ".gitignore",
+            "Dockerfile",
+            "pytest.ini",
+            "requirements-dev.txt",
+            "scripts/browser_demo.cjs",
+            "scripts/container-entrypoint.sh",
+            "scripts/demo_server.py",
+            "scripts/quality.py",
+            "smartexpense/__init__.py",
+            "smartexpense/routes.py",
+            "tests/conftest.py",
+            "tests/test_regressions.py",
+            "tests/test_requirement_scenarios.py",
+            "tests/test_unit.py"
+          ]
+        },
+        {
+          "number": 42,
+          "title": "Finalize three-member submission documents, reports, demos and viva guides",
+          "author_login": "gsathvik73-afk",
+          "url": "https://github.com/gsathvik73-afk/se-project/pull/42",
+          "merged_at": "2026-11-16T02:44:17Z",
+          "merge_commit": "1be87dd5cf1762b7d42f5b4ffb389f32975452fc",
+          "commits": [
+            {
+              "sha": "02c3f9affc33f446c8804aa6fd04e1a717c0bd32",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "Reconcile three-member specifications, backlog and evaluation evidence",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/02c3f9affc33f446c8804aa6fd04e1a717c0bd32"
+            },
+            {
+              "sha": "cad2f496504f1fb21b2c7c8e9ea5ca0d2ee2efdb",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "Add twelve-page viva learning guides for Sathik, Arya and Sahana",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/cad2f496504f1fb21b2c7c8e9ea5ca0d2ee2efdb"
+            },
+            {
+              "sha": "0a165e57454b9138674b92455dfd137c32ff1fdd",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "Merge remote-tracking branch 'origin/main' into recovery/three-member-handoff",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/0a165e57454b9138674b92455dfd137c32ff1fdd"
+            },
+            {
+              "sha": "5a9053fb9d07e5f44766769d3bee0b66e716b5d0",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "Attach exact successful CI reports and retain only final demo recordings",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/5a9053fb9d07e5f44766769d3bee0b66e716b5d0"
+            },
+            {
+              "sha": "368f10725ce07c28e305ea0506d0e14dcd209e93",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "Clarify GitHub synthetic merge provenance in verification evidence",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/368f10725ce07c28e305ea0506d0e14dcd209e93"
+            },
+            {
+              "sha": "959aee9fa3ac5f51011473b8b233d9d8c093f2d9",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "Keep document headings with their content and correct UML arrowheads",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/959aee9fa3ac5f51011473b8b233d9d8c093f2d9"
+            }
+          ],
+          "changed_files": [
+            "README.md",
+            "docs/Detailed Test Cases CSV Export, Non-Functional and Security (Team 14).docx",
+            "docs/Project_Report.pdf",
+            "docs/SAD.pdf",
+            "docs/SAD_Team14_SmartExpense_Simple.pdf",
+            "docs/SRS.pdf",
+            "docs/SRS_Team14_SmartExpense.docx",
+            "docs/SRS_Team14_SmartExpense.pdf",
+            "docs/Team14_Project_Plan.pdf",
+            "docs/Test_Plan.pdf",
+            "docs/Test_Plan_Team14_SmartExpense.pdf",
+            "docs/ai-use.md",
+            "docs/api-contract.md",
+            "docs/backlog.csv",
+            "docs/contributions.md",
+            "docs/demo-rehearsal.md",
+            "docs/deviations.md",
+            "docs/diagrams/components.svg",
+            "docs/diagrams/expense-sequence.svg",
+            "docs/diagrams/login-sequence.svg",
+            "docs/diagrams/use-cases.svg",
+            "docs/evaluation-checklist.md",
+            "docs/github-backlog.json",
+            "docs/github-issues.json",
+            "docs/github-project-status.md",
+            "docs/jira-setup.json",
+            "docs/maintenance.md",
+            "docs/project-plan.md",
+            "docs/qa-results.json",
+            "docs/release-candidate.md",
+            "docs/reports/README.md",
+            "docs/reports/branch-coverage-report.md",
+            "docs/reports/browser/export.csv",
+            "docs/reports/browser/results.json",
+            "docs/reports/browser/sprint1-budget.png",
+            "docs/reports/browser/sprint1-categories.png",
+            "docs/reports/browser/sprint1-dashboard.png",
+            "docs/reports/browser/sprint1-totals.png",
+            "docs/reports/browser/sprint2-alerts.png",
+            "docs/reports/browser/sprint2-confirm.png",
+            "docs/reports/browser/sprint2-dashboard.png",
+            "docs/reports/browser/sprint2-edit.png",
+            "docs/reports/browser/sprint2-export.png",
+            "docs/reports/browser/sprint2-mobile.png",
+            "docs/reports/browser/sprint2-transactions.png",
+            "docs/reports/code-coverage-report.md",
+            "docs/reports/coverage-summary.txt",
+            "docs/reports/coverage.json",
+            "docs/reports/coverage.xml",
+            "docs/reports/security-review.md",
+            "docs/reports/security-scan.json",
+            "docs/reports/static-analysis.txt",
+            "docs/reports/summary.json",
+            "docs/reports/system-test-log.txt",
+            "docs/reports/system-validation-report.md",
+            "docs/reports/system-validation-report.xml",
+            "docs/reports/unit-test-log.txt",
+            "docs/reports/unit-test-report.md",
+            "docs/reports/unit-test-report.xml",
+            "docs/requirements.json",
+            "docs/source-reference/FOR-EVALUATORS-TheCheckList.pdf",
+            "docs/source-reference/FOR-STUDENTS-FAQs_MiniProjectDemo.pdf",
+            "docs/source-reference/JACKFRUIT -SE MINI-PROJECT GUIDELINES 2026.docx",
+            "docs/source-reference/SE_Mini_Project_Delivereables_Part-1.pdf",
+            "docs/source-reference/SE_Mini_Project_Delivereables_Part-2.pdf",
+            "docs/source-reference/SE_Mini_Project_Delivereables_Part-3.docx",
+            "docs/source-reference/Templates/Templates/SAD_Template.docx",
+            "docs/source-reference/Templates/Templates/SRS_Template for SE.docx",
+            "docs/source-reference/Templates/Templates/Test_Plan_Template for SE.docx",
+            "docs/sprint-1.md",
+            "docs/test-cases.csv",
+            "docs/traceability.csv",
+            "docs/verification.md",
+            "docs/videos/README.md",
+            "docs/videos/Sprint1_demo.webm",
+            "docs/videos/Sprint2_demo.webm",
+            "docs/viva/Arya_Viva_Guide.pdf",
+            "docs/viva/Sahana_Viva_Guide.pdf",
+            "docs/viva/Sathik_Viva_Guide.pdf",
+            "scripts/build_documents.py",
+            "scripts/export_cases.py",
+            "scripts/setup_project.py",
+            "scripts/sync_github.py"
+          ]
+        }
+      ]
+    },
+    "Arya": {
+      "github_login": "arya7sai",
+      "pull_requests": [
+        {
+          "number": 3,
+          "title": "Add CSV, performance and security test coverage",
+          "author_login": "arya7sai",
+          "url": "https://github.com/gsathvik73-afk/se-project/pull/3",
+          "merged_at": "2026-10-26T03:18:49Z",
+          "merge_commit": "0a857c97784aa75a89042918ba3788cc861100a4",
+          "commits": [
+            {
+              "sha": "0dc89d7f2db913e5db79fc2cbb9c8ef1cc14723b",
+              "author": "arya7sai",
+              "subject": "Add detailed test cases for CSV export, NFR and security",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/0dc89d7f2db913e5db79fc2cbb9c8ef1cc14723b"
+            },
+            {
+              "sha": "ae19df42269f583c99154bf838b4e251935d0bad",
+              "author": "arya7sai",
+              "subject": "Add automated tests for CSV export, NFR and security",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/ae19df42269f583c99154bf838b4e251935d0bad"
+            }
+          ],
+          "changed_files": [
+            "docs/Detailed Test Cases CSV Export, Non-Functional and Security (Team 14).docx",
+            "tests/support.py",
+            "tests/test_csv_export.py",
+            "tests/test_nonfunctional.py",
+            "tests/test_security.py"
+          ]
+        }
+      ]
+    },
+    "Sahana": {
+      "github_login": "SahanaShivakumarBadiger",
+      "pull_requests": [
+        {
+          "number": 4,
+          "title": "Add transaction creation, editing and filters",
+          "author_login": "SahanaShivakumarBadiger",
+          "url": "https://github.com/gsathvik73-afk/se-project/pull/4",
+          "merged_at": "2026-10-29T18:22:23Z",
+          "merge_commit": "a569aa5216cac7b0ebfbbf80011fe789fc05346f",
+          "commits": [
+            {
+              "sha": "b9f660014a4b1f3330f2b7b13d7835391be02f53",
+              "author": "sahana2704",
+              "subject": "Implement transaction management",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/b9f660014a4b1f3330f2b7b13d7835391be02f53"
+            },
+            {
+              "sha": "a10a986456db2a89d1c82f7d96cc3235f986e135",
+              "author": "sahana2704",
+              "subject": "Limit transaction list to 50 records",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/a10a986456db2a89d1c82f7d96cc3235f986e135"
+            },
+            {
+              "sha": "b7a416ae09e4ebdbb70fc0b37dbb8e67f7074f83",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "Merge remote-tracking branch 'origin/main' into review/pr-4",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/b7a416ae09e4ebdbb70fc0b37dbb8e67f7074f83"
+            },
+            {
+              "sha": "b0fcdcd74491aceca755d1a846b844362c4c144e",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "SEB-8 SEB-11 Fix transaction validation, API routes and pagination",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/b0fcdcd74491aceca755d1a846b844362c4c144e"
+            },
+            {
+              "sha": "893c9da575f541c61a8927271a26f5e14e831b1e",
+              "author": "Sai Sathvik Gullipalli",
+              "subject": "SEB-6\u201311 Verify transaction CRUD, filters and ownership",
+              "url": "https://github.com/gsathvik73-afk/se-project/commit/893c9da575f541c61a8927271a26f5e14e831b1e"
+            }
+          ],
+          "changed_files": [
+            "smartexpense/routes.py",
+            "smartexpense/templates/transaction_form.html",
+            "smartexpense/templates/transactions.html",
+            "tests/test_security.py",
+            "tests/test_transactions.py"
+          ]
+        }
+      ]
+    }
+  },
+  "original_pr_archive_branches": {
+    "evidence/arya-original-pr3": {
+      "head": "ae19df42269f583c99154bf838b4e251935d0bad",
+      "source_pr": 3
+    },
+    "evidence/sahana-original-pr4": {
+      "head": "893c9da575f541c61a8927271a26f5e14e831b1e",
+      "source_pr": 4
+    }
+  }
+}

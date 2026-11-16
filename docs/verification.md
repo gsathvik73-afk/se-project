@@ -26,4 +26,9 @@ Isolated headless Chromium used synthetic accounts and actual HTML form submissi
 
 ## Open acceptance
 
-Two deployment tests skip because no SEB_DEPLOYED_URL was configured. No public HTTPS certificate, redirect or TLS acceptance is claimed. Five-first-time-user observation and the full latest-browser matrix remain open. See issues 25-27 and evaluation-checklist.md. No human review, manual test or instructor sign-off is inferred from passing automation.
+Two deployment tests skip because no SEB_DEPLOYED_URL was configured. No public HTTPS certificate, redirect or TLS acceptance is claimed. The complete stable Chrome/Edge/Firefox matrix now passed 90 desktop/360px checkpoints; see reports/browser-acceptance and closed issue 26. Five-first-time-user observation and public HTTPS remain open as issues 25 and 27; see evaluation-checklist.md. No human review, manual test or instructor sign-off is inferred from passing automation.
+
+
+## Stable browser follow-up
+
+The separate Selenium matrix passed 15 full-flow checkpoints at each of 1280px and 360px for stable Chrome, Edge and Firefox: 90 total checkpoints. Versions, source checkout, screenshots and per-check outcomes are recorded under reports/browser-acceptance. This is automated browser acceptance, not five human participants. Milestone snapshots are in milestones.json; stale GitHub counters were corrected and deadlines restored.
