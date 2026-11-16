@@ -4,7 +4,9 @@ November 2026 recovery of SmartExpense. Command: `python scripts/quality.py` wit
 
 The latest measured source has 543 executable statements, of which 515 ran: **94.84% statement coverage**. Of 172 branch exits, 154 ran: **89.53% branch coverage**. Combined measurement: **93.57%**. No source lines were excluded from coverage. Missing lines and exits remain in coverage JSON/XML and the HTML report.
 
-The test run preceded only a narrowly targeted Bandit false-positive annotation on the existing password-guidance line and evidence-serialization improvements; application behavior was unchanged. The summary records the tested base revision and dirty-tree status. Fresh CI artifacts identify the exact pushed revision and should be used for final evaluation.
+The committed machine-readable reports were downloaded from successful GitHub Actions run 43746662372, tested head 3620b070e4b984d480fb0193866deaccda38186e. Both quality and container package jobs passed. The summary records that exact tested base revision; the dirty-tree flag includes generated report files. Later documentation-only commits do not alter application behavior. Fresh final-PR artifacts provide the same checks for the complete submitted tree.
+
+CI evidence: https://github.com/gsathvik73-afk/se-project/actions/runs/43746662372
 
 ## Functional and boundary evidence
 
