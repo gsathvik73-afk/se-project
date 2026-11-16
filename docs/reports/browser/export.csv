@@ -1,0 +1,3 @@
+date,type,category,amount,payment_mode,source,note
+2026-10-08,expense,Food,300.00,UPI,,Lunch
+2026-10-08,income,,10000.00,,Scholarship,Demo record

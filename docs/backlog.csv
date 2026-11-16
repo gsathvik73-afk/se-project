@@ -1,0 +1,190 @@
+title,body,assignee,milestone,story_points
+SEB-F-001 Registration,"As an account owner, I need registration so I can manage my personal finances safely.
+
+Acceptance: One account is created; duplicate email is rejected.
+Test: TC-AUTH-01
+Story points: 3
+Assigned sprint: Sprint 1
+Evidence: docs/reports/system-validation-report.xml",gsathvik73-afk,Sprint 1,3
+SEB-F-002 Login,"As an account owner, I need login so I can manage my personal finances safely.
+
+Acceptance: Correct login opens Dashboard; wrong login shows an error.
+Test: TC-AUTH-02
+Story points: 3
+Assigned sprint: Sprint 1
+Evidence: docs/reports/system-validation-report.xml",gsathvik73-afk,Sprint 1,3
+SEB-F-003 Logout and protected pages,"As an account owner, I need logout and protected pages so I can manage my personal finances safely.
+
+Acceptance: Login is required; the old session cannot access protected data.
+Test: TC-AUTH-03
+Story points: 2
+Assigned sprint: Sprint 1
+Evidence: docs/reports/system-validation-report.xml",gsathvik73-afk,Sprint 1,2
+SEB-F-004 User data isolation,"As an account owner, I need user data isolation so I can manage my personal finances safely.
+
+Acceptance: Only A's data appears. B's record returns 403 or 404.
+Test: TC-AUTH-04
+Story points: 3
+Assigned sprint: Sprint 1
+Evidence: docs/reports/system-validation-report.xml",gsathvik73-afk,Sprint 1,3
+SEB-F-005 Add expense,"As an account owner, I need add expense so I can manage my personal finances safely.
+
+Acceptance: Values persist; one INR 250 addition to the INR 1800 baseline gives INR 2050 expense.
+Test: TC-EXP-01
+Story points: 3
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",SahanaShivakumarBadiger,Sprint 2,3
+SEB-F-006 Add income,"As an account owner, I need add income so I can manage my personal finances safely.
+
+Acceptance: Income is INR 12000; balance is INR 10200.
+Test: TC-EXP-02
+Story points: 2
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",SahanaShivakumarBadiger,Sprint 2,2
+SEB-F-007 Amount and date validation,"As an account owner, I need amount and date validation so I can manage my personal finances safely.
+
+Acceptance: Invalid input gets a field error and is not saved; valid input saves.
+Test: TC-EXP-03
+Story points: 5
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",SahanaShivakumarBadiger,Sprint 2,5
+SEB-F-008 Edit transaction,"As an account owner, I need edit transaction so I can manage my personal finances safely.
+
+Acceptance: Edits persist and totals update; expense edit gives INR 1900.
+Test: TC-EXP-04
+Story points: 3
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",SahanaShivakumarBadiger,Sprint 2,3
+SEB-F-009 Delete confirmation,"As an account owner, I need delete confirmation so I can manage my personal finances safely.
+
+Acceptance: Cancel keeps it. Confirm removes it; expense becomes INR 1500.
+Test: TC-EXP-05
+Story points: 2
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",SahanaShivakumarBadiger,Sprint 2,2
+SEB-F-010 Filter and sort transactions,"As an account owner, I need filter and sort transactions so I can manage my personal finances safely.
+
+Acceptance: Rows and filtered total match; sorting is correct; empty total is zero.
+Test: TC-EXP-06
+Story points: 5
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",SahanaShivakumarBadiger,Sprint 2,5
+SEB-F-011 Default and custom categories,"As an account owner, I need default and custom categories so I can manage my personal finances safely.
+
+Acceptance: Defaults and new category are selectable; rename persists.
+Test: TC-CAT-01
+Story points: 3
+Assigned sprint: Sprint 1
+Evidence: docs/reports/system-validation-report.xml",gsathvik73-afk,Sprint 1,3
+SEB-F-012 Monthly and category budgets,"As an account owner, I need monthly and category budgets so I can manage my personal finances safely.
+
+Acceptance: Both budgets persist for the selected month.
+Test: TC-BUD-01
+Story points: 3
+Assigned sprint: Sprint 1
+Evidence: docs/reports/system-validation-report.xml",gsathvik73-afk,Sprint 1,3
+SEB-F-013 Budget usage figures,"As an account owner, I need budget usage figures so I can manage my personal finances safely.
+
+Acceptance: Monthly: 1800 spent, 3200 left, 36%. Food: 500, 500, 50%; within INR 1.
+Test: TC-BUD-02
+Story points: 3
+Assigned sprint: Sprint 1
+Evidence: docs/reports/system-validation-report.xml",gsathvik73-afk,Sprint 1,3
+SEB-F-014 Budget threshold alerts,"As an account owner, I need budget threshold alerts so I can manage my personal finances safely.
+
+Acceptance: Warning starts at 80%; distinct alert above 100%; entry stays allowed.
+Test: TC-BUD-03
+Story points: 2
+Assigned sprint: Sprint 1
+Evidence: docs/reports/system-validation-report.xml",gsathvik73-afk,Sprint 1,2
+SEB-F-015 Monthly dashboard totals,"As an account owner, I need monthly dashboard totals so I can manage my personal finances safely.
+
+Acceptance: Income 10000, expense 1800, balance 8200; empty month has zero totals.
+Test: TC-DSH-01
+Story points: 3
+Assigned sprint: Sprint 1
+Evidence: docs/reports/system-validation-report.xml",gsathvik73-afk,Sprint 1,3
+SEB-F-016 Category and six month charts,"As an account owner, I need category and six month charts so I can manage my personal finances safely.
+
+Acceptance: Food 500, Travel 300, Rent 1000; trend matches records; empty months are zero.
+Test: TC-DSH-02
+Story points: 5
+Assigned sprint: Sprint 1
+Evidence: docs/reports/system-validation-report.xml",gsathvik73-afk,Sprint 1,5
+SEB-F-017 Filtered CSV export,"As an account owner, I need filtered csv export so I can manage my personal finances safely.
+
+Acceptance: CSV includes every matching owned record across all pages, in the chosen sort order.
+Test: TC-RPT-01
+Story points: 5
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",arya7sai,Sprint 2,5
+SEB-NF-001 Page load with 5000 transactions,"As an account owner, I need page load with 5000 transactions so I can manage my personal finances safely.
+
+Acceptance: At least 90 of 100 loads per page complete within 3 seconds.
+Test: TC-PERF-01
+Story points: 5
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",arya7sai,Sprint 2,5
+SEB-NF-002 20 concurrent logged in users,"As an account owner, I need 20 concurrent logged in users so I can manage my personal finances safely.
+
+Acceptance: All actions work; no server 5xx errors or mixed user data.
+Test: TC-PERF-02
+Story points: 5
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",arya7sai,Sprint 2,5
+SEB-NF-003 Durability and rollback,"As an account owner, I need durability and rollback so I can manage my personal finances safely.
+
+Acceptance: Saved data survives; failed save leaves no partial record and allows retry.
+Test: TC-REL-01
+Story points: 3
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",arya7sai,Sprint 2,3
+SEB-NF-004 Three click entry and errors,"As an account owner, I need three click entry and errors so I can manage my personal finances safely.
+
+Acceptance: Each finishes within 3 clicks; errors explain how to correct the input.
+Test: TC-UX-01
+Story points: 3
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",arya7sai,Sprint 2,3
+SEB-NF-005 Browser and mobile compatibility,"As an account owner, I need browser and mobile compatibility so I can manage my personal finances safely.
+
+Acceptance: Screens and actions work; text and controls are not clipped.
+Test: TC-PORT-01
+Story points: 5
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",arya7sai,Sprint 2,5
+SEB-SR-001 HTTPS and TLS,"As an account owner, I need https and tls so I can manage my personal finances safely.
+
+Acceptance: HTTP redirects to valid HTTPS with TLS 1.2 or later; cookie is HttpOnly and Secure.
+Test: TC-SEC-01
+Story points: 5
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",arya7sai,Sprint 2,5
+SEB-SR-002 Salted password hashes,"As an account owner, I need salted password hashes so I can manage my personal finances safely.
+
+Acceptance: Salted bcrypt or PBKDF2 hashes differ; no plain or reversible passwords are stored or logged.
+Test: TC-SEC-02
+Story points: 3
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",arya7sai,Sprint 2,3
+SEB-SR-003 Owner authorisation,"As an account owner, I need owner authorisation so I can manage my personal finances safely.
+
+Acceptance: 403 or 404 is returned; B's data is unchanged.
+Test: TC-SEC-03
+Story points: 5
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",arya7sai,Sprint 2,5
+SEB-SR-004 SQL injection and stored XSS,"As an account owner, I need sql injection and stored xss so I can manage my personal finances safely.
+
+Acceptance: No login bypass or query manipulation; script renders as text. Queries use parameters or an ORM.
+Test: TC-SEC-04
+Story points: 5
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",arya7sai,Sprint 2,5
+SEB-SR-005 Password length and login lockout,"As an account owner, I need password length and login lockout so I can manage my personal finances safely.
+
+Acceptance: 7 is rejected, 8 accepted. After five failures, login is blocked for 5 minutes, then correct login works.
+Test: TC-SEC-05
+Story points: 3
+Assigned sprint: Sprint 2
+Evidence: docs/reports/system-validation-report.xml",arya7sai,Sprint 2,3

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg
+  PUBLIC '-//W3C//DTD SVG 1.0//EN'
+  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+<svg width="500" height="250" preserveAspectRatio="xMinYMin meet" viewBox="0 0 500 250" xmlns="http://www.w3.org/2000/svg" version="1.0" fill-rule="evenodd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>...</title>
+	<desc>...</desc>
+	<clipPath id="clip">
+		<rect x="0" y="0" width="500" height="250"/>
+	</clipPath>
+	<g id="group" transform="scale(1,-1) translate(0,-250)" style="clip-path: url(#clip)">
+		<g transform="">
+			<rect x="2" y="216" width="86" height="26" style="stroke: rgb(28%,41%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,94%,96%); fill-rule: evenodd;"/>
+			<text x="29.754" y="226" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,452) scale(1,-1)">Browser</text>
+			<path d="M 45,16 L 45,216 Z" style="stroke: rgb(65%,70%,76%); stroke-linecap: butt; stroke-width: 1; stroke-dasharray: 3, 3;"/>
+			<rect x="127" y="216" width="86" height="26" style="stroke: rgb(28%,41%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,94%,96%); fill-rule: evenodd;"/>
+			<text x="149.876" y="226" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,452) scale(1,-1)">Flask route</text>
+			<path d="M 170,16 L 170,216 Z" style="stroke: rgb(65%,70%,76%); stroke-linecap: butt; stroke-width: 1; stroke-dasharray: 3, 3;"/>
+			<rect x="277" y="216" width="86" height="26" style="stroke: rgb(28%,41%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,94%,96%); fill-rule: evenodd;"/>
+			<text x="287.0015" y="226" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,452) scale(1,-1)">Auth or validation</text>
+			<path d="M 320,16 L 320,216 Z" style="stroke: rgb(65%,70%,76%); stroke-linecap: butt; stroke-width: 1; stroke-dasharray: 3, 3;"/>
+			<rect x="412" y="216" width="86" height="26" style="stroke: rgb(28%,41%,52%); stroke-linecap: butt; stroke-width: 1; fill: rgb(92%,94%,96%); fill-rule: evenodd;"/>
+			<text x="441.9995" y="226" style="font-family: Times-Roman; font-size: 9px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,452) scale(1,-1)">SQLite</text>
+			<path d="M 455,16 L 455,216 Z" style="stroke: rgb(65%,70%,76%); stroke-linecap: butt; stroke-width: 1; stroke-dasharray: 3, 3;"/>
+			<path d="M 45,198 L 170,198 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="170 198, 164 201, 164 195" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<text x="60.592" y="203.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,406) scale(1,-1)">POST expense and CSRF</text>
+			<path d="M 170,175 L 320,175 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="320 175, 314 178, 314 172" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<text x="199.424" y="180.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,360) scale(1,-1)">Session and owner check</text>
+			<path d="M 320,152 L 170,152 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="170 152, 176 149, 176 155" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<text x="199.416" y="157.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,314) scale(1,-1)">Validate amount and date</text>
+			<path d="M 170,129 L 455,129 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="455 129, 449 132, 449 126" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<text x="271.604" y="134.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,268) scale(1,-1)">INSERT then COMMIT</text>
+			<path d="M 170,106 L 45,106 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="45 106, 51 103, 51 109" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<text x="68.368" y="111.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,222) scale(1,-1)">201 saved transaction</text>
+			<path d="M 45,83 L 170,83 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="170 83, 164 86, 164 80" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<text x="79.264" y="88.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,176) scale(1,-1)">GET dashboard</text>
+			<path d="M 170,60 L 455,60 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="455 60, 449 63, 449 57" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<text x="267.592" y="65.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,130) scale(1,-1)">Aggregate owner records</text>
+			<path d="M 170,37 L 45,37 Z" style="stroke: rgb(18%,28%,38%); stroke-linecap: butt; stroke-width: 1;"/>
+			<polygon points="45 37, 51 34, 51 40" style="stroke: none; stroke-linecap: butt; stroke-width: 1; fill: rgb(18%,28%,38%); fill-rule: evenodd;"/>
+			<text x="71.47999999999999" y="42.0" style="font-family: Helvetica; font-size: 8px;fill: rgb(0%,0%,0%); stroke:none;" transform="translate(0,84) scale(1,-1)">200 totals and alerts</text>
+		</g>
+	</g>
+</svg>

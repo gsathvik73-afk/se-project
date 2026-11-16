@@ -1,41 +1,46 @@
-# SmartExpense — Team 14
+# SmartExpense - Team 14
 
-A small Flask app for personal expenses, income, categories, monthly/category budgets, dashboard charts and filtered CSV exports. Uses Python 3.11+ and SQLite locally.
+Personal INR expense and income tracking with private categories, monthly/category budgets, dashboard charts and complete filtered CSV exports. Current team: **Sathik, Arya and Sahana**. Flask, SQLite, Jinja and local Canvas charts; no bank connection.
 
-Project requirements: [SRS (Word)](docs/SRS_Team14_SmartExpense.docx) · [SRS (PDF)](docs/SRS_Team14_SmartExpense.pdf).
-
-## Start locally
+## Run
 
 ```sh
 ./run.sh
 ```
 
-Open [SmartExpense](http://127.0.0.1:5050), register, then log in. The launcher creates the virtual environment if needed, installs the pinned dependencies, prepares the database, and keeps a private local secret in ignored `instance/`. Existing accounts and data are preserved. Stop with Ctrl+C; rerun the same command to restart. Set `PORT=5051 ./run.sh` if port 5050 is in use.
+Open http://127.0.0.1:5050, register a synthetic account and log in. Python 3.11+ is required. The launcher creates `.venv`, installs exact dependencies, initializes missing tables and stores a private local secret under ignored `instance/`. Existing accounts and data survive restart. Use `PORT=5051 ./run.sh` for another port.
 
-From Dashboard, choose **Add Expense**. Transactions supports expenses/income, editing, a separate delete confirmation, date/category/amount filters, sorting and 50-row pages. **Export filtered CSV** downloads every matching owned record across all pages. Dashboard totals and budget alerts recalculate from saved transactions. Warnings begin at 80%; spending above 100% never blocks new entries.
+The dashboard's **Add Expense** action opens transaction entry. Save expenses/income, edit records, cancel or confirm deletion, filter/sort records, and export all matching rows across every page. Budget warnings start at 80%; strictly above 100% shows an over-budget alert and still permits entry. All private queries and mutations use the authenticated owner.
 
-## Verify
+## Verify and inspect evidence
 
 ```sh
-.venv/bin/python -m pytest -q
+.venv/bin/python -m pip install -r requirements-dev.txt
+.venv/bin/python scripts/quality.py
 ```
 
-Tests cover the integrated functional flows, 5,000-record page performance, 20 concurrent users, persistence/rollback, and local security. The two deployed TLS tests require `SEB_DEPLOYED_URL`. Five first-time users and the full Chrome/Firefox/Edge matrix still need manual acceptance; see [verification](docs/verification.md).
+The last full local run passed **297 tests, with 2 deployed-HTTPS skips**. It includes **37 isolated unit tests** and **136 functional scenarios**, eight per functional requirement. Statement coverage: **94.84%**; branch coverage: **89.53%**; combined: **93.57%**. These have different denominators. See [verification](docs/verification.md), [all four required reports](docs/reports/README.md) and [machine-readable summary](docs/reports/summary.json). Actions regenerates fresh reports and builds a deployable container for the pushed revision.
 
-## Sprint 1 and contributions
+## Submission documents
 
-[GitHub issues](https://github.com/gsathvik73-afk/se-project/issues?q=is%3Aissue) track all 27 SRS requirements; [Sprint 1](docs/sprint-1.md) links the remaining acceptance checks. Original [Jira Epic SEB-1](https://sathvikgullipalli.atlassian.net/browse/SEB-1) references remain in the traceability files.
+- [SRS](docs/SRS.pdf), [SAD](docs/SAD.pdf), [Test Plan](docs/Test_Plan.pdf).
+- [Project plan with WBS, effort and schedule](docs/Team14_Project_Plan.pdf), [combined project report and synopsis](docs/Project_Report.pdf).
+- [Requirements and owners](docs/requirements.json), [traceability](docs/traceability.csv), [136 executed case records](docs/test-cases.csv), [API contract](docs/api-contract.md).
+- [One-minute and two-minute retrospective videos](docs/videos/README.md), [demo rehearsal](docs/demo-rehearsal.md), [design changes](docs/deviations.md), [maintenance](docs/maintenance.md), [LLM use](docs/ai-use.md).
+- **Twelve-page viva guides:** [Sathik](docs/viva/Sathik_Viva_Guide.pdf), [Arya](docs/viva/Arya_Viva_Guide.pdf), [Sahana](docs/viva/Sahana_Viva_Guide.pdf).
 
-- Sathvik: account/session, category, budget and dashboard foundation; integration fixes.
-- Sahana: transaction management, [PR #4](https://github.com/gsathvik73-afk/se-project/pull/4).
-- Arya: detailed acceptance cases and automated CSV/nonfunctional/security tests, [PR #3](https://github.com/gsathvik73-afk/se-project/pull/3).
+## GitHub and contributions
 
-Original contributor commits remain intact. New integration work is split into focused commits for transaction review, tests, CSV, lockout, concurrency, UI/errors, startup and handoff.
+[GitHub backlog](https://github.com/gsathvik73-afk/se-project/issues) has all 27 requirement issues assigned to the three verified collaborators, with story-point labels and Sprint 1/2 milestones. [Contribution responsibilities and genuine PR evidence](docs/contributions.md) distinguish current ownership from actual authorship. Original member commits and PRs are preserved. November recovery work is AI-assisted under the repository-owner account, with real dates and focused commits.
 
-[API contract](docs/api-contract.md) · [Requirement traceability](docs/traceability.csv) · [GitHub requirement mapping](docs/github-issues.json)
+Sathik owns accounts, budgets and dashboard responsibility; Sahana owns the transaction lifecycle; Arya owns reporting/export and quality/security responsibility. New member changes and reviews must be made from their own accounts. No Jira work is needed for this handoff.
 
-## Configuration
+## Acceptance still required
 
-`SECRET_KEY` overrides the local key. `DATABASE_URL` overrides SQLite (install another database's driver separately). Run `.venv/bin/python -m flask --app smartexpense init-db` with the same environment after updating an existing installation; it creates the login guard table without replacing data. The launcher does this automatically.
+The [evaluation checklist](docs/evaluation-checklist.md) maps every teacher criterion to evidence and remaining work. Five first-time users, a complete current Chrome/Firefox/Edge matrix and valid public HTTPS still need their required evidence. Issues #25-27 stay open. The GitHub token lacks Projects scope; [board setup](docs/github-project-status.md) is prepared, and the issue backlog already works. Genuine member PR/review actions cannot be replaced by generated authorship. New videos are explicitly retrospective, not claimed as October recordings.
 
-Keep `instance/`, `.env` and credentials out of Git. For a future HTTPS host, supply a strong `SECRET_KEY`, persistent database storage and `COOKIE_SECURE=1`, then use Gunicorn behind TLS. Public deployment is deferred; local HTTP does not establish the deployed HTTPS requirement.
+## Configuration and deployment
+
+`SECRET_KEY` supplies the application key; `DATABASE_URL` overrides local SQLite; `COOKIE_SECURE=1` enables Secure cookies on HTTPS. `init-db` adds missing tables/defaults and preserves records; schema-column changes need reviewed migrations. CI uploads a non-root Docker/Gunicorn package. A public host still needs persistent storage, a valid certificate, HTTP redirect and TLS 1.2+. See the maintenance plan.
+
+Never commit `instance/`, databases, `.env` files, credentials or personal financial data. Run tests against temporary synthetic databases. This repository is a release candidate with explicit acceptance gaps, not a claim that unobserved manual checks passed.
