@@ -61,6 +61,9 @@ def main():
                         for _ in range(2):
                             delta=driver.execute_script('return window.outerWidth-window.innerWidth')
                             driver.set_window_size(width+delta,1000)
+                    # Mobile about:blank has a 980px layout viewport until an
+                    # application page supplies its responsive viewport meta tag.
+                    driver.get(base+'/login')
                     actual=driver.execute_script('return window.innerWidth')
                     assert actual==width,f'Viewport requested {width}; actual {actual}'
                     def field(selector,value):
