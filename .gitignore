@@ -13,3 +13,5 @@ coverage-html/
 *.webm
 *.log
 .ruff_cache/
+# Disposable browser binaries and browser-tool caches belong outside Git.
+.browser-cache/
